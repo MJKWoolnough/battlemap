@@ -225,7 +225,7 @@
 			</defs>
 			<path d="M60,15 V0.5 H0.5 V59.5 H89.5 V15 Z" fill="url(#bricks)" stroke="#000" stroke-width="2" />
 		</symbol>
-		<clipPath id="panelClip">
+		<clipPath id="clipMask">
 			<rect width="1280.5" height="100%" />
 		</clipPath>
 		<symbol id="popout" viewBox="0 0 15 15">
@@ -269,97 +269,97 @@
 		</g>
 		<path id="arrow" d="M0,0 l7,4 l-7,4 z" fill="#000" />
 	</defs>
-	<!-- Map -->
-	<g>
-		<rect width="100%" height="100%" fill="#0a0" />
-		<rect x="60" y="40" width="395" height="395" fill="#ff0" />
-		<polyline points="455,300 455,435 270,435" stroke-width="20" stroke="brown" fill="none" />
-		<polyline points="245,435 60,435 60,40 245,40" stroke-width="20" stroke="brown" fill="none" />
-		<polyline points="270,40 455,40 455,193" stroke-width="20" stroke="brown" fill="none" />
-		<circle cx="775" cy="575" r="50" fill="#ff0" />
-		<circle cx="925" cy="725" r="70" fill="#080" />
-		<circle cx="475" cy="725" r="150" fill="#080" />
-		<rect width="100%" height="100%" fill="url(#grid)" />
-		<use href="#lighting" style="mix-blend-mode: multiply" filter="url(#lightfilter)" />
-	</g>
-	<!-- Image Window -->
-	<g visibility="hidden">
-		<rect id="imageClose" width="10" height="10" fill="red" />
-		<set attributeName="visibility" to="hidden" begin="imageClose.click" />
-		<set attributeName="visibility" to="visible" begin="imagePopout.click" />
-	</g>
-	<!-- Audio Window -->
-	<g visibility="hidden">
-		<rect id="audioClose" width="10" height="10" fill="red" />
-		<set attributeName="visibility" to="hidden" begin="audioClose.click" />
-		<set attributeName="visibility" to="visible" begin="audioPopout.click" />
-	</g>
-	<!-- Character Window -->
-	<g visibility="hidden">
-		<rect id="charactersClose" width="10" height="10" fill="red" />
-		<set attributeName="visibility" to="hidden" begin="charactersClose.click" />
-		<set attributeName="visibility" to="visible" begin="charactersPopout.click" />
-	</g>
-	<!-- Music Window -->
-	<g visibility="hidden">
-		<rect id="musicClose" width="10" height="10" fill="red" />
-		<set attributeName="visibility" to="hidden" begin="musicClose.click" />
-		<set attributeName="visibility" to="visible" begin="musicPopout.click" />
-	</g>
-	<!-- Map Window -->
-	<g visibility="hidden">
-		<rect id="mapsClose" width="10" height="10" fill="red" />
-		<set attributeName="visibility" to="hidden" begin="mapsClose.click" />
-		<set attributeName="visibility" to="visible" begin="mapsPopout.click" />
-	</g>
-	<!-- Layer Window -->
-	<g visibility="hidden">
-		<rect id="layersClose" width="10" height="10" fill="red" />
-		<set attributeName="visibility" to="hidden" begin="layersClose.click" />
-		<set attributeName="visibility" to="visible" begin="layersPopout.click" />
-	</g>
-	<!-- Tool Window -->
-	<g>
-		<rect width="46" height="360" fill="#fff" stroke="#000" stroke-width="2" />
-		<rect width="46" height="22" fill="#aaa">
-			<title>Tools</title>
-		</rect>
-		<use href="#tools" width="20" height="20" style="pointer-events: none" />
-		<use id="toolsClose" href="#closeButton" x="23" />
+	<g clip-path="url(#clipMask)">
+		<!-- Map -->
+		<g>
+			<rect width="100%" height="100%" fill="#0a0" />
+			<rect x="60" y="40" width="395" height="395" fill="#ff0" />
+			<polyline points="455,300 455,435 270,435" stroke-width="20" stroke="brown" fill="none" />
+			<polyline points="245,435 60,435 60,40 245,40" stroke-width="20" stroke="brown" fill="none" />
+			<polyline points="270,40 455,40 455,193" stroke-width="20" stroke="brown" fill="none" />
+			<circle cx="775" cy="575" r="50" fill="#ff0" />
+			<circle cx="925" cy="725" r="70" fill="#080" />
+			<circle cx="475" cy="725" r="150" fill="#080" />
+			<rect width="100%" height="100%" fill="url(#grid)" />
+			<use href="#lighting" style="mix-blend-mode: multiply" filter="url(#lightfilter)" />
+		</g>
+		<!-- Image Window -->
+		<g visibility="hidden">
+			<rect id="imageClose" width="10" height="10" fill="red" />
+			<set attributeName="visibility" to="hidden" begin="imageClose.click" />
+			<set attributeName="visibility" to="visible" begin="imagePopout.click" />
+		</g>
+		<!-- Audio Window -->
+		<g visibility="hidden">
+			<rect id="audioClose" width="10" height="10" fill="red" />
+			<set attributeName="visibility" to="hidden" begin="audioClose.click" />
+			<set attributeName="visibility" to="visible" begin="audioPopout.click" />
+		</g>
+		<!-- Character Window -->
+		<g visibility="hidden">
+			<rect id="charactersClose" width="10" height="10" fill="red" />
+			<set attributeName="visibility" to="hidden" begin="charactersClose.click" />
+			<set attributeName="visibility" to="visible" begin="charactersPopout.click" />
+		</g>
+		<!-- Music Window -->
+		<g visibility="hidden">
+			<rect id="musicClose" width="10" height="10" fill="red" />
+			<set attributeName="visibility" to="hidden" begin="musicClose.click" />
+			<set attributeName="visibility" to="visible" begin="musicPopout.click" />
+		</g>
+		<!-- Map Window -->
+		<g visibility="hidden">
+			<rect id="mapsClose" width="10" height="10" fill="red" />
+			<set attributeName="visibility" to="hidden" begin="mapsClose.click" />
+			<set attributeName="visibility" to="visible" begin="mapsPopout.click" />
+		</g>
+		<!-- Layer Window -->
+		<g visibility="hidden">
+			<rect id="layersClose" width="10" height="10" fill="red" />
+			<set attributeName="visibility" to="hidden" begin="layersClose.click" />
+			<set attributeName="visibility" to="visible" begin="layersPopout.click" />
+		</g>
+		<!-- Tool Window -->
+		<g>
+			<rect width="46" height="360" fill="#fff" stroke="#000" stroke-width="2" />
+			<rect width="46" height="22" fill="#aaa">
+				<title>Tools</title>
+			</rect>
+			<use href="#tools" width="20" height="20" style="pointer-events: none" />
+			<use id="toolsClose" href="#closeButton" x="23" />
 
-		<rect width="44" height="48" x="1" y="22" fill="#888" style="cursor: pointer">
-			<title>Default</title>
-		</rect>
-		<use href="#tool_default" width="32" height="32" x="6.4" y="28.4" style="pointer-events: none" />
-		<rect width="44" height="48" x="1" y="70" fill="#fff" style="cursor: pointer">
-			<title>Draw</title>
-		</rect>
-		<use href="#tool_draw" width="32" height="32" x="6.4" y="76.4" style="pointer-events: none" />
-		<rect width="44" height="48" x="1" y="118" fill="#fff" style="cursor: pointer">
-			<title>Mask</title>
-		</rect>
-		<use href="#tool_mask" width="32" height="32" x="6.4" y="124.4" style="pointer-events: none" />
-		<rect width="44" height="48" x="1" y="166" fill="#fff" style="cursor: pointer">
-			<title>Measure</title>
-		</rect>
-		<use href="#tool_measure" width="32" height="32" x="6.4" y="172.4" style="pointer-events: none" />
-		<rect width="44" height="48" x="1" y="214" fill="#fff" style="cursor: pointer">
-			<title>Move All</title>
-		</rect>
-		<use href="#tool_move" width="32" height="32" x="6.4" y="220.4" style="pointer-events: none" />
-		<rect width="44" height="48" x="1" y="262" fill="#fff" style="cursor: pointer">
-			<title>Multi-Place</title>
-		</rect>
-		<use href="#tool_multiplace" width="32" height="32" x="6.4" y="268.4" style="pointer-events: none" />
-		<rect width="44" height="48" x="1" y="310" fill="#fff" style="cursor: pointer">
-			<title>Wall Tool</title>
-		</rect>
-		<use href="#tool_wall" width="32" height="32" x="6.4" y="316.4" style="pointer-events: none" />
-		<set attributeName="visibility" to="hidden" begin="toolsClose.click" />
-		<set attributeName="visibility" to="visible" begin="toolsPopout.click" />
-	</g>
-	<!-- Panel -->
-	<g clip-path="url(#panelClip)">
+			<rect width="44" height="48" x="1" y="22" fill="#888" style="cursor: pointer">
+				<title>Default</title>
+			</rect>
+			<use href="#tool_default" width="32" height="32" x="6.4" y="28.4" style="pointer-events: none" />
+			<rect width="44" height="48" x="1" y="70" fill="#fff" style="cursor: pointer">
+				<title>Draw</title>
+			</rect>
+			<use href="#tool_draw" width="32" height="32" x="6.4" y="76.4" style="pointer-events: none" />
+			<rect width="44" height="48" x="1" y="118" fill="#fff" style="cursor: pointer">
+				<title>Mask</title>
+			</rect>
+			<use href="#tool_mask" width="32" height="32" x="6.4" y="124.4" style="pointer-events: none" />
+			<rect width="44" height="48" x="1" y="166" fill="#fff" style="cursor: pointer">
+				<title>Measure</title>
+			</rect>
+			<use href="#tool_measure" width="32" height="32" x="6.4" y="172.4" style="pointer-events: none" />
+			<rect width="44" height="48" x="1" y="214" fill="#fff" style="cursor: pointer">
+				<title>Move All</title>
+			</rect>
+			<use href="#tool_move" width="32" height="32" x="6.4" y="220.4" style="pointer-events: none" />
+			<rect width="44" height="48" x="1" y="262" fill="#fff" style="cursor: pointer">
+				<title>Multi-Place</title>
+			</rect>
+			<use href="#tool_multiplace" width="32" height="32" x="6.4" y="268.4" style="pointer-events: none" />
+			<rect width="44" height="48" x="1" y="310" fill="#fff" style="cursor: pointer">
+				<title>Wall Tool</title>
+			</rect>
+			<use href="#tool_wall" width="32" height="32" x="6.4" y="316.4" style="pointer-events: none" />
+			<set attributeName="visibility" to="hidden" begin="toolsClose.click" />
+			<set attributeName="visibility" to="visible" begin="toolsPopout.click" />
+		</g>
+		<!-- Panel -->
 		<g transform="translate(580, 0)">
 			<animateTransform id="closingPanel" begin="closePanel.click" dur="0.5s" fill="freeze" attributeType="XML" attributeName="transform" type="translate" from="0 0" to="580 0" />
 			<animateTransform id="openingPanel" begin="openPanel.click" dur="0.5s" fill="freeze" attributeType="XML" attributeName="transform" type="translate" from="580 0" to="0 0" />
