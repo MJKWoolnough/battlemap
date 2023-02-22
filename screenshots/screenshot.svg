@@ -1,0 +1,609 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 960">
+	<defs>
+		<style type="text/css">
+			#tab, #closePanel, #openPanel {
+				cursor: pointer;
+			}
+			#tab:hover {
+				fill: url(#tabBackHover);
+			}
+			.tab {
+				transform: translateX(69px);
+			}
+			.hiddenTab {
+				transform: translateX(0);
+			}
+			.hiddenTab > use {
+				visibility: hidden !important;
+			}
+		</style>
+		<radialGradient id="LG_5" r="450" cx="774" cy="555" gradientUnits="userSpaceOnUse">
+			<stop offset="0%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 1);rgba(85, 69, 55, 1);rgba(85, 67, 67, 1);rgba(85, 85, 85, 1)" />
+			</stop>
+			<stop offset="61.111111111111114%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 1);rgba(85, 69, 55, 1);rgba(85, 67, 67, 1);rgba(85, 85, 85, 1)" />
+			</stop>
+			<stop offset="66.66666666666667%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 0.8235294117647058);rgba(85, 69, 55, 0.8313725490196079);rgba(85, 67, 67, 0.8313725490196079);rgba(85, 85, 85, 0.8235294117647058)" />
+			</stop>
+			<stop offset="100%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 0.8235294117647058);rgba(85, 69, 55, 0.8313725490196079);rgba(85, 67, 67, 0.8313725490196079);rgba(85, 85, 85, 0.8235294117647058)" />
+			</stop>
+			<stop offset="100%" stop-opacity="0">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 0.8235294117647058);rgba(85, 69, 55, 0.8313725490196079);rgba(85, 67, 67, 0.8313725490196079);rgba(85, 85, 85, 0.8235294117647058)" />
+			</stop>
+		</radialGradient>
+		<radialGradient id="LG_6" r="450" cx="774" cy="555" gradientUnits="userSpaceOnUse">
+			<stop offset="0%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 1);rgba(85, 69, 55, 1);rgba(85, 67, 67, 1);rgba(85, 85, 85, 1)" />
+			</stop>
+			<stop offset="61.111111111111114%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 1);rgba(85, 69, 55, 1);rgba(85, 67, 67, 1);rgba(85, 85, 85, 1)" />
+			</stop>
+			<stop offset="66.66666666666667%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 0.8235294117647058);rgba(85, 69, 55, 0.8313725490196079);rgba(85, 67, 67, 0.8313725490196079);rgba(85, 85, 85, 0.8235294117647058)" />
+			</stop>
+			<stop offset="100%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 0.8235294117647058);rgba(85, 69, 55, 0.8313725490196079);rgba(85, 67, 67, 0.8313725490196079);rgba(85, 85, 85, 0.8235294117647058)" />
+			</stop>
+			<stop offset="100%" stop-opacity="0">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 0.8235294117647058);rgba(85, 69, 55, 0.8313725490196079);rgba(85, 67, 67, 0.8313725490196079);rgba(85, 85, 85, 0.8235294117647058)" />
+			</stop>
+		</radialGradient>
+		<radialGradient id="LG_7" r="550" cx="774" cy="555" gradientUnits="userSpaceOnUse">
+			<stop offset="0%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 1);rgba(85, 69, 55, 1);rgba(85, 67, 67, 1);rgba(85, 85, 85, 1)" />
+			</stop>
+			<stop offset="68.18181818181819%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 1);rgba(85, 69, 55, 1);rgba(85, 67, 67, 1);rgba(85, 85, 85, 1)" />
+			</stop>
+			<stop offset="72.72727272727273%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 0.8235294117647058);rgba(85, 69, 55, 0.8313725490196079);rgba(85, 67, 67, 0.8313725490196079);rgba(85, 85, 85, 0.8235294117647058)" />
+			</stop>
+			<stop offset="100%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 0.8235294117647058);rgba(85, 69, 55, 0.8313725490196079);rgba(85, 67, 67, 0.8313725490196079);rgba(85, 85, 85, 0.8235294117647058)" />
+			</stop>
+			<stop offset="100%" stop-opacity="0">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 0.8235294117647058);rgba(85, 69, 55, 0.8313725490196079);rgba(85, 67, 67, 0.8313725490196079);rgba(85, 85, 85, 0.8235294117647058)" />
+			</stop>
+		</radialGradient>
+		<radialGradient id="LG_8" r="550" cx="774" cy="555" gradientUnits="userSpaceOnUse">
+			<stop offset="0%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 1);rgba(85, 69, 55, 1);rgba(85, 67, 67, 1);rgba(85, 85, 85, 1)" />
+			</stop>
+			<stop offset="68.18181818181819%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 1);rgba(85, 69, 55, 1);rgba(85, 67, 67, 1);rgba(85, 85, 85, 1)" />
+			</stop>
+			<stop offset="72.72727272727273%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 0.8235294117647058);rgba(85, 69, 55, 0.8313725490196079);rgba(85, 67, 67, 0.8313725490196079);rgba(85, 85, 85, 0.8235294117647058)" />
+			</stop>
+			<stop offset="100%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 0.8235294117647058);rgba(85, 69, 55, 0.8313725490196079);rgba(85, 67, 67, 0.8313725490196079);rgba(85, 85, 85, 0.8235294117647058)" />
+			</stop>
+			<stop offset="100%" stop-opacity="0">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(85, 85, 85, 0.8235294117647058);rgba(85, 69, 55, 0.8313725490196079);rgba(85, 67, 67, 0.8313725490196079);rgba(85, 85, 85, 0.8235294117647058)" />
+			</stop>
+		</radialGradient>
+		<radialGradient id="LG_9" r="1000" cx="774" cy="555" gradientUnits="userSpaceOnUse">
+			<stop offset="0%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(255, 255, 255, 1);rgba(255, 167, 106, 1);rgba(255, 160, 160, 1);rgba(255, 255, 255, 1)" />
+			</stop>
+			<stop offset="47.5%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(255, 255, 255, 1);rgba(255, 167, 106, 1);rgba(255, 160, 160, 1);rgba(255, 255, 255, 1)" />
+			</stop>
+			<stop offset="52.5%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(255, 255, 255, 0.4666666666666667);rgba(255, 167, 106, 0.49411764705882355);rgba(255, 160, 160, 0.49411764705882355);rgba(255, 255, 255, 0.4666666666666667)" />
+			</stop>
+			<stop offset="97.5%">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(255, 255, 255, 0.4666666666666667);rgba(255, 167, 106, 0.49411764705882355);rgba(255, 160, 160, 0.49411764705882355);rgba(255, 255, 255, 0.4666666666666667)" />
+			</stop>
+			<stop offset="100%" stop-opacity="0">
+				<animate attributeName="stop-color" keyTimes="0;0.3333333333333333;0.6666666666666666;1" dur="5000ms" repeatCount="indefinite" values="rgba(255, 255, 255, 0.4666666666666667);rgba(255, 167, 106, 0.49411764705882355);rgba(255, 160, 160, 0.49411764705882355);rgba(255, 255, 255, 0.4666666666666667)" />
+			</stop>
+		</radialGradient>
+		<g id="lighting">
+			<rect width="100%" height="100%" fill="rgba(0, 0, 0, 1)" />
+			<polygon points="875,750 2040.3846,3000 2799.3358,3000 885,689 " fill="url(#LG_5)" />
+			<polygon points="885,689 2799.3358,3000 3000,3000 3000,2072.7272 950,675 " fill="url(#LG_6)" />
+			<polygon points="450,700 0,901.3888 0,964.5985 500,700 " fill="url(#LG_7)" />
+			<polygon points="500,700 0,964.5985 0,1105.8394 500,750 " fill="url(#LG_8)" />
+			<polygon points="0,3000 2040.3846,3000 875,750 885,689 950,675 3000,2072.7272 3000,0 433.4563,0 458,40 458,194 323.1966,40 272,40 233.0097,0 203.9126,0 245,40 117.8315,38.5711 450,300 450,437 272,437 65.2392,388.3988 65.1927,397.6367 247,438 65,436 0,425.0902 0,901.3888 450,700 500,700 500,750 0,1105.8394 " fill="url(#LG_9)" />
+		</g>
+		<filter id="lightFilter">
+			<feColorMatrix type="matrix" values="0 0 0 0 0,0 0 0 0 0,0 0 0 0 0,-0.2125 -0.7154 -0.0721 1 0" />
+		</filter>
+		<pattern id="grid" patternUnits="userSpaceOnUse" width="50" height="50"><path d="M0,50 V0 H50" stroke="rgba(0, 0, 0, 1)" stroke-width="1" fill="transparent"></path></pattern>
+		<symbol id="images" viewBox="0 0 100 100">
+			<rect x="4" y="4" width="92" height="92" fill="#44f" />
+			<circle cx="20" cy="20" r="12" fill="#ff0" />
+			<path d="M50,65 l20,-20 a3,2 0,0,1 5,0 l20,20 v30 h-20 z" fill="#05b" />
+			<path d="M3,70 l30,-30 a3,2 0,0,1 5,0 l55,55 h-90 z" fill="#039" />
+			<rect x="3" y="3" width="94" height="94" stroke-width="6" rx="8" stroke="#840" fill="none" />
+		</symbol>
+		<symbol id="audio" viewBox="0 0 53 71">
+			<path d="M12,56 s-5,-2 -10,5 s7,15 15,0 v-30 l30,-10 v30 s-5,-2 -10,5 s7,15 15,0 v-55 l-40,13 z m5,-29 l30,-10 v-5 l-30,10 v5 z" fill="#000" stroke="#fff" stroke-linejoin="round" fill-rule="evenodd" />
+		</symbol>
+		<symbol id="character" viewBox="0 0 100 100">
+			<g stroke-width="2" stroke="#000" fill="#fff">
+				<path d="M99,89 A1,1 0,0,0 1,89 v10 H99 z" />
+				<circle cx="50" cy="31" r="30" />
+			</g>
+		</symbol>
+		<symbol id="music" viewBox="0 0 100 100">
+			<defs>
+				<mask id="recordMask">
+					<path d="M0,10 L50,50 0,90 M100,10 L50,50 100,90" fill="#fff" />
+				</mask>
+			</defs>
+			<g fill="none" stroke="#fff">
+				<circle cx="50" cy="50" r="30" stroke="#000" stroke-width="40" />
+				<circle cx="50" cy="50" r="20" stroke="#111" stroke-width="5" />
+				<circle cx="50" cy="50" r="10" stroke="#a00" stroke-width="15" />
+				<circle cx="50" cy="50" r="49.5" stroke-width="1" />
+				<g stroke-width="0.25" mask="url(#recordMask)">
+					<circle cx="50" cy="50" r="45" />
+					<circle cx="50" cy="50" r="42" />
+					<circle cx="50" cy="50" r="39" />
+					<circle cx="50" cy="50" r="36" />
+					<circle cx="50" cy="50" r="33" />
+					<circle cx="50" cy="50" r="30" />
+					<circle cx="50" cy="50" r="27" />
+				</g>
+			</g>
+		</symbol>
+		<symbol id="maps" viewBox="0 0 100 100">
+			<g stroke-width="2" fill="none">
+				<path d="M30,1 L70,5 V99 L30,95" fill="#8f0" />
+				<path d="M30,55 h0.5 L69.5,48 H70 M40,53 L60,96 v2" stroke="#333" stroke-width="10" />
+				<path d="M1,5 L30,1 70,5 99,1 M1,99 L30,95 70,99 99,95" stroke="#eee" />
+				<path d="M30,1 L1,5 V99 L30,95 M70,5 L99,1 V95 L70,99" stroke="#aaa" fill="#4a0" />
+				<path d="M2,40 Q10,40 30,35 V2 L2,6 Z M70,40 Q80,30 98,30 V2 L70,6 Z" fill="#00a" />
+				<path d="M30,35 C50,30 50,50 70,40 V6 L30,2 Z" fill="#00f" />
+				<path d="M2,75 h5 L26,55 H30 M70,48 h3 L96,37 H98" stroke="#000" stroke-width="10" />
+			</g>
+		</symbol>
+		<symbol id="layers" viewBox="0 0 100 100">
+			<path d="M50,50 l50,25 l-50,25 l-50,-25 Z" fill="#00f" />
+			<path d="M50,25 l50,25 l-50,25 l-50,-25 Z" fill="#0f0" />
+			<path d="M50,0 l50,25 l-50,25 l-50,-25 Z" fill="#f00" />
+		</symbol>
+		<symbol id="tools" viewBox="0 0 100 100">
+			<g stroke-width="3">
+				<path d="M45,1 a2,3 0,0,0 0,30 v38 a2,3 0,0,0 0,30 v-15 a1,1 0,0,1 10,0 v15 a2,3 0,0,0 0,-30 v-38 a2,3 0,0,0 0,-30 v15 a1,1 0,0,1 -10,0 z" fill="#dde" stroke="#000" transform="rotate(45, 50, 50)" />
+				<g transform="rotate(315, 50, 50)">
+					<path d="M47.5,50 v-35 q-2,-3 -2,-5 l2,-8 h5 l2,8 q0,2 -2,5 v35 z" fill="#eee" stroke="#000" />
+					<path d="M40,90 a1,1 0,0,0 20,0 v-25 a1,2 0,0,1 0,-10 a1,1 0,0,0 0,-5 h-20 a1,1 0,0,0 0,5 a1,2 0,0,1 0,10 z" fill="#dd0" stroke="#000" stroke-linejoin="round" />
+				</g>
+			</g>
+		</symbol>
+		<symbol id="settings" viewBox="0 0 100 100">
+			<g fill="none">
+				<circle cx="50" cy="50" r="35" stroke="#ccc" stroke-width="10" />
+				<circle cx="50" cy="50" r="5" stroke="#ccc" stroke-width="2" />
+			</g>
+			<path id="settings-spoke" d="M35,15 l5,-15 h20 l5,15" fill="#ccc" />
+			<use href="#settings-spoke" transform="rotate(60, 50, 50)" />
+			<use href="#settings-spoke" transform="rotate(120, 50, 50)" />
+			<use href="#settings-spoke" transform="rotate(180, 50, 50)" />
+			<use href="#settings-spoke" transform="rotate(240, 50, 50)" />
+			<use href="#settings-spoke" transform="rotate(300, 50, 50)" />
+			<path d="M21.5,33.5 L46,47.5 M50,81 L50,55 M78.5,33.5 L54,47.5" stroke="#ccc" stroke-width="2" />
+		</symbol>
+		<symbol id="tool_default" viewBox="0 0 20 20">
+			<path d="M1,1 L20,20 M1,10 V1 H10" fill="none" stroke="#000" stroke-width="2" />
+		</symbol>
+		<symbol id="tool_draw" viewBox="0 0 70 70" fill="none" stroke="#000">
+			<polyline points="51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18" stroke-width="2" />
+			<path d="M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55" />
+		</symbol>
+		<symbol id="tool_mask" viewBox="0 0 60 50">
+			<path d="M0,0 Q30,15 60,0 Q30,100 0,0 M32,20 q9,-10 18,0 q-9,-3 -18,0 M10,20 q9,-10 18,0 q-9,-3 -18,0 M20,35 q10,5 20,0 q-10,10 -20,0" stroke="none" fill="#000" fill-rule="evenodd" />
+		</symbol>
+		<symbol id="tool_measure" viewBox="0 0 50 50">
+			<path d="M0,40 l10,10 l40,-40 l-10,-10 z m5,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5" stroke="#000" stroke-linejoin="round" fill="none" />
+		</symbol>
+		<symbol id="tool_move" viewBox="0 0 22 22" fill="#000">
+			<g stroke-width="1" stroke="#000" stroke-linecap="round">
+				<line x1="11" y1="6" x2="11" y2="16" />
+				<line x1="6" y1="11" x2="16" y2="11" />
+			</g>
+			<path d="M11,0 L6,5 L16,5 Z M0,11 L5,6 L 5,16 Z M11,22 L6,17 L16,17 Z M22,11 L17,16 L17,6 Z" />
+		</symbol>
+		<symbol id="tool_multiplace" viewBox="0 0 100 100" stroke="#000" fill="none">
+			<circle cx="15" cy="15" r="10" stroke-dasharray="50 40" stroke-dashoffset="75" />
+			<circle cx="28" cy="28" r="10" stroke-dasharray="50 40" stroke-dashoffset="75" />
+			<circle cx="42" cy="42" r="10" />
+			<path d="M28,77 l26,-26 a3,2 0,0,1 4,0 l40,40 M74,67 l10,-10 a3,2 0,0,1 5,0 l9,9 M14,63 l15,-15 M1,50 l15,-15" />
+			<path d="M98,39 s0,-10 -10,-10 h-49 s-10,0 -10,10 v49 s0,10 10,10 h49 s10,0 10,-10 z M84,28 v-3 s0,-10 -10,-10 h-49 s-10,0 -10,10 v49 s0,10 10,10 h3 M71,15 v-3 s0,-10 -10,-10 h-49 s-10,0 -10,10 v49 s0,10 10,10 h3" stroke-width="4" />
+		</symbol>
+		<symbol id="tool_wall" viewBox="0 0 90 60">
+			<defs>
+				<pattern id="bricks" patternUnits="userSpaceOnUse" width="30" height="30">
+					<path d="M15,30 V15 H0 V0 H30 V15 H15 M0,30 H30" fill="none" stroke="#000" stroke-width="3" />
+				</pattern>
+			</defs>
+			<path d="M60,15 V0.5 H0.5 V59.5 H89.5 V15 Z" fill="url(#bricks)" stroke="#000" stroke-width="2" />
+		</symbol>
+		<clipPath id="panelClip">
+			<rect width="1280.5" height="100%" />
+		</clipPath>
+		<symbol id="popout" viewBox="0 0 15 15">
+			<rect width="15" height="15" opacity="0" />
+			<path d="M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6" stroke-linejoin="round" fill="none" stroke="#000" />
+		</symbol>
+		<linearGradient id="tabBack" gradientTransform="rotate(90)">
+			<stop offset="0%" stop-color="rgb(236, 236, 236)" />
+			<stop offset="100%" stop-color="rgb(209, 209, 209)" />
+		</linearGradient>
+		<linearGradient id="tabBackHover" gradientTransform="rotate(90)">
+			<stop offset="0%" stop-color="rgb(255, 170, 170)" />
+			<stop offset="50%" stop-color="rgb(255, 236, 236)" />
+			<stop offset="100%" stop-color="rgb(209, 209, 209)" />
+		</linearGradient>
+		<path id="tab" d="M0,39 s6,0 6,-6 v-27 s0,-6 6,-6 h65 s6,0 6,6 v27 s0,6 6,6" stroke="#000" fill="url(#tabBack)" />
+		<g id="tabSelected">
+			<path id="tabSelected" d="M0,39 s6,0 6,-6 v-27 s0,-6 6,-6 h65 s6,0 6,6 v27 s0,6 6,6" stroke="#000" fill="#fff" />
+			<line x1="2.75" x2="86.25" y1="39.75" y2="39.75" stroke="#fff" stroke-width="2" />
+		</g>
+		<symbol id="closeIcon" viewBox="0 0 10 10">
+			<path d="M1,1 L9,9 M9,1 L1,9" stroke="black" />
+		</symbol>
+		<g id="closeButton">
+			<title>Close</title>
+			<polyline points="22,0 0,0 0,22" fill="#e3e3e3" />
+			<polyline points="22,0 22,22 0,22" fill="#979797" />
+			<rect x="2" y="2" width="18" height="18" fill="#eee" />
+			<use x="5" y="5" width="12" height="12" href="#closeIcon" />
+		</g>
+		<symbol id="addFolder" viewBox="0 0 24 20" width="16" height="16" style="cursor: pointer">
+			<title>Add Folder</title>
+			<rect width="24" height="20" fill="#fff" />
+			<path d="M1,4 h22 v15 h-22 Z m2,0 l3,-3 h5 l3,3 m3,2 v12 m-6,-6 h12" stroke="#000" fill="none" stroke-linejoin="round" />
+		</symbol>
+		<g id="filter">
+			<polyline points="295,2 297,0 0,0 0,20 2,18" fill="#4c4c4c" />
+			<polyline points="295,2 297,0 297,20 0,20 2,18" fill="#b2b2b2" />
+			<rect x="2" y="2" width="293" height="16" fill="#fff" style="cursor: text" />
+			<text x="258" y="16" fill="#888">Filter</text>
+		</g>
+		<path id="arrow" d="M0,0 l7,4 l-7,4 z" fill="#000" />
+	</defs>
+	<!-- Map -->
+	<g>
+		<rect width="100%" height="100%" fill="#0a0" />
+		<rect x="60" y="40" width="395" height="395" fill="#ff0" />
+		<polyline points="455,300 455,435 270,435" stroke-width="20" stroke="brown" fill="none" />
+		<polyline points="245,435 60,435 60,40 245,40" stroke-width="20" stroke="brown" fill="none" />
+		<polyline points="270,40 455,40 455,193" stroke-width="20" stroke="brown" fill="none" />
+		<circle cx="775" cy="575" r="50" fill="#ff0" />
+		<circle cx="925" cy="725" r="70" fill="#080" />
+		<circle cx="475" cy="725" r="150" fill="#080" />
+		<rect width="100%" height="100%" fill="url(#grid)" />
+		<use href="#lighting" style="mix-blend-mode: multiply" filter="url(#lightfilter)" />
+	</g>
+	<!-- Image Window -->
+	<g visibility="hidden">
+		<rect id="imageClose" width="10" height="10" fill="red" />
+		<set attributeName="visibility" to="hidden" begin="imageClose.click" />
+		<set attributeName="visibility" to="visible" begin="imagePopout.click" />
+	</g>
+	<!-- Audio Window -->
+	<g visibility="hidden">
+		<rect id="audioClose" width="10" height="10" fill="red" />
+		<set attributeName="visibility" to="hidden" begin="audioClose.click" />
+		<set attributeName="visibility" to="visible" begin="audioPopout.click" />
+	</g>
+	<!-- Character Window -->
+	<g visibility="hidden">
+		<rect id="charactersClose" width="10" height="10" fill="red" />
+		<set attributeName="visibility" to="hidden" begin="charactersClose.click" />
+		<set attributeName="visibility" to="visible" begin="charactersPopout.click" />
+	</g>
+	<!-- Music Window -->
+	<g visibility="hidden">
+		<rect id="musicClose" width="10" height="10" fill="red" />
+		<set attributeName="visibility" to="hidden" begin="musicClose.click" />
+		<set attributeName="visibility" to="visible" begin="musicPopout.click" />
+	</g>
+	<!-- Map Window -->
+	<g visibility="hidden">
+		<rect id="mapsClose" width="10" height="10" fill="red" />
+		<set attributeName="visibility" to="hidden" begin="mapsClose.click" />
+		<set attributeName="visibility" to="visible" begin="mapsPopout.click" />
+	</g>
+	<!-- Layer Window -->
+	<g visibility="hidden">
+		<rect id="layersClose" width="10" height="10" fill="red" />
+		<set attributeName="visibility" to="hidden" begin="layersClose.click" />
+		<set attributeName="visibility" to="visible" begin="layersPopout.click" />
+	</g>
+	<!-- Tool Window -->
+	<g>
+		<rect width="46" height="360" fill="#fff" stroke="#000" stroke-width="2" />
+		<rect width="46" height="22" fill="#aaa">
+			<title>Tools</title>
+		</rect>
+		<use href="#tools" width="20" height="20" style="pointer-events: none" />
+		<use id="toolsClose" href="#closeButton" x="23" />
+
+		<rect width="44" height="48" x="1" y="22" fill="#888" style="cursor: pointer">
+			<title>Default</title>
+		</rect>
+		<use href="#tool_default" width="32" height="32" x="6.4" y="28.4" style="pointer-events: none" />
+		<rect width="44" height="48" x="1" y="70" fill="#fff" style="cursor: pointer">
+			<title>Draw</title>
+		</rect>
+		<use href="#tool_draw" width="32" height="32" x="6.4" y="76.4" style="pointer-events: none" />
+		<rect width="44" height="48" x="1" y="118" fill="#fff" style="cursor: pointer">
+			<title>Mask</title>
+		</rect>
+		<use href="#tool_mask" width="32" height="32" x="6.4" y="124.4" style="pointer-events: none" />
+		<rect width="44" height="48" x="1" y="166" fill="#fff" style="cursor: pointer">
+			<title>Measure</title>
+		</rect>
+		<use href="#tool_measure" width="32" height="32" x="6.4" y="172.4" style="pointer-events: none" />
+		<rect width="44" height="48" x="1" y="214" fill="#fff" style="cursor: pointer">
+			<title>Move All</title>
+		</rect>
+		<use href="#tool_move" width="32" height="32" x="6.4" y="220.4" style="pointer-events: none" />
+		<rect width="44" height="48" x="1" y="262" fill="#fff" style="cursor: pointer">
+			<title>Multi-Place</title>
+		</rect>
+		<use href="#tool_multiplace" width="32" height="32" x="6.4" y="268.4" style="pointer-events: none" />
+		<rect width="44" height="48" x="1" y="310" fill="#fff" style="cursor: pointer">
+			<title>Wall Tool</title>
+		</rect>
+		<use href="#tool_wall" width="32" height="32" x="6.4" y="316.4" style="pointer-events: none" />
+		<set attributeName="visibility" to="hidden" begin="toolsClose.click" />
+		<set attributeName="visibility" to="visible" begin="toolsPopout.click" />
+	</g>
+	<!-- Panel -->
+	<g clip-path="url(#panelClip)">
+		<g transform="translate(580, 0)">
+			<animateTransform id="closingPanel" begin="closePanel.click" dur="0.5s" fill="freeze" attributeType="XML" attributeName="transform" type="translate" from="0 0" to="580 0" />
+			<animateTransform id="openingPanel" begin="openPanel.click" dur="0.5s" fill="freeze" attributeType="XML" attributeName="transform" type="translate" from="580 0" to="0 0" />
+			<g transform="translate(701, 0)">
+				<rect width="100%" height="100%" fill="#fff" />
+				<line x1="-1" x2="-1" y1="0" y2="100%" stroke="#000" />
+				<circle cy="12.5" r="11.5" stroke="#f00" stroke-width="2" fill="#000">
+					<animate dur="0.5s" attributeName="fill" from="#fff" to="#000" begin="closePanel.click" fill="freeze" />
+					<animate dur="0.5s" attributeName="fill" from="#000" to="#fff" begin="openPanel.click" fill="freeze" />
+				</circle>
+				<circle id="closePanel" cy="12.5" r="11.5" fill="#fff" visibility="hidden" opacity="0">
+					<set attributeName="visibility" to="hidden" begin="click" />
+					<set attributeName="visibility" to="visible" begin="openingPanel.end" />
+				</circle>
+				<circle id="openPanel" cy="12.5" r="11.5" fill="#000" opacity="0">
+					<set attributeName="visibility" to="visible" begin="closingPanel.end" />
+					<set attributeName="visibility" to="hidden" begin="click" />
+				</circle>
+				<line x2="100%" y1="38.75" y2="38.75" stroke="#000" />
+				<g transform="translate(-61, 0)">
+					<g transform="translate(69, 0)" visibility="visible">
+						<use href="#tab" id="imageTab">
+							<title>Images</title>
+						</use>
+						<g transform="translate(69, 0)" visibility="visible">
+							<use href="#tab" id="audioTab">
+								<title>Audio</title>
+							</use>
+							<g transform="translate(69, 0)" visibility="visible">
+								<use href="#tab" id="characterTab">
+									<title>Characters</title>
+								</use>
+								<g transform="translate(69, 0)" visibility="visible">
+									<use href="#tab" id="musicTab">
+										<title>Music</title>
+									</use>
+									<g transform="translate(69, 0)" visibility="visible">
+										<use href="#tab" id="mapsTab">
+											<title>Maps</title>
+										</use>
+										<g transform="translate(69, 0)" visibility="visible">
+											<use href="#tab" id="layersTab">
+												<title>Layer</title>
+											</use>
+											<g class="hiddenTab">
+												<use href="#tab" id="toolsTab">
+													<title>Tools</title>
+												</use>
+												<g transform="translate(69, 0)" visibility="visible">
+													<use href="#tab" id="settingsTab">
+														<title>Settings</title>
+													</use>
+													<use href="#tabSelected" visibility="hidden">
+														<title>Settings</title>
+														<set id="settingsHide" attributeName="visibility" to="hidden" begin="imageShow.begin;audioShow.begin;characterShow.begin;musicShow.begin;mapsShow.begin;layersShow.begin;toolsShow.begin" />
+														<set id="settingsShow" attributeName="visibility" to="visible" begin="settingsTab.click;imagePopout.click;audioPopout.click;charactersPopout.click;musicPopout.click;mapsPopout.click;layersPopout.click;toolsPopout.click" />
+													</use>
+													<use href="#settings" width="24" height="25" x="32" y="6" style="pointer-events: none" />
+												</g>
+												<use href="#tabSelected" visibility="hidden">
+													<title>Tools</title>
+													<set id="toolsHide" attributeName="visibility" to="hidden" begin="imageShow.begin;audioShow.begin;characterShow.begin;musicShow.begin;mapsShow.begin;layersShow.begin;settingsShow.begin" />
+													<set id="toolsShow" attributeName="visibility" to="visible" begin="toolsTab.click" />
+												</use>
+												<use href="#tools" width="24" height="25" x="27" y="6" style="pointer-events: none" />
+												<use id="toolsPopout" href="#popout" width="17" height="19" x="56" y="13" style="cursor: pointer">
+													<title>Popout Tools</title>
+												</use>
+												<set attributeName="class" to="hiddenTab" begin="toolsPopout.click" />
+												<set attributeName="class" to="tab" begin="toolsClose.click" />
+											</g>
+											<use href="#tabSelected" visibility="hidden">
+												<title>Layers</title>
+												<set id="layersHide" attributeName="visibility" to="hidden" begin="imageShow.begin;audioShow.begin;characterShow.begin;musicShow.begin;mapsShow.begin;toolsShow.begin;settingsShow.begin" />
+												<set id="layersShow" attributeName="visibility" to="visible" begin="layersTab.click" />
+											</use>
+											<use href="#layers" width="24" height="25" x="27" y="6" style="pointer-events: none" />
+											<!--<use id="layersPopout" href="#popout" width="17" height="19" x="56" y="13" style="cursor: pointer">
+												<title>Popout Layers</title>
+											</use>-->
+											<set attributeName="class" to="hiddenTab" begin="layersPopout.click" />
+											<set attributeName="class" to="tab" begin="layersClose.click" />
+										</g>
+										<use href="#tabSelected" visibility="hidden">
+											<title>Maps</title>
+											<set id="mapsHide" attributeName="visibility" to="hidden" begin="imageShow.begin;audioShow.begin;characterShow.begin;musicShow.begin;layersShow.begin;toolsShow.begin;settingsShow.begin" />
+											<set id="mapsShow" attributeName="visibility" to="visible" begin="mapsTab.click" />
+										</use>
+										<use href="#maps" width="24" height="25" x="27" y="6" style="pointer-events: none" />
+										<!--<use id="mapsPopout" href="#popout" width="17" height="19" x="56" y="13" style="cursor: pointer">
+											<title>Popout Maps</title>
+										</use>-->
+										<set attributeName="class" to="hiddenTab" begin="mapsPopout.click" />
+										<set attributeName="class" to="tab" begin="mapsClose.click" />>
+									</g>
+									<use href="#tabSelected" visibility="hidden">
+										<title>Music</title>
+										<set id="musicHide" attributeName="visibility" to="hidden" begin="imageShow.begin;audioShow.begin;characterShow.begin;mapsShow.begin;layersShow.begin;toolsShow.begin;settingsShow.begin" />
+										<set id="musicShow" attributeName="visibility" to="visible" begin="musicTab.click" />
+									</use>
+									<use href="#music" width="24" height="25" x="27" y="6" style="pointer-events: none" />
+									<!--<use id="musicPopout" href="#popout" width="17" height="19" x="56" y="13" style="cursor: pointer">
+										<title>Popout Music</title>
+									</use>-->
+									<set attributeName="class" to="hiddenTab" begin="musicPopout.click" />
+									<set attributeName="class" to="tab" begin="musicClose.click" />
+								</g>
+								<use href="#tabSelected" visibility="hidden">
+									<title>Characters</title>
+									<set id="characterHide" attributeName="visibility" to="hidden" begin="imageShow.begin;audioShow.begin;musicShow.begin;mapsShow.begin;layersShow.begin;toolsShow.begin;settingsShow.begin" />
+									<set id="characterShow" attributeName="visibility" to="visible" begin="characterTab.click" />
+								</use>
+								<use href="#character" width="24" height="25" x="27" y="6" style="pointer-events: none" />
+								<!--<use id="charactersPopout" href="#popout" width="17" height="19" x="56" y="13" style="cursor: pointer">
+									<title>Popout Characters</title>
+								</use>-->
+								<set attributeName="class" to="hiddenTab" begin="charactersPopout.click" />
+								<set attributeName="class" to="tab" begin="charactersClose.click" />
+							</g>
+							<use href="#tabSelected" visibility="hidden">
+								<title>Audio</title>
+								<set id="audioHide" attributeName="visibility" to="hidden" begin="imageShow.begin;characterShow.begin;musicShow.begin;mapsShow.begin;layersShow.begin;toolsShow.begin;settingsShow.begin" />
+								<set id="audioShow" attributeName="visibility" to="visible" begin="audioTab.click" />
+							</use>
+							<use href="#audio" width="24" height="25" x="27" y="6" style="pointer-events: none" />
+							<!--<use id="audioPopout" href="#popout" width="17" height="19" x="56" y="13" style="cursor: pointer">
+								<title>Popout Audio</title>
+							</use>-->
+							<set attributeName="class" to="hiddenTab" begin="audioPopout.click" />
+							<set attributeName="class" to="tab" begin="audioClose.click" />
+						</g>
+						<use href="#tabSelected">
+							<title>Images</title>
+							<set id="imageHide" attributeName="visibility" to="hidden" begin="audioShow.begin;characterShow.begin;musicShow.begin;mapsShow.begin;layersShow.begin;toolsShow.begin;settingsShow.begin" />
+							<set id="imageShow" attributeName="visibility" to="visible" begin="imageTab.click" />
+						</use>
+						<use href="#images" width="24" height="25" x="27" y="6" style="pointer-events: none" />
+						<!--<use id="imagePopout" href="#popout" width="17" height="19" x="56" y="13" style="cursor: pointer">
+							<title>Popout Images</title>
+						</use>-->
+						<set attributeName="class" to="hiddenTab" begin="imagePopout.click" />
+						<set attributeName="class" to="tab" begin="imageClose.click" />
+					</g>
+				</g>
+				<g transform="translate(0, 40)">
+					<g>
+						<rect width="97" height="22" y="2" fill="#e9e9ed" stroke="#80808d" rx="5" />
+						<text x="2" y="17" style="pointer-events: none">Upload Image</text>
+						<text y="42">Images</text>
+						<use href="#addFolder" x="50" y="27" />
+						<use href="#filter" x="280" y="27" />
+						<set attributeName="visibility" to="hidden" begin="imageHide.begin" />
+						<set attributeName="visibility" to="visible" begin="imageShow.begin" />
+					</g>
+					<g visibility="hidden">
+						<rect width="97" height="22" y="2" fill="#e9e9ed" stroke="#80808d" rx="5" />
+						<text x="2" y="17" style="pointer-events: none">Upload Audio</text>
+						<text y="42">Audio</text>
+						<use href="#addFolder" x="45" y="27" />
+						<use href="#filter" x="280" y="27" />
+						<set attributeName="visibility" to="hidden" begin="audioHide.begin" />
+						<set attributeName="visibility" to="visible" begin="audioShow.begin" />
+					</g>
+					<g visibility="hidden">
+						<rect width="100" height="22" y="2" fill="#e9e9ed" stroke="#80808d" rx="5" />
+						<text x="2" y="17" style="pointer-events: none">Add Character</text>
+						<text y="42">Characters</text>
+						<use href="#addFolder" x="70" y="27" />
+						<use href="#filter" x="280" y="27" />
+						<set attributeName="visibility" to="hidden" begin="characterHide.begin" />
+						<set attributeName="visibility" to="visible" begin="characterShow.begin" />
+					</g>
+					<g visibility="hidden">
+						<rect width="115" height="22" y="2" fill="#e9e9ed" stroke="#80808d" rx="5" />
+						<text x="2" y="17" style="pointer-events: none">Add Music Pack</text>
+						<set attributeName="visibility" to="hidden" begin="musicHide.begin" />
+						<set attributeName="visibility" to="visible" begin="musicShow.begin" />
+					</g>
+					<g visibility="hidden">
+						<rect width="68" height="22" y="2" fill="#e9e9ed" stroke="#80808d" rx="5" />
+						<text x="2" y="17" style="pointer-events: none">Add Map</text>
+						<text y="42">Maps</text>
+						<use href="#addFolder" x="40" y="27" />
+						<use href="#filter" x="280" y="27" />
+						<set attributeName="visibility" to="hidden" begin="mapsHide.begin" />
+						<set attributeName="visibility" to="visible" begin="mapsShow.begin" />
+					</g>
+					<g visibility="hidden">
+						<rect width="75" height="22" y="2" fill="#e9e9ed" stroke="#80808d" rx="5" />
+						<text x="2" y="17" style="pointer-events: none">Add Layer</text>
+						<text y="42">Layers</text>
+						<use href="#addFolder" x="50" y="27" />
+						<set attributeName="visibility" to="hidden" begin="layersHide.begin" />
+						<set attributeName="visibility" to="visible" begin="layersShow.begin" />
+					</g>
+					<g visibility="hidden">
+						<rect width="200" height="48" x="1" y="22" fill="#888" style="cursor: pointer" />
+						<use href="#tool_default" width="32" height="32" x="6.4" y="28.4" style="pointer-events: none" />
+						<text x="50" y="55" style="font-size: 30px; pointer-events: none">Default</text>
+						<rect width="200" height="48" x="1" y="70" fill="#fff" style="cursor: pointer" />
+						<use href="#tool_draw" width="32" height="32" x="6.4" y="76.4" style="pointer-events: none" />
+						<text x="50" y="103" style="font-size: 30px; pointer-events: none">Draw</text>
+						<rect width="200" height="48" x="1" y="118" fill="#fff" style="cursor: pointer" />
+						<use href="#tool_mask" width="32" height="32" x="6.4" y="124.4" style="pointer-events: none" />
+						<text x="50" y="151" style="font-size: 30px; pointer-events: none">Mask</text>
+						<rect width="200" height="48" x="1" y="166" fill="#fff" style="cursor: pointer" />
+						<use href="#tool_measure" width="32" height="32" x="6.4" y="172.4" style="pointer-events: none" />
+						<text x="50" y="199" style="font-size: 30px; pointer-events: none">Measure</text>
+						<rect width="200" height="48" x="1" y="214" fill="#fff" style="cursor: pointer" />
+						<use href="#tool_move" width="32" height="32" x="6.4" y="220.4" style="pointer-events: none" />
+						<text x="50" y="247" style="font-size: 30px; pointer-events: none">Move All</text>
+						<rect width="200" height="48" x="1" y="262" fill="#fff" style="cursor: pointer" />
+						<use href="#tool_multiplace" width="32" height="32" x="6.4" y="268.4" style="pointer-events: none" />
+						<text x="50" y="295" style="font-size: 30px; pointer-events: none">Multi-Place</text>
+						<rect width="200" height="48" x="1" y="310" fill="#fff" style="cursor: pointer" />
+						<use href="#tool_wall" width="32" height="32" x="6.4" y="316.4" style="pointer-events: none" />
+						<text x="50" y="343" style="font-size: 30px; pointer-events: none">Wall Tool</text>
+						<set attributeName="visibility" to="hidden" begin="toolsHide.begin" />
+						<set attributeName="visibility" to="visible" begin="toolsShow.begin" />
+					</g>
+					<g visibility="hidden">
+						<rect width="295" height="22" y="2" fill="#e9e9ed" stroke="#80808d" rx="5" />
+						<text x="2" y="17" style="pointer-events: none">Press F1 anytime, or click here, to open Help</text>
+						<text y="70" style="font-size: 35px; font-weight: bold">Authentication</text>
+						<rect width="53" height="22" y="90" fill="#e9e9ed" stroke="#80808d" rx="5" />
+						<text x="2" y="107" style="pointer-events: none">Logout</text>
+						<set attributeName="visibility" to="hidden" begin="settingsHide.begin" />
+						<set attributeName="visibility" to="visible" begin="settingsShow.begin" />
+
+						<use href="#arrow" x="1" y="138" />
+						<text x="12" y="150" style="font-size: 35px; font-weight: bold">Language</text>
+						<use href="#arrow" x="1" y="208" />
+						<text x="12" y="220" style="font-size: 35px; font-weight: bold">Theme &amp; Layout</text>
+						<use href="#arrow" x="1" y="278" />
+						<text x="12" y="290" style="font-size: 35px; font-weight: bold">Map Settings</text>
+						<use href="#arrow" x="1" y="348" />
+						<text x="12" y="360" style="font-size: 35px; font-weight: bold">Plugins</text>
+						<use href="#arrow" x="1" y="418" />
+						<text x="12" y="430" style="font-size: 35px; font-weight: bold">Key Bindings</text>
+						<use href="#arrow" x="1" y="488" />
+						<text x="12" y="500" style="font-size: 35px; font-weight: bold">Reset</text>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>
