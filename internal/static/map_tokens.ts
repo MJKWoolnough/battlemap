@@ -65,10 +65,7 @@ export class Lighting {
 			}
 			total += s;
 		}
-		if (hasColour) {
-			return new Lighting(x, y, lightX, lightY, newColours, newStages, this.lightTimings);
-		}
-		return null;
+		return hasColour ? new Lighting(x, y, lightX, lightY, newColours, newStages, this.lightTimings) : null;
 	}
 	createLightPolygon(points: string, scale: number) {
 		const p = polygon({points});
