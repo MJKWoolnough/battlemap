@@ -39,6 +39,7 @@ class ImageAsset extends DraggableItem {
 		}
 	}
 	delete() {
+		super.delete();
 		bbcodeDrag.deregister(this.#bbcodeID);
 	}
 }
@@ -63,6 +64,7 @@ class AudioAsset extends DraggableItem {
 		}
 	}
 	delete() {
+		super.delete();
 		bbcodeDrag.deregister(this.#bbcodeID);
 	}
 }
