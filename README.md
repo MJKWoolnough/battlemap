@@ -34,4 +34,4 @@ This project is currently in a work-in-progess state, with frequent updates.
 
 Simple screenshot showing lighting effect (will be made more graphical in the future).
 
-![Screenshot](/screenshots/screenshot.svg)
+<a href="https://raw.githubusercontent.com/MJKWoolnough/battlemap/master/screenshots/screenshot.svg">![Screenshot](/screenshots/screenshot.svg)</a>
