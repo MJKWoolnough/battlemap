@@ -326,8 +326,8 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall, d
 							"colour": noColour,
 							"scattering": 0
 						      },
-						      sx = lx + scattering * (+cx - lx) / 256,
-						      sy = ly + scattering * (+cy - ly) / 256;
+						      sx = lx + Math.round(scattering * (+cx - lx) / 256),
+						      sy = ly + Math.round(scattering * (+cy - ly) / 256);
 						if (a < 255) {
 							const lw = l.wallInteraction(Math.round(sx), Math.round(sy), lightX, lightY, sw.colour, cd / scale, true);
 							if (lw) {
