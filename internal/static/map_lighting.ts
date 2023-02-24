@@ -153,7 +153,7 @@ export const intersection = (x1: Fraction, y1: Fraction, x2: Fraction, y2: Fract
 	}
 	return [Fraction.NaN, Fraction.NaN];
 },
-makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) => {
+makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall, depth = 0) => {
 	const [lightX, lightY] = l.getLightPos(),
 	      [lx, ly] = l.getCentre(),
 	      i = l.lightStages.reduce((p, c) => p + c, 0) * scale,
@@ -164,6 +164,9 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 	      collisions: Collision[] = [],
 	      gWalls: XWall[] = [],
 	      ret: SVGPolygonElement[] = [];
+	if (depth === 5) {
+		return ret;
+	}
 	if (lens) {
 		const {x1, y1, x2, y2} = lens;
 		walls.push({
@@ -325,7 +328,7 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 						if (a < 255) {
 							const lw = l.wallInteraction(Math.round(sx), Math.round(sy), lightX, lightY, sw.colour, cd / scale, true);
 							if (lw) {
-								ret.push(...makeLight(lw, walls, scale, fw));
+								ret.push(...makeLight(lw, walls, scale, fw, depth + 1));
 							}
 						}
 						if (a > 0) {
@@ -334,7 +337,7 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 							      dcy = +cy.add(cy),
 							      lw = l.wallInteraction(Math.round(dcx - sx), Math.round(dcy - sy), Math.round(dcx - lx), Math.round(dcy - ly), sw.colour, cd / scale);
 							if (lw) {
-								ret.push(...makeLight(lw, walls, scale, fw));
+								ret.push(...makeLight(lw, walls, scale, fw, depth + 1));
 							}
 						}
 					}
