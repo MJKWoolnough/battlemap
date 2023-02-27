@@ -372,8 +372,13 @@ const select = Symbol("select"),
 	]);
 	let nextID = 0,
 	    lastScale = 0,
-	    lastWalls: LightWall[] = [];
+	    lastWalls: LightWall[] = [],
+	    oldMapData: MapData | null = null;
 	return () => {
+		if (oldMapData !== mapData) {
+			oldMapData = mapData;
+			return;
+		}
 		nextID = 0;
 		clearNode(perspectives);
 		clearNode(dvcs);
