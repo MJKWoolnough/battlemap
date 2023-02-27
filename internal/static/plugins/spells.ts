@@ -80,6 +80,7 @@ if (isAdmin) {
 	      }),
 	      sparkID = id(),
 	      setEffect = (effect: SVGGElement) => {
+		rotation = 0;
 		if (selectedEffect !== effect && selectedEffect.parentNode) {
 			selectedEffect.replaceWith(effect);
 		}
