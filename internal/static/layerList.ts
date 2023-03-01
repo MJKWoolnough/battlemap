@@ -1,6 +1,6 @@
 import type {FolderItems, LayerFolder, LayerTokens, Uint} from './types.js';
 import type {SVGLayer} from './map.js';
-import {add, ids} from './lib/css.js';
+import {add, at, ids} from './lib/css.js';
 import {amendNode, clearNode, createDocumentFragment} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
@@ -409,7 +409,20 @@ menuItems.push([5, () => isAdmin ? [
 		      lightToggle = new BoolSetting("lightToggle").wait(v => amendNode(document.body, {"class": {[adminHideLight]: v}})),
 		      base = dragBase = div(h1(lang["MAP_NONE_SELECTED"])),
 		      [layerListID, layerFolder, dragged, draggingID, beingDragged, draggingSpecial, dragAfter, dragBefore, layerLock, layerVisibility, layerHidden, layerLocked, toggleAdminLight] = ids(13),
-		      adminLightToggle = lightOnOff({"id": toggleAdminLight, "class": itemControl, "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => lightToggle.set(!lightToggle.value)});
+		      adminLightToggle = lightOnOff({"id": toggleAdminLight, "class": itemControl, "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => lightToggle.set(!lightToggle.value)}),
+		      inverted = {
+				[` .${selectedLayerID}`]: {
+					"background-color": "#555"
+				},
+				[` .${draggingID}`]: {
+					[` .${dragBefore}:hover`]: {
+						"border-top-color": "#fff"
+					},
+					[` .${dragAfter}:hover`]: {
+						"border-bottom-color": "#fff"
+					}
+				}
+		      };
 		add({
 			[`#${layerListID}`]: {
 				" ul" : {
@@ -478,20 +491,13 @@ menuItems.push([5, () => isAdmin ? [
 			[`.${adminHideLight} #${toggleAdminLight}`]: {
 				"--off": "#000"
 			},
-			[`.${invertID}`]: {
-				[` .${selectedLayerID}`]: {
-					"background-color": "#555"
-				},
-				[` .${draggingID}`]: {
-					[` .${dragBefore}:hover`]: {
-						"border-top-color": "#fff"
-					},
-					[` .${dragAfter}:hover`]: {
-						"border-bottom-color": "#fff"
-					}
-				}
-			}
 		});
+		at("@media (prefers-color-scheme: light)", {
+			[`:root.${invertID}`]: inverted
+		})
+		at("@media (prefers-color-scheme: dark)", {
+			[`:root:not(.${invertID})`]: inverted
+		})
 		mapLoadedReceive(() => loadFn());
 		return base;
 	})(),
