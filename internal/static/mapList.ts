@@ -1,5 +1,5 @@
 import type {FolderItems, Uint} from './types.js';
-import {add, id, ids} from './lib/css.js';
+import {add, at, id, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {DragTransfer} from './lib/drag.js';
 import {br, button, div, h1, h2, input, option, select} from './lib/html.js';
@@ -138,7 +138,18 @@ menuItems.push([4, () => isAdmin ? [
 	(() => {
 		const rpcFuncs = rpc["maps"],
 		      base = div(loading()),
-		      mapList = id();
+		      mapList = id(),
+		      inverted = {
+			[` .${mapCurrent}`]: {
+				"background-color": "#555"
+			},
+			[` .${hasMapCurrent}>details>summary`]: {
+				"background-color": "#600"
+			},
+			[` .${hasMapUser}>details>summary`]: {
+				"background-color": "#400"
+			}
+		      };
 		add({
 			[`#${mapList}`]: {
 				" ul": {
@@ -174,18 +185,13 @@ menuItems.push([4, () => isAdmin ? [
 			[`.${setUserMap}`]: {
 				"position": "absolute",
 				"left": 0
-			},
-			[`.${invertID}`]: {
-				[` .${mapCurrent}`]: {
-					"background-color": "#555"
-				},
-				[` .${hasMapCurrent}>details>summary`]: {
-					"background-color": "#600"
-				},
-				[` .${hasMapUser}>details>summary`]: {
-					"background-color": "#400"
-				}
 			}
+		});
+		at("@media (prefers-color-scheme: light)", {
+			[`:root.${invertID}`]: inverted
+		});
+		at("@media (prefers-color-scheme: dark)", {
+			[`:root:not(.${invertID})`]: inverted
 		});
 		Promise.all([
 			rpcFuncs.list(),
