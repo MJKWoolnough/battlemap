@@ -1,7 +1,7 @@
 import type {FolderItems, FolderRPC, IDName, Uint, WidthHeight} from './types.js';
 import type {Binding} from './lib/bind.js';
 import type {DragTransfer} from './lib/drag.js';
-import {add, ids} from './lib/css.js';
+import {add, at, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {autoFocus, queue, setAndReturn} from './lib/misc.js';
@@ -721,9 +721,6 @@ inited.then(() => {
 					"background-color": "#888"
 				}
 			},
-			[`.${invertID} .${dragOver}`]: {
-				"background-color": "#555"
-			},
 			[`.${folderDragging}`]: {
 				" *": {
 					"pointer-events": "none"
@@ -736,6 +733,16 @@ inited.then(() => {
 					"height": "1em",
 					"display": "block"
 				}
+			}
+		});
+		at("@media (prefers-color-scheme: light)", {
+			[`:root.${invertID} .${dragOver}`]: {
+				"background-color": "#555"
+			}
+		});
+		at("@media (prefers-color-scheme: dark)", {
+			[`:root:not(.${invertID}) .${dragOver}`]: {
+				"background-color": "#555"
 			}
 		});
 	}
