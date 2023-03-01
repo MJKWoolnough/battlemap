@@ -42,20 +42,20 @@ edit = (id: Uint, title: string | Binding, d: Record<string, KeystoreData>, char
 	      nameInput = input({"type": "text", "value": d["name"]?.["data"] ?? "", "onchange": nameUpdate}),
 	      nameVisibility = input({"type": "checkbox", "class": userVisibility, "checked": d["name"]?.["user"] !== false, "onchange": nameUpdate}),
 	      makeToken = (n: Uint, tk: {src: Uint}) => Object.assign({[node]: li({"class": tokenSelector}, (() => {
-		const i = img({"src": `/images/${tk["src"]}`});
 		return [
-			button({"onclick": () => w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]).then(proceed => {
-				if (proceed) {
-					const data = getToken();
-					if (!data) {
-						w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
-						return;
+			button({"style": `background-image: url(/images/${tk["src"]})`, "onclick": function(this: HTMLButtonElement) {
+				w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]).then(proceed => {
+					if (proceed) {
+						const data = getToken();
+						if (!data) {
+							w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
+							return;
+						}
+						changes["store-image-data"] = {"user": false, "data": cloneObject(Array.from(tokens.values()))};
+						amendNode(this, {"style": `background-image: url(/images/${data["src"]})`});
 					}
-					changes["store-image-data"] = {"user": false, "data": cloneObject(Array.from(tokens.values()))};
-					amendNode(i, {"src": `/images/${data["src"]}`});
-				}
-			})}, lang["TOKEN_USE_SELECTED"]),
-			i,
+				});
+			}}, lang["TOKEN_USE_SELECTED"]),
 			removeSymbol({"onclick": () => w.confirm(lang["TOKEN_REMOVE"], lang["TOKEN_REMOVE_CONFIRM"]).then(proceed => {
 				if (proceed) {
 					tokens.delete(n);
@@ -201,13 +201,10 @@ inited.then(() => {
 		},
 		[`.${tokenSelector}`]: {
 			"overflow": "hidden",
-			"position": "relative",
-			"width": "200px",
-			"height": "200px",
 			">button": {
-				"position": "absolute",
-				"left": 0,
 				"background-color": "transparent",
+				"background-size": "cover",
+				"background-repeat": "no-repeat",
 				"width": "200px",
 				"height": "200px",
 				"color": "#000",
