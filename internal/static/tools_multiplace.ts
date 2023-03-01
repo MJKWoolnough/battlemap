@@ -1,9 +1,9 @@
-import type {TokenImage, Uint} from './types.js';
+import type {TokenImage} from './types.js';
 import type {SVGToken} from './map_tokens.js';
 import {amendNode} from './lib/dom.js';
 import {setDragEffect} from './lib/drag.js';
 import {mouseMoveEvent} from './lib/events.js';
-import {br, button, div, img, input, label} from './lib/html.js';
+import {br, button, div, input, label} from './lib/html.js';
 import {node} from './lib/nodes.js';
 import {circle, path, svg, title} from './lib/svg.js';
 import {dragImage} from './assets.js';
@@ -33,12 +33,7 @@ inited.then(() => {
 			defaultTool.unset?.();
 		}
 	      }}),
-	      i = img(),
 	      setCursor = () => amendNode((cursor = new tokenClass(token = setToken!()))[node], {"opacity": 0.5}),
-	      setImg = (id: Uint) => {
-		amendNode(i, {"src": `/images/${id}`});
-		setCursor();
-	      },
 	      fullToken = (tk: Partial<TokenImage>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": mapData.gridSize, "height": mapData.gridSize, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColours": [], "lightStages": [], "lightTimings": []}, tk),
 	      [moveCursor, stopCursor] = mouseMoveEvent((e: MouseEvent) => {
 		[cursor!.x, cursor!.y] = screen2Grid(e.clientX - cursor!.width / 2, e.clientY - cursor!.height / 2, token!.snap);
@@ -79,16 +74,17 @@ inited.then(() => {
 			br(),
 			label([lang["TOKEN"], ": "]),
 			div({"class": tokenSelector}, [
-				button({"onclick": () => {
+				button({"onclick": function(this: HTMLButtonElement) {
 					const data = getToken();
 					if (data) {
 						setToken = () => fullToken(cloneObject(data));
-						setImg(data["src"]);
+						amendNode(this, {"style": `background-image: url(/images/${data["src"]})`});
+						setCursor();
 						if (!mode.checked) {
 							deselectToken();
 						}
 					}
-				}, "ondragover": setDragEffect({"link": [dragCharacter, dragImage]}), "ondrop": (e: DragEvent) => {
+				}, "ondragover": setDragEffect({"link": [dragCharacter, dragImage]}), "ondrop": function(this: HTMLButtonElement, e: DragEvent) {
 					if (dragCharacter.is(e)) {
 						const tD = dragCharacter.get(e),
 						      char = characterData.get(tD.id);
@@ -97,15 +93,16 @@ inited.then(() => {
 								const ct = getCharacterToken(char);
 								return ct ? fullToken(ct) : fullToken({"src": char["store-image-icon"].data});
 							}
-							setImg(parseInt(char["store-image-icon"].data));
+							amendNode(this, {"style": `background-image: url(/images/${char["store-image-icon"].data})`});
+							setCursor();
 						}
 					} else if (dragImage.is(e)) {
 						const {id: src, width, height} = dragImage.get(e);
 						setToken = () => fullToken({src, width, height});
-						setImg(src);
+						amendNode(this, {"style": `background-image: url(/images/${src})`});
+						setCursor();
 					}
-				}}, lang["TOKEN_USE_SELECTED"]),
-				i
+				}}, lang["TOKEN_USE_SELECTED"])
 			]),
 			button({"onclick": () => cursor && setCursor()}, lang["TOKEN_NEXT"])
 		]),
