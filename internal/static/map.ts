@@ -1,7 +1,7 @@
 import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDrawing, TokenImage, TokenSet, Uint, Wall} from './types.js';
 import type {LightWall} from './map_lighting.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
-import {add, ids} from './lib/css.js';
+import {add, at, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {mouseDragEvent} from './lib/events.js';
 import Fraction from './lib/fraction.js';
@@ -569,9 +569,6 @@ add({
 			"margin": "0 1em"
 		}
 	},
-	[`.${invertID} #${mapLoading}`]: {
-		"background-color": "#000"
-	},
 	[`.${hideZoomSlider} #${zoomSliderID}`]: {
 		"display": "none"
 	},
@@ -600,6 +597,16 @@ add({
 		" circle": {
 			"fill": "#f00"
 		}
+	}
+});
+at("@media (prefers-color-scheme: light)", {
+	[`:root.${invertID} #${mapLoading}`]: {
+		"background-color": "#000"
+	}
+});
+at("@media (prefers-color-scheme: dark)", {
+	[`:root.:not(${invertID}) #${mapLoading}`]: {
+		"background-color": "#000"
 	}
 });
 
