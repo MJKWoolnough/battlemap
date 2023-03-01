@@ -75,7 +75,7 @@ menuItems.push([7, () => [
 			summary(h1(lang["SETTINGS_THEME"])),
 			labels(input({"type": "checkbox", "class": settingsTicker, "checked": invert.value, "onchange": function(this: HTMLInputElement) {
 				invert.set(this.checked);
-			}}), [lang["SETTINGS_DARK_MODE"], ": "]),
+			}}), [lang["SETTINGS_INVERT"], ": "]),
 			br(),
 			labels(input({"type": "checkbox", "class": settingsTicker, "checked": tabIcons.value, "onchange": function(this: HTMLInputElement) {
 				tabIcons.set(this.checked);
