@@ -13,7 +13,7 @@ import {item, menu, submenu} from './lib/menu.js';
 import {checkInt, mod} from './lib/misc.js';
 import {NodeArray, node, noSort} from './lib/nodes.js';
 import {rect} from './lib/svg.js';
-import {dragImage, dragImageFiles, uploadImages} from './assets.js';
+import {dragImage, dragImageFiles, imageIDtoURL, uploadImages} from './assets.js';
 import {dragCharacter, edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {adminHideLight, cursors, hiddenLayer, itemControl, layerLight, mapID, selectedLayerID} from './ids.js';
@@ -181,7 +181,7 @@ export default (base: HTMLElement) => {
 			      {layer} = selected;
 			uploadImages(dragImageFiles.asForm(e, "asset")).then(images => {
 				for (const image of images) {
-					img({"src": `/images/${image.id}`, "onload": function(this: HTMLImageElement) {
+					img({"src": imageIDtoURL(image.id), "onload": function(this: HTMLImageElement) {
 						const {width, height} = this;
 						if (selected.layer === layer && width > 0 && height > 0) {
 							const token = {"id": 0, "src": image.id, x, y, width, height, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColours": [], "lightStages": [], "lightTimings": []};
