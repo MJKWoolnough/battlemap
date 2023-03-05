@@ -16,6 +16,7 @@ import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
 import {BoolSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {selectToken} from '../adminMap.js';
+import {imageIDtoURL} from '../assets.js';
 import {Colour, ColourSetting, makeColourPicker} from '../colours.js';
 import {adminHideLight, itemControl, lighting, settingsTicker, tokenSelector} from '../ids.js';
 import {registerKeyEvent} from '../keys.js';
@@ -281,7 +282,7 @@ const select = Symbol("select"),
 			token[node].parentNode!.insertBefore(highlight, token[node]);
 		}
 	}, "onmouseleave": () => highlight.remove()}, [
-		img({"src": `/images/${token.src}`, "onclick": (e: MouseEvent) => {
+		img({"src": imageIDtoURL(token.src), "onclick": (e: MouseEvent) => {
 			centreOnGrid(token.x + (token.width >> 1), token.y + (token.height >> 1));
 			if (isAdmin && e.ctrlKey) {
 				selectToken(token);
@@ -909,7 +910,7 @@ if (isAdmin) {
 	      addToken = (t: ShapechangeToken, row: Uint) => {
 		tickers.push([]);
 		const name = span(t["5e-shapechange-name"]),
-		      i = img({"src": `/images/${t.src}`}),
+		      i = img({"src": imageIDtoURL(t.src)}),
 		      r = tr([
 			th([
 				div({"class": [tokenSelector, tokenSelector5E], "style": "width: 100px; height: 100px"}, [
@@ -920,7 +921,7 @@ if (isAdmin) {
 							shell.confirm(mainLang["TOKEN_REPLACE"], mainLang["TOKEN_REPLACE_CONFIRM"]).then(replace => {
 								if (replace) {
 									Object.assign(t, token);
-									amendNode(i, {"src": `/images/${t.src}`});
+									amendNode(i, {"src": imageIDtoURL(t.src)});
 								}
 							});
 						} else {
