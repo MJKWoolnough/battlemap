@@ -6,7 +6,7 @@ import {mouseMoveEvent} from './lib/events.js';
 import {br, button, div, input, label} from './lib/html.js';
 import {node} from './lib/nodes.js';
 import {circle, path, svg, title} from './lib/svg.js';
-import {dragImage} from './assets.js';
+import {dragImage, imageIDtoURL} from './assets.js';
 import {dragCharacter} from './characters.js';
 import {noColour} from './colours.js';
 import {settingsTicker, tokenSelector} from './ids.js';
@@ -78,7 +78,7 @@ inited.then(() => {
 					const data = getToken();
 					if (data) {
 						setToken = () => fullToken(cloneObject(data));
-						amendNode(this, {"style": `background-image: url(/images/${data["src"]})`});
+						amendNode(this, {"style": `background-image: url(${imageIDtoURL(data["src"])})`});
 						setCursor();
 						if (!mode.checked) {
 							deselectToken();
@@ -93,13 +93,13 @@ inited.then(() => {
 								const ct = getCharacterToken(char);
 								return ct ? fullToken(ct) : fullToken({"src": char["store-image-icon"].data});
 							}
-							amendNode(this, {"style": `background-image: url(/images/${char["store-image-icon"].data})`});
+							amendNode(this, {"style": `background-image: url(${imageIDtoURL(char["store-image-icon"].data)})`});
 							setCursor();
 						}
 					} else if (dragImage.is(e)) {
 						const {id: src, width, height} = dragImage.get(e);
 						setToken = () => fullToken({src, width, height});
-						amendNode(this, {"style": `background-image: url(/images/${src})`});
+						amendNode(this, {"style": `background-image: url(${imageIDtoURL(src)})`});
 						setCursor();
 					}
 				}}, lang["TOKEN_USE_SELECTED"])
