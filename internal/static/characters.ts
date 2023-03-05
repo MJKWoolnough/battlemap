@@ -8,7 +8,7 @@ import {br, button, div, img, input, label, li, ul} from './lib/html.js';
 import {autoFocus, queue} from './lib/misc.js';
 import {NodeMap, node, noSort} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
-import {dragImage} from './assets.js';
+import {dragImage, imageIDtoURL} from './assets.js';
 import {settingsTicker, tokenSelector} from './ids.js';
 import lang from './language.js';
 import {doTokenSet, getToken} from './map_fns.js';
@@ -43,7 +43,7 @@ edit = (id: Uint, title: string | Binding, d: Record<string, KeystoreData>, char
 	      nameVisibility = input({"type": "checkbox", "class": userVisibility, "checked": d["name"]?.["user"] !== false, "onchange": nameUpdate}),
 	      makeToken = (n: Uint, tk: {src: Uint}) => Object.assign({[node]: li({"class": tokenSelector}, (() => {
 		return [
-			button({"style": `background-image: url(/images/${tk["src"]})`, "onclick": function(this: HTMLButtonElement) {
+			button({"style": `background-image: url(${imageIDtoURL(tk["src"])})`, "onclick": function(this: HTMLButtonElement) {
 				w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]).then(proceed => {
 					if (proceed) {
 						const data = getToken();
@@ -52,7 +52,7 @@ edit = (id: Uint, title: string | Binding, d: Record<string, KeystoreData>, char
 							return;
 						}
 						changes["store-image-data"] = {"user": false, "data": cloneObject(Array.from(tokens.values()))};
-						amendNode(this, {"style": `background-image: url(/images/${data["src"]})`});
+						amendNode(this, {"style": `background-image: url(${imageIDtoURL(data["src"])})`});
 					}
 				});
 			}}, lang["TOKEN_USE_SELECTED"]),
@@ -74,8 +74,8 @@ edit = (id: Uint, title: string | Binding, d: Record<string, KeystoreData>, char
 			div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": imageDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 				const {id} = dragImage.get(e)!;
 				changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": id};
-				clearNode(this, img({"src": `/images/${id}`, "style": "max-width: 100%; max-height: 100%"}));
-			}}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),
+				clearNode(this, img({"src": imageIDtoURL(id), "style": "max-width: 100%; max-height: 100%"}));
+			}}, img({"src": imageIDtoURL(d["store-image-icon"].data), "style": "max-width: 100%; max-height: 100%"})),
 			br(),
 			label([lang["TOKEN"], ": "]),
 			tokens[node],
@@ -99,8 +99,8 @@ edit = (id: Uint, title: string | Binding, d: Record<string, KeystoreData>, char
 				const {id} = dragCharacter.get(e)!,
 				      charData = characterData.get(id)!;
 				changes["store-character-id"] = {"user": true, "data": id};
-				clearNode(this, img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(id, lang["CHARACTER_EDIT"], charData, true)}));
-			}}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : [])
+				clearNode(this, img({"src": imageIDtoURL(charData["store-image-icon"].data), "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(id, lang["CHARACTER_EDIT"], charData, true)}));
+			}}, d["store-character-id"] ? img({"src": imageIDtoURL(characterData.get(d["store-character-id"].data)!["store-image-icon"].data), "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : [])
 		]
 	      ]),
 	      onEnd = characterEdit(base, id, d, character, changes, removes, w);
