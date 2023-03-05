@@ -49,7 +49,7 @@ class AudioAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name, dragAudio);
 		amendNode(this.image, {"src": audioIcon});
-		this.#bbcodeID = bbcodeDrag.register(() => () => `[audio]/images/${id}[/audio]`);
+		this.#bbcodeID = bbcodeDrag.register(() => () => `[audio]/audio/${id}[/audio]`);
 	}
 	show() {
 		const w = windows({"window-icon": audioIcon, "window-title": this.name, "hide-minimise": false, "class": showAsset}, audio({"src": `/audio/${this.id}`, "controls": "controls", "draggable": "true", "ondragstart": this}));
