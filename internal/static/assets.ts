@@ -23,12 +23,12 @@ class ImageAsset extends DraggableItem {
 	#bbcodeID: string;
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name, dragImage, true);
-		amendNode(this.image, {"src": `/images/${id}`});
-		this.#bbcodeID = bbcodeDrag.register(() => () => `[img]/images/${id}[/img]`);
+		amendNode(this.image, {"src": imageIDtoURL(id)});
+		this.#bbcodeID = bbcodeDrag.register(() => () => `[img]${imageIDtoURL(id)}[/img]`);
 	}
 	show() {
-		const w = windows({"window-icon": imageIcon, "window-title": this.name, "hide-minimise": false, "class": showAsset}, img({"src": `/images/${this.id}`, "draggable": "true", "ondragstart": this}));
-		w.addControlButton(shareStr, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]/images/${this.id}[/img]`), lang["SHARE"]);
+		const w = windows({"window-icon": imageIcon, "window-title": this.name, "hide-minimise": false, "class": showAsset}, img({"src": imageIDtoURL(this.id), "draggable": "true", "ondragstart": this}));
+		w.addControlButton(shareStr, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]${imageIDtoURL(this.id)}[/img]`), lang["SHARE"]);
 		amendNode(shell, w);
 		return w;
 	}
@@ -49,11 +49,11 @@ class AudioAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name, dragAudio);
 		amendNode(this.image, {"src": audioIcon});
-		this.#bbcodeID = bbcodeDrag.register(() => () => `[audio]/audio/${id}[/audio]`);
+		this.#bbcodeID = bbcodeDrag.register(() => () => `[audio]${audioIDtoURL(id)}[/audio]`);
 	}
 	show() {
-		const w = windows({"window-icon": audioIcon, "window-title": this.name, "hide-minimise": false, "class": showAsset}, audio({"src": `/audio/${this.id}`, "controls": "controls", "draggable": "true", "ondragstart": this}));
-		w.addControlButton(shareStr, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);
+		const w = windows({"window-icon": audioIcon, "window-title": this.name, "hide-minimise": false, "class": showAsset}, audio({"src": audioIDtoURL(this.id), "controls": "controls", "draggable": "true", "ondragstart": this}));
+		w.addControlButton(shareStr, () => rpc.broadcastWindow("audioAsset", 0, `[audio]${audioIDtoURL(this.id)}[/audio]`), lang["SHARE"]);
 		amendNode(shell, w);
 		return w;
 	}
@@ -207,7 +207,9 @@ uploadAudio = uploadAsset.bind(null, audioRoot, "audio"),
 dragImageFiles = new DragFiles("image/gif", "image/png", "image/jpeg", "image/webp", "video/apng"),
 dragAudioFiles = new DragFiles("application/ogg", "audio/mpeg"),
 dragAudio = new DragTransfer<AudioAsset>("audioasset"),
-dragImage = new DragTransfer<ImageAsset>("imageasset");
+dragImage = new DragTransfer<ImageAsset>("imageasset"),
+imageIDtoURL = (id: Uint) => `/images/${id}`,
+audioIDtoURL = (id: Uint) => `/audio/${id}`;
 
 register("imageAsset", [imageIcon, lang["TAB_IMAGES"]]);
 register("audioAsset", [audioIcon, lang["TAB_AUDIO"]]);
