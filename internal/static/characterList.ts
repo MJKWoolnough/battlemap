@@ -6,7 +6,7 @@ import {br, button, div, h1, img, input, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {autoFocus, setAndReturn} from './lib/misc.js';
 import {node} from './lib/nodes.js';
-import {dragImage} from './assets.js';
+import {dragImage, imageIDtoURL} from './assets.js';
 import {characterIcon, dragCharacter, edit as characterEdit} from './characters.js';
 import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
@@ -33,7 +33,7 @@ export class Character extends DraggableItem {
 		characters.set(id, this);
 	}
 	setIcon(id: Uint) {
-		amendNode(this.image, {"src": `/images/${id}`});
+		amendNode(this.image, {"src": imageIDtoURL(id)});
 	}
 	show() {
 		characterEdit(this.id, this.name, characterData.get(this.id)!, true);
@@ -119,7 +119,7 @@ menuItems.push([2, () => isAdmin ? [
 						br(),
 						label([lang["CHARACTER_IMAGE"], ": "]),
 						div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": dragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-							clearNode(this, img({"src": `/images/${icon = dragImage.get(e)!.id}`, "style": "max-width: 100%; max-height: 100%"}));
+							clearNode(this, img({"src": imageIDtoURL(icon = dragImage.get(e)!.id), "style": "max-width: 100%; max-height: 100%"}));
 						}}, lang["CHARACTER_DRAG_ICON"]),
 						br(),
 						button({"onclick": function(this: HTMLButtonElement) {
