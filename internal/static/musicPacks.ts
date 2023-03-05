@@ -10,7 +10,7 @@ import {audio, br, button, div, h1, img, input, li, span, ul} from './lib/html.j
 import {checkInt} from './lib/misc.js';
 import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {animate, ns as svgNS, path, rect, svg, title} from './lib/svg.js';
-import {audioAssetName, dragAudio, dragAudioFiles, uploadAudio} from './assets.js';
+import {audioAssetName, audioIDtoURL, dragAudio, dragAudioFiles, uploadAudio} from './assets.js';
 import {foldersItem, itemControl, psuedoLink} from './ids.js';
 import lang from './language.js';
 import {bbcodeDrag, registerTag} from './messaging.js';
@@ -50,7 +50,7 @@ class Track {
 			this.waitPlay();
 			return;
 		}
-		this.audioElement = audio({"src": `/audio/${this.id}`, "onloadeddata": event(() => {
+		this.audioElement = audio({"src": audioIDtoURL(this.id), "onloadeddata": event(() => {
 			this.updateVolume();
 			this.waitPlay();
 		}, eventOnce), "onended": () => this.waitPlay()});
