@@ -6,6 +6,7 @@ import {Pipe} from './lib/inter.js';
 import {setAndReturn} from './lib/misc.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
+import {imageIDtoURL} from './assets.js';
 import {Colour, noColour} from './colours.js';
 import {cursors, gridPattern, lighting, mapMask} from './ids.js';
 import {timeShift} from './rpc.js';
@@ -144,7 +145,7 @@ export class SVGToken extends SVGTransform {
 		this.flop = token.flop;
 		this.patternWidth = token.patternWidth;
 		this.patternHeight = token.patternWidth;
-		this[node] = image(Object.assign({"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": this.transformString()}, wg ? {"onload": () => wg.done(), "onerror": () => wg.error()} : {}));
+		this[node] = image(Object.assign({"class": "mapToken", "href": imageIDtoURL(token.src), "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": this.transformString()}, wg ? {"onload": () => wg.done(), "onerror": () => wg.error()} : {}));
 		if (token.patternWidth > 0) {
 			setTimeout(() => this.updateNode());
 		}
@@ -166,7 +167,7 @@ export class SVGToken extends SVGTransform {
 	updateNode() {
 		if (this[node] instanceof SVGRectElement && !this.isPattern) {
 			definitions.remove(this[node].getAttribute("fill")!.slice(5, -1));
-			this[node].replaceWith(this[node] = image({"href": `/images/${this.src}`, "preserveAspectRatio": "none"}));
+			this[node].replaceWith(this[node] = image({"href": imageIDtoURL(this.src), "preserveAspectRatio": "none"}));
 		} else if (this[node] instanceof SVGImageElement && this.isPattern) {
 			this[node].replaceWith(this[node] = rect({"class": "mapPattern", "fill": `url(#${definitions.add(this)})`}));
 		}
@@ -368,7 +369,7 @@ definitions = (() => {
 				i++;
 			}
 			const id = `Pattern_${i}`;
-			amendNode(base, setAndReturn(list, id, pattern({id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, image({"href": `/images/${t.src}`, "width": t.patternWidth, "height": t.patternHeight, "preserveAspectRatio": "none"}))));
+			amendNode(base, setAndReturn(list, id, pattern({id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, image({"href": imageIDtoURL(t.src), "width": t.patternWidth, "height": t.patternHeight, "preserveAspectRatio": "none"}))));
 			return id;
 		},
 		remove(id: string) {
