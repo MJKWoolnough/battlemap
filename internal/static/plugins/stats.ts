@@ -6,6 +6,7 @@ import {button, div, h2, img, table, tbody, td, th, thead, tr} from '../lib/html
 import {NodeArray, node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
 import {mapLoadReceive} from '../adminMap.js';
+import {imageIDtoURL} from '../assets.js';
 import {language, makeLangPack} from '../language.js';
 import {SVGToken, tokens} from '../map_tokens.js';
 import {addPlugin} from '../plugins.js';
@@ -84,7 +85,7 @@ if (isAdmin) {
 									size,
 									[node]: tr([
 										td(id + ""),
-										td(img({"src": `/images/${id}`})),
+										td(img({"src": imageIDtoURL(id)})),
 										td(formatNumber.format(size))
 									])
 								});
@@ -95,11 +96,11 @@ if (isAdmin) {
 									size: 0,
 									[node]: tr([
 										td(id + ""),
-										td(img({"src": `/images/${id}`})),
+										td(img({"src": imageIDtoURL(id)})),
 										sizeTD
 									])
 								      };
-								HTTPRequest(`/images/${id}`, {"method": "head", "response": "xh"}).then(xh => {
+								HTTPRequest(imageIDtoURL(id), {"method": "head", "response": "xh"}).then(xh => {
 									const size = parseInt(xh.getResponseHeader("Content-Length") || "0");
 									clearNode(sizeTD, formatNumber.format(o.size = size));
 									clearNode(total, formatNumber.format(totalSize += size));
