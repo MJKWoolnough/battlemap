@@ -9,7 +9,7 @@ tmpFile="$(mktemp)";
 	cd "$data";
 	head -n5 index.html | tr -d '\n	';
 	echo -n "<script type=\"module\">";
-	jspacker -i "/$(grep "<script" index.html | grep -v "lib/load.js" | sed -e 's/.*src="\([^"]*\)".*/\1/')" | terser -m  --module --compress pure_getters,passes=3 --ecma 6 | tr -d '\n';
+	jspacker -i "/$(grep "<script" index.html | sed -e 's/.*src="\([^"]*\)".*/\1/')" | terser -m  --module --compress pure_getters,passes=3 --ecma 6 | tr -d '\n';
 	echo -n "</script>";
 	tail -n5 index.html | tr -d '\n	';
 ) > "$tmpFile";
