@@ -183,13 +183,13 @@ const [panelsID, tabsID, panelContainerID, panelOnTopID, tabLabelsID, panelHider
 					"border-bottom-color": "var(--c)",
 					"z-index": 2,
 					"background": "var(--c) !important",
-					"cursor": "default !important"
-				},
-				[a.map(n => `#${tabsID}>input:nth-child(${n}):checked~#${tabLabelsID}>label:nth-child(${n}):before`).join(",")]: {
-					"box-shadow": "2px 2px 0 var(--c)"
-				},
-				[a.map(n => `#${tabsID}>input:nth-child(${n}):checked~#${tabLabelsID}>label:nth-child(${n}):after`).join(",")]: {
-					"box-shadow": "-2px 2px 0 var(--c)"
+					"cursor": "default !important",
+					":before": {
+						"box-shadow": "2px 2px 0 var(--c)"
+					},
+					":after": {
+						"box-shadow": "-2px 2px 0 var(--c)"
+					}
 				}
 			});
 		},
