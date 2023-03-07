@@ -108,7 +108,98 @@ Object.defineProperties(window, {
 				setTimeout(() => this.dispatchEvent(new Event("open")));
 				setTimeout(() => this.#send(-1, exampleData.admin ? 2 : 1));
 			}
-			send(_data: string) {
+			send(data: string) {
+				const packet = JSON.parse(data);
+				this.#send(packet.id, this.#handle(packet.method, packet.params));
+			}
+			#handle(method: string, params: unknown) {
+				switch (method) {
+				case "conn.ready":
+				case "conn.currentTime":
+				case "maps.setCurrentMap":
+				case "maps.getUserMap":
+				case "maps.setUserMap":
+				case "maps.getMapData":
+				case "maps.new":
+				case "maps.setMapDetails":
+				case "maps.setMapStart":
+				case "maps.setGridDistance":
+				case "maps.setGridDiagonal":
+				case "maps.setLightColour":
+				case "maps.setData":
+				case "maps.removeData":
+				case "maps.addLayer":
+				case "maps.addLayerFolder":
+				case "maps.renameLayer":
+				case "maps.moveLayer":
+				case "maps.showLayer":
+				case "maps.hideLayer":
+				case "maps.lockLayer":
+				case "maps.unlockLayer":
+				case "maps.addToMask":
+				case "maps.removeFromMask":
+				case "maps.setMask":
+				case "maps.removeLayer":
+				case "maps.addToken":
+				case "maps.removeToken":
+				case "maps.setToken":
+				case "maps.setTokenMulti":
+				case "maps.setTokenLayerPos":
+				case "maps.shiftLayer":
+				case "maps.addWall":
+				case "maps.removeWall":
+				case "maps.modifyWall":
+				case "maps.moveWall":
+				case "music.list":
+				case "music.new":
+				case "music.rename":
+				case "music.remove":
+				case "music.copy":
+				case "music.setVolume":
+				case "music.playPack":
+				case "music.stopPack":
+				case "music.stopAllPacks":
+				case "music.addTracks":
+				case "music.removeTrack":
+				case "music.setTrackVolume":
+				case "music.setTrackRepeat":
+				case "characters.create":
+				case "characters.modify":
+				case "characters.get":
+				case "plugins.list":
+				case "plugins.enable":
+				case "plugins.disable":
+				case "plugins.set":
+				case "imageAssets.list":
+				case "imageAssets.createFolder":
+				case "imageAssets.move":
+				case "imageAssets.moveFolder":
+				case "imageAssets.remove":
+				case "imageAssets.removeFolder":
+				case "imageAssets.copy":
+				case "audioAssets.list":
+				case "audioAssets.createFolder":
+				case "audioAssets.move":
+				case "audioAssets.moveFolder":
+				case "audioAssets.remove":
+				case "imageAssets.removeFolder":
+				case "imageAssets.copy":
+				case "characters.list":
+				case "characters.createFolder":
+				case "characters.move":
+				case "characters.moveFolder":
+				case "characters.remove":
+				case "characters.removeFolder":
+				case "characters.copy":
+				case "maps.list":
+				case "maps.createFolder":
+				case "maps.move":
+				case "maps.moveFolder":
+				case "maps.remove":
+				case "maps.removeFolder":
+				case "maps.copy":
+				}
+				return null;
 			}
 			#send(id: number, result: unknown) {
 				setTimeout(() => this.dispatchEvent(new MessageEvent("message", {"data": JSON.stringify({id, result})})));
