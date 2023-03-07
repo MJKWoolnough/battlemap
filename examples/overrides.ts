@@ -137,6 +137,7 @@ Object.defineProperties(window, {
 					}
 					break;
 				case "conn.currentTime":
+					return Math.floor(Date.now() / 1000);
 				case "maps.setCurrentMap":
 				case "maps.getUserMap":
 				case "maps.setUserMap":
