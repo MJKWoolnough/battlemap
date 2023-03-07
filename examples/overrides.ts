@@ -115,6 +115,12 @@ Object.defineProperties(window, {
 			#handle(method: string, params: unknown) {
 				switch (method) {
 				case "conn.ready":
+					if (exampleData.admin) {
+						this.#send(-2, exampleData.currentMap);
+					} else if (exampleData.currentUserMap > 0) {
+						this.#send(-3, exampleData.mapData[exampleData.currentUserMap]);
+					}
+					break;
 				case "conn.currentTime":
 				case "maps.setCurrentMap":
 				case "maps.getUserMap":
