@@ -142,6 +142,7 @@ Object.defineProperties(window, {
 					exampleData.currentMap = JSON.parse(params as string);
 					return null;
 				case "maps.getUserMap":
+					return exampleData.currentUserMap;
 				case "maps.setUserMap":
 				case "maps.getMapData":
 				case "maps.new":
