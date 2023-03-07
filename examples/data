@@ -1,0 +1,50 @@
+{
+  "admin": true,
+  "currentMap": 0,
+  "currentUserMap": 0,
+  "urls": {
+    "images": [
+      ""
+    ],
+    "audio": [
+      ""
+    ]
+  },
+  "mapData": [
+    {}
+  ],
+  "characterData": [
+    {}
+  ],
+  "images": {
+    "folders": {},
+    "items": {}
+  },
+  "audio": {
+    "folders": {},
+    "items": {}
+  },
+  "maps": {
+    "folders": {},
+    "items": {}
+  },
+  "characters": {
+    "folders": {},
+    "items": {}
+  },
+  "plugins": {
+    "5e.js": {
+      "enabled": true,
+      "data": {}
+    },
+    "notes.js": {
+      "enabled": true,
+      "data": {}
+    },
+    "spells.js": {
+      "enabled": true,
+      "data": {}
+    }
+  },
+  "localStorage": {}
+}
