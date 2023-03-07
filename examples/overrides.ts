@@ -77,7 +77,21 @@ type MapData = Layer & {
 type KeystoreData = {
 	user: boolean;
 	data: unknown;
-};
+}
+
+type MusicTrack = {
+	id: number;
+	volume: number;
+	repeat: number;
+}
+
+type MusicPack = {
+	id: number;
+	name: string;
+	tracks: MusicTrack[];
+	volume: number;
+	playTime: number;
+}
 
 declare const exampleData: {
 	admin: boolean;
@@ -93,6 +107,7 @@ declare const exampleData: {
 	audio: Folder;
 	characters: Folder;
 	maps: Folder;
+	music: MusicPack[];
 	plugins: Record<string, {
 		enabled: boolean;
 		data: Record<string, KeystoreData>;
