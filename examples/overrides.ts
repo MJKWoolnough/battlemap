@@ -111,6 +111,15 @@ Object.defineProperties(window, {
 	},
 	"localStorage": {
 		"value": new (class Storage {
+			getItem(name: string) {
+				return exampleData.localStorage[name] ?? null;
+			}
+			setItem(name: string, value: string) {
+				exampleData.localStorage[name] = value;
+			}
+			removeItem(name: string) {
+				delete exampleData.localStorage[name];
+			}
 		})()
 	},
 	"saveData": {
