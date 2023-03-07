@@ -103,6 +103,18 @@ declare const exampleData: {
 Object.defineProperties(window, {
 	"WebSocket": {
 		"value": class WebSocket extends EventTarget {
+			constructor() {
+				super();
+				setTimeout(() => this.dispatchEvent(new Event("open")));
+				setTimeout(() => this.#send(-1, exampleData.admin ? 2 : 1));
+			}
+			send(_data: string) {
+			}
+			#send(id: number, result: unknown) {
+				setTimeout(() => this.dispatchEvent(new MessageEvent("message", {"data": JSON.stringify({id, result})})));
+			}
+			close() {
+			}
 		}
 	},
 	"XMLHttpRequest": {
