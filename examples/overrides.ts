@@ -147,6 +147,7 @@ Object.defineProperties(window, {
 					exampleData.currentUserMap = JSON.parse(params as string);
 					return null;
 				case "maps.getMapData":
+					return exampleData.mapData[params as number];
 				case "maps.new":
 				case "maps.setMapDetails":
 				case "maps.setMapStart":
@@ -177,6 +178,7 @@ Object.defineProperties(window, {
 				case "maps.removeWall":
 				case "maps.modifyWall":
 				case "maps.moveWall":
+					break;
 				case "music.list":
 					return exampleData.music;
 				case "music.new":
