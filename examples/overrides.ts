@@ -99,3 +99,21 @@ declare const exampleData: {
 	}>;
 	localStorage: Record<string, string>;
 };
+
+Object.defineProperties(window, {
+	"WebSocket": {
+		"value": class WebSocket extends EventTarget {
+		}
+	},
+	"XMLHttpRequest": {
+		"value": class XMLHttpRequest extends EventTarget {
+		}
+	},
+	"localStorage": {
+		"value": new (class Storage {
+		})()
+	},
+	"saveData": {
+		"value": () => console.log(exampleData)
+	}
+});
