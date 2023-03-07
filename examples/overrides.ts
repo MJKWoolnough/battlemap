@@ -173,6 +173,7 @@ Object.defineProperties(window, {
 				case "maps.modifyWall":
 				case "maps.moveWall":
 				case "music.list":
+					return exampleData.music;
 				case "music.new":
 				case "music.rename":
 				case "music.remove":
@@ -188,38 +189,49 @@ Object.defineProperties(window, {
 				case "characters.create":
 				case "characters.modify":
 				case "characters.get":
+					break;
 				case "plugins.list":
+					return exampleData.plugins;
 				case "plugins.enable":
 				case "plugins.disable":
 				case "plugins.set":
+					break;
 				case "imageAssets.list":
+					return exampleData.images;
 				case "imageAssets.createFolder":
 				case "imageAssets.move":
 				case "imageAssets.moveFolder":
 				case "imageAssets.remove":
 				case "imageAssets.removeFolder":
 				case "imageAssets.copy":
+					break;
 				case "audioAssets.list":
+					return exampleData.audio;
 				case "audioAssets.createFolder":
 				case "audioAssets.move":
 				case "audioAssets.moveFolder":
 				case "audioAssets.remove":
 				case "imageAssets.removeFolder":
 				case "imageAssets.copy":
+					break;
 				case "characters.list":
+					return exampleData.characters;
 				case "characters.createFolder":
 				case "characters.move":
 				case "characters.moveFolder":
 				case "characters.remove":
 				case "characters.removeFolder":
 				case "characters.copy":
+					break;
 				case "maps.list":
+					return exampleData.maps;
 				case "maps.createFolder":
 				case "maps.move":
 				case "maps.moveFolder":
 				case "maps.remove":
 				case "maps.removeFolder":
 				case "maps.copy":
+					break;
 				}
 				return null;
 			}
