@@ -32,6 +32,7 @@
     "folders": {},
     "items": {}
   },
+  music: [],
   "plugins": {
     "5e.js": {
       "enabled": true,
