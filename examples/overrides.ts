@@ -139,6 +139,8 @@ Object.defineProperties(window, {
 				case "conn.currentTime":
 					return Math.floor(Date.now() / 1000);
 				case "maps.setCurrentMap":
+					exampleData.currentMap = JSON.parse(params as string);
+					return null;
 				case "maps.getUserMap":
 				case "maps.setUserMap":
 				case "maps.getMapData":
