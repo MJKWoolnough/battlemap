@@ -430,7 +430,7 @@ Object.defineProperties(window, {
 					return itemDelete(exampleData.characters, params as string);
 				case "characters.removeFolder":
 					return folderDelete(exampleData.characters, params as string);
-				case "characters.copy":
+				case "characters.copy": {
 					const [p, name] = getFolderItem(exampleData.characters, (params as IDPath).path),
 					      ms = exampleData.characterData[(params as IDPath).id],
 					      newID = exampleData.characterData.length;
@@ -439,6 +439,7 @@ Object.defineProperties(window, {
 					}
 					exampleData.characterData.push(JSON.parse(JSON.stringify(ms)));
 					return {"id": newID, "path": (params as IDPath).path.slice(0, name.length) + addItemTo(p.items, name, newID)};
+				}
 				case "maps.list":
 					return exampleData.maps;
 				case "maps.createFolder":
@@ -451,8 +452,16 @@ Object.defineProperties(window, {
 					return itemDelete(exampleData.maps, params as string);
 				case "maps.removeFolder":
 					return folderDelete(exampleData.maps, params as string);
-				case "maps.copy":
-					return copyItem(exampleData.maps, (params as IDPath).id, (params as IDPath).path);
+				case "maps.copy": {
+					const [p, name] = getFolderItem(exampleData.maps, (params as IDPath).path),
+					      ms = exampleData.mapData[(params as IDPath).id],
+					      newID = exampleData.mapData.length;
+					if (!p || !ms) {
+						return null;
+					}
+					exampleData.mapData.push(JSON.parse(JSON.stringify(ms)));
+					return {"id": newID, "path": (params as IDPath).path.slice(0, name.length) + addItemTo(p.items, name, newID)};
+				}
 				}
 				return null;
 			}
