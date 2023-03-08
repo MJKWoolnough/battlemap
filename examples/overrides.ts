@@ -93,6 +93,16 @@ type MusicPack = {
 	playTime: number;
 }
 
+type FromTo = {
+	from: string;
+	to: string;
+}
+
+type IDPath = {
+	id: number;
+	path: string;
+}
+
 declare const exampleData: {
 	admin: boolean;
 	currentMap: number;
@@ -369,39 +379,59 @@ Object.defineProperties(window, {
 				case "imageAssets.list":
 					return exampleData.images;
 				case "imageAssets.createFolder":
+					return folderCreate(exampleData.images, params as string);
 				case "imageAssets.move":
+					return itemMove(exampleData.images, (params as FromTo).from, (params as FromTo).to);
 				case "imageAssets.moveFolder":
+					return folderMove(exampleData.images, (params as FromTo).from, (params as FromTo).to);
 				case "imageAssets.remove":
+					return itemDelete(exampleData.images, params as string);
 				case "imageAssets.removeFolder":
+					return folderDelete(exampleData.images, params as string);
 				case "imageAssets.copy":
-					break;
+					return copyItem(exampleData.images, (params as IDPath).id, (params as IDPath).path);
 				case "audioAssets.list":
 					return exampleData.audio;
 				case "audioAssets.createFolder":
+					return folderCreate(exampleData.audio, params as string);
 				case "audioAssets.move":
+					return itemMove(exampleData.audio, (params as FromTo).from, (params as FromTo).to);
 				case "audioAssets.moveFolder":
+					return folderMove(exampleData.audio, (params as FromTo).from, (params as FromTo).to);
 				case "audioAssets.remove":
+					return itemDelete(exampleData.audio, params as string);
 				case "imageAssets.removeFolder":
+					return folderDelete(exampleData.audio, params as string);
 				case "imageAssets.copy":
-					break;
+					return copyItem(exampleData.audio, (params as IDPath).id, (params as IDPath).path);
 				case "characters.list":
 					return exampleData.characters;
 				case "characters.createFolder":
+					return folderCreate(exampleData.characters, params as string);
 				case "characters.move":
+					return itemMove(exampleData.characters, (params as FromTo).from, (params as FromTo).to);
 				case "characters.moveFolder":
+					return folderMove(exampleData.characters, (params as FromTo).from, (params as FromTo).to);
 				case "characters.remove":
+					return itemDelete(exampleData.characters, params as string);
 				case "characters.removeFolder":
+					return folderDelete(exampleData.characters, params as string);
 				case "characters.copy":
-					break;
+					return copyItem(exampleData.characters, (params as IDPath).id, (params as IDPath).path);
 				case "maps.list":
 					return exampleData.maps;
 				case "maps.createFolder":
+					return folderCreate(exampleData.maps, params as string);
 				case "maps.move":
+					return itemMove(exampleData.maps, (params as FromTo).from, (params as FromTo).to);
 				case "maps.moveFolder":
+					return folderMove(exampleData.maps, (params as FromTo).from, (params as FromTo).to);
 				case "maps.remove":
+					return itemDelete(exampleData.maps, params as string);
 				case "maps.removeFolder":
+					return folderDelete(exampleData.maps, params as string);
 				case "maps.copy":
-					break;
+					return copyItem(exampleData.maps, (params as IDPath).id, (params as IDPath).path);
 				}
 				return null;
 			}
