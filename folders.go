@@ -300,7 +300,7 @@ func (f *folders) folderMove(cd ConnData, data json.RawMessage) (string, error) 
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	oldParent, oldName, fd := f.getParentFolder(folderMove.From)
-	if oldParent == nil || f == nil {
+	if oldParent == nil || fd == nil {
 		return "", ErrFolderNotFound
 	}
 	var (
