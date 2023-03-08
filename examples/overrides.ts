@@ -431,7 +431,14 @@ Object.defineProperties(window, {
 				case "characters.removeFolder":
 					return folderDelete(exampleData.characters, params as string);
 				case "characters.copy":
-					return copyItem(exampleData.characters, (params as IDPath).id, (params as IDPath).path);
+					const [p, name] = getFolderItem(exampleData.characters, (params as IDPath).path),
+					      ms = exampleData.characterData[(params as IDPath).id],
+					      newID = exampleData.characterData.length;
+					if (!p || !ms) {
+						return null;
+					}
+					exampleData.characterData.push(JSON.parse(JSON.stringify(ms)));
+					return {"id": newID, "path": (params as IDPath).path.slice(0, name.length) + addItemTo(p.items, name, newID)};
 				case "maps.list":
 					return exampleData.maps;
 				case "maps.createFolder":
