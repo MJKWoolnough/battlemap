@@ -367,8 +367,22 @@ Object.defineProperties(window, {
 				case "music.setTrackVolume":
 				case "music.setTrackRepeat":
 				case "characters.create":
-				case "characters.modify":
 					break;
+				case "characters.modify": {
+					const data = params as {
+						id: number;
+						setting: Record<string, KeystoreData>;
+						removing: string[];
+					      },
+					      cd = exampleData.characterData[data.id];
+					for (const [key, val] of Object.entries(data.setting)) {
+						cd[key] = val;	
+					}
+					for (const key of data.removing) {
+						delete cd[key];
+					}
+					return null;
+				}
 				case "characters.get": {
 					const ms = exampleData.characterData[params as number];
 					if (!ms) {
