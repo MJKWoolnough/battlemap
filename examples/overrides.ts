@@ -368,8 +368,21 @@ Object.defineProperties(window, {
 				case "music.setTrackRepeat":
 				case "characters.create":
 				case "characters.modify":
-				case "characters.get":
 					break;
+				case "characters.get": {
+					const ms = exampleData.characterData[params as number];
+					if (!ms) {
+						return null;
+					}
+					if (exampleData.admin) {
+						return ms;
+					}
+					const justUser: Record<string, KeystoreData> = {};
+					for (const [key, value] of Object.entries(ms)) {
+						justUser[key] = value;
+					}
+					return justUser;
+				}
 				case "plugins.list":
 					return exampleData.plugins;
 				case "plugins.enable":
