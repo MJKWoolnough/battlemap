@@ -366,8 +366,16 @@ Object.defineProperties(window, {
 				case "music.removeTrack":
 				case "music.setTrackVolume":
 				case "music.setTrackRepeat":
-				case "characters.create":
 					break;
+				case "characters.create": {
+					const data = params as {
+						path: string;
+						data: Record<string, KeystoreData>;
+					      },
+					      id = exampleData.characterData.length;
+					exampleData.characterData.push(data.data);
+					return {id, "path": addItemTo(exampleData.characters.items, data.path, id)};
+				}
 				case "characters.modify": {
 					const data = params as {
 						id: number;
