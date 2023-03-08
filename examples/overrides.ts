@@ -374,8 +374,22 @@ Object.defineProperties(window, {
 					return exampleData.plugins;
 				case "plugins.enable":
 				case "plugins.disable":
-				case "plugins.set":
 					break;
+				case "plugins.set": {
+					const data = params as {
+						id: string;
+						setting: Record<string, KeystoreData>;
+						removing: string[];
+					      },
+					      plugin = exampleData.plugins[data.id];
+					for (const [key, val] of Object.entries(data.setting)) {
+						plugin.data[key] = val;	
+					}
+					for (const key of data.removing) {
+						delete plugin.data[key];
+					}
+					return null;
+				}
 				case "imageAssets.list":
 					return exampleData.images;
 				case "imageAssets.createFolder":
