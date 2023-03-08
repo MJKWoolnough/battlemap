@@ -201,6 +201,80 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 		}
 	}
 	return false;
+      },
+      folderCreate = (root: Folder, path: string) => {
+	const [parent, name] = getParentFolder(root, path);
+	if (!parent || !name) {
+		return "";
+	}
+	return path.slice(0, name.length) + addFolderTo(parent.folders, name, {folders: {}, items: {}});
+      },
+      itemMove = (root: Folder, from: string, to: string) => {
+	const [oldParent, oldName, iid] = getFolderItem(root, from);
+	if (!oldParent || !iid) {
+		return "";
+	}
+	let newParent: Folder | null,
+	    newName: string;
+	if (to.endsWith("/")) {
+		newParent = getFolder(root, trimRight(to, "/"));
+		newName = oldName;
+	} else {
+		const [path, file] = splitAfterLastSlash(to);
+		newName = file;
+		to = trimRight(path, "/");
+		newParent = getFolder(root, to);
+	}
+	delete oldParent.items[oldName];
+	return "/" + addItemTo(newParent!.items, newName, iid);
+      },
+      folderMove = (root: Folder, from: string, to: string) => {
+	const [oldParent, oldName, fd] = getParentFolder(root, from);
+	if (!oldParent || !fd) {
+		return "";
+	}
+	let newParent: Folder | null,
+	    newName: string;
+	if (to.endsWith("/")) {
+		newParent = getFolder(root, trimRight(to, "/"));
+		newName = oldName;
+	} else {
+		const [path, file] = splitAfterLastSlash(to);
+		newName = file;
+		to = trimRight(path, "/");
+		newParent = getFolder(root, to);
+	}
+	if (to.endsWith(from)) {
+		return "";
+	}
+	delete oldParent.folders[oldName];
+	return "/" + addFolderTo(newParent!.folders, newName, fd);
+      },
+      itemDelete = (root: Folder, item: string) => {
+	const [parent, oldName, iid] = getFolderItem(root, item);
+	if (!parent || !iid) {
+		return null;
+	}
+	delete parent.items[oldName];
+	return null;
+      },
+      folderDelete = (root: Folder, folder: string) => {
+	const [parent, oldName, fd] = getParentFolder(root, folder);
+	if (!parent || !fd) {
+		return null;
+	}
+	delete parent.folders[oldName];
+	return null;
+      },
+      copyItem = (root: Folder, id: number, path: string) => {
+	let [parent, name] = getFolderItem(root, path);
+	if (!parent) {
+		return "";
+	}
+	if (!name) {
+		name = id + "";
+	}
+	return {"id": id, "path": path.slice(0, name.length) + addItemTo(parent.items, name, id)};
       };
 
 Object.defineProperties(window, {
@@ -237,6 +311,7 @@ Object.defineProperties(window, {
 				case "maps.getMapData":
 					return exampleData.mapData[params as number];
 				case "maps.new":
+
 				case "maps.setMapDetails":
 				case "maps.setMapStart":
 				case "maps.setGridDistance":
