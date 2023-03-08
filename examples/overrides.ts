@@ -114,6 +114,94 @@ declare const exampleData: {
 	}>;
 	localStorage: Record<string, string>;
 };
+{
+const uniqueName = (name: string, checker: (name: string) => boolean) => {
+	if (checker(name)) {
+		return name;
+	}
+	for (let i = 0;; i++) {
+		const newName = name + "." + i;
+		if (checker(newName)) {
+			return newName;
+		}
+	}
+      },
+      addItemTo = (items: Record<string, number>, name: string, id: number) => uniqueName(name, name => {
+	if (!items[name]) {
+		items[name] = id;
+		return true;
+	}
+	return false;
+      }),
+      addFolderTo = (folders: Record<string, Folder>, name: string, f: Folder) => uniqueName(name, name => {
+	if (!folders[name]) {
+		folders[name] = f;
+		return true;
+	}
+	return false;
+      }),
+      getFolder = (root: Folder, path: string) => {
+	let d = root;
+	for (const part of path.split("/")) {
+		if (!part) {
+			continue;
+		}
+		const e = d.folders[part];
+		if (!e) {
+			return null;
+		}
+		d = e;
+	}
+	return d;
+      },
+      splitAfterLastSlash = (p: string) => {
+	const lastSlash = p.lastIndexOf('/');
+	if (lastSlash >= 0) {
+		return [p.slice(0, lastSlash), p.slice(lastSlash + 1)] as const;
+	}
+	return ["", p] as const;
+      },
+      trimRight = (str: string, char: string) => {
+	while (str.charAt(str.length - 1) === char) {
+		str = str.slice(0, -1);
+	}
+	return str;
+      },
+      cleanPath = (path: string) => {
+	while (path.includes("//")) {
+		path = path.replaceAll("//", "/");
+	}
+	return path;
+      },
+      getParentFolder = (root: Folder, p: string) => {
+	let parent: Folder | null;
+	const [parentStr, name] = splitAfterLastSlash(cleanPath(trimRight(p, "/")));
+	if (parentStr) {
+		parent = getFolder(root, parentStr);
+		if (!parent) {
+			return [null, "", null] as const;
+		}
+	} else {
+		parent = root;
+	}
+	return [parent, name, parent.folders[name]] as const;
+      },
+      getFolderItem = (root: Folder, p: string) => {
+	const [dir, file] = splitAfterLastSlash(p),
+	      parent = getFolder(root, cleanPath(dir));
+	return parent ?  [parent, file, parent.items[file]] as const : [null, "", 0] as const;
+      },
+      walkFolders = (f: Folder, fn: (items: Record<string, number>) => boolean) => {
+	if (fn(f.items)) {
+		return true;
+	}
+	for (const folder in f.folders) {
+		if (walkFolders(f.folders[folder], fn)) {
+			return true;
+		}
+	}
+	return false;
+      };
 
 Object.defineProperties(window, {
 	"WebSocket": {
@@ -270,3 +358,4 @@ Object.defineProperties(window, {
 		"value": () => console.log(exampleData)
 	}
 });
+}
