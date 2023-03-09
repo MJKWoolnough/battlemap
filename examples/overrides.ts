@@ -353,8 +353,14 @@ Object.defineProperties(window, {
 				case "maps.setMapDetails": {
 					Object.assign(exampleData.mapData[exampleData.currentMap], params);
 					return null;
-				}					
-				case "maps.setMapStart":
+				}
+				case "maps.setMapStart": {
+					const data = params as [number, number],
+					      m = exampleData.mapData[exampleData.currentMap];
+					m.startX = data[0];
+					m.startY = data[1];
+					return null;
+				}
 				case "maps.setGridDistance":
 				case "maps.setGridDiagonal":
 				case "maps.setLightColour":
