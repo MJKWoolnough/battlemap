@@ -65,6 +65,7 @@ type MapData = Layer & {
 	startY: number;
 	gridType: number;
 	gridSize: number;
+	gridStroke: number;
 	gridColour: Colour;
 	gridDistance: number;
 	gridDiagonal: boolean;
@@ -320,8 +321,35 @@ Object.defineProperties(window, {
 					return null;
 				case "maps.getMapData":
 					return exampleData.mapData[params as number];
-				case "maps.new":
-
+				case "maps.new": {
+					const mid = exampleData.mapData.push(Object.assign(params as {
+							name: string;
+							width: number;
+							height: number;
+							gridType: number;
+							gridSize: number;
+							gridColour: Colour;
+							gridStroke: number;
+						}, {
+							startX: 0,
+							startY: 0,
+							gridDistance: 0,
+							gridDiagonal: false,
+							lightColour: {r: 0, g: 0, b: 0, a: 0},
+							baseOpaque: false,
+							masks: [],
+							data: {},
+							hidden: false,
+							locked: false,
+							tokens: [],
+							walls: [],
+							children: []
+						})) - 1;
+					return {
+						"id": mid,
+						"name": addItemTo(exampleData.maps.items, (params as {name: string}).name, mid)
+					};
+				}
 				case "maps.setMapDetails":
 				case "maps.setMapStart":
 				case "maps.setGridDistance":
