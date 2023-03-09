@@ -350,7 +350,10 @@ Object.defineProperties(window, {
 						"name": addItemTo(exampleData.maps.items, (params as {name: string}).name, mid)
 					};
 				}
-				case "maps.setMapDetails":
+				case "maps.setMapDetails": {
+					Object.assign(exampleData.mapData[exampleData.currentMap], params);
+					return null;
+				}					
 				case "maps.setMapStart":
 				case "maps.setGridDistance":
 				case "maps.setGridDiagonal":
