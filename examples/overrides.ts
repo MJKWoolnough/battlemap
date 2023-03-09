@@ -368,6 +368,8 @@ Object.defineProperties(window, {
 					exampleData.mapData[exampleData.currentMap].gridDiagonal = params as boolean;
 					return null;
 				case "maps.setLightColour":
+					exampleData.mapData[exampleData.currentMap].lightColour = params as Colour;
+					return null;
 				case "maps.setData":
 				case "maps.removeData":
 				case "maps.addLayer":
