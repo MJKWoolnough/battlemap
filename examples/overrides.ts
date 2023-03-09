@@ -365,6 +365,8 @@ Object.defineProperties(window, {
 					exampleData.mapData[exampleData.currentMap].gridDistance = params as number;
 					return null;
 				case "maps.setGridDiagonal":
+					exampleData.mapData[exampleData.currentMap].gridDiagonal = params as boolean;
+					return null;
 				case "maps.setLightColour":
 				case "maps.setData":
 				case "maps.removeData":
