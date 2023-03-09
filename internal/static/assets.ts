@@ -7,7 +7,7 @@ import {amendNode, clearNode} from './lib/dom.js';
 import {DragFiles, DragTransfer} from './lib/drag.js';
 import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
-import {autoFocus, setAndReturn} from './lib/misc.js';
+import {autoFocus, isInt, setAndReturn} from './lib/misc.js';
 import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
@@ -151,6 +151,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 			data,
 			"method": "POST",
 			"response": "json",
+			"checker": (data: unknown): data is IDName[] => data instanceof Array && data.every(item => item instanceof Object && "id" in item && isInt(item["id"], 0) && "name" in item && typeof item["name"] === "string"),
 			"onuploadprogress": (e: ProgressEvent) => {
 				if (e.lengthComputable) {
 					clearNode(bar, {"value": e.loaded, "max": e.total}, Math.floor(e.loaded*100/e.total) + "%");
