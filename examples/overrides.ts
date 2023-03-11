@@ -493,7 +493,12 @@ Object.defineProperties(window, {
 				case "maps.removeFromMask":
 					currentMap().masks.splice(params as number, 1);
 					return null;
-				case "maps.setMask":
+				case "maps.setMask": {
+					const m = currentMap();
+					m.masks = (params as {masks: number[][]}).masks;
+					m.baseOpaque = (params as {baseOpaque: boolean}).baseOpaque;
+					return null;
+				}
 				case "maps.removeLayer":
 				case "maps.addToken":
 				case "maps.removeToken":
