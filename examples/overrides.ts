@@ -39,6 +39,11 @@ type Token = Coords & {
 	points: Coords[];
 }
 
+type SetToken = Partial<Token> & {
+	id: number;
+	removeTokenData?: string[];
+}
+
 type Wall = {
 	id: number;
 	x1: number;
@@ -335,6 +340,22 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 		}
 	}
 	return [null, null];
+      },
+      updateToken = (st: SetToken) => {
+	const {token: tk} = currentMap().tokenList[st.id];
+	if (st.tokenData) {
+		Object.assign(tk.tokenData, st.tokenData);
+		delete st.tokenData;
+	}
+	if (st.removeTokenData) {
+		for (const r of st.removeTokenData) {
+			delete tk.tokenData[r];
+		}
+		delete st.removeTokenData;
+	}
+	for (const key of Object.keys(st)) {
+		(tk as any)[key] = st[key as keyof SetToken];
+	}
       };
 
 Object.defineProperties(window, {
@@ -532,7 +553,13 @@ Object.defineProperties(window, {
 					return null;
 				}
 				case "maps.setToken":
+					updateToken(params as SetToken);
+					return null;
 				case "maps.setTokenMulti":
+					for (const tk of params as SetToken[]) {
+						updateToken(tk);
+					}
+					return null;
 				case "maps.setTokenLayerPos":
 				case "maps.shiftLayer":
 				case "maps.addWall":
