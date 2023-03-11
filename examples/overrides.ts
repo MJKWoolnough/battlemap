@@ -287,7 +287,18 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 	}
 	return {"id": id, "path": path.slice(0, name.length) + addItemTo(parent.items, name, id)};
       },
-      currentMap = () => exampleData.mapData[exampleData.currentMap];
+      currentMap = () => exampleData.mapData[exampleData.currentMap],
+      getLayerNames = (layers: Layer = currentMap(), ls: string[] = []) => {
+	for (const layer of layers.children) {
+		ls.push(layer.name);
+		getLayerNames(layer, ls);
+	}
+	return ls;
+      },
+      uniqueLayer = (name: string) => {
+	const ls = getLayerNames();
+	return uniqueName(name, name => !ls.includes(name));
+      };
 
 Object.defineProperties(window, {
 	"WebSocket": {
@@ -377,7 +388,17 @@ Object.defineProperties(window, {
 				case "maps.removeData":
 					delete currentMap().data[params as string];
 					return null;
-				case "maps.addLayer":
+				case "maps.addLayer": {
+					currentMap().children.push({
+						"name": uniqueLayer(params as string),
+						"hidden": false,
+						"locked": false,
+						"tokens": [],
+						"walls": [],
+						"children": []
+					});
+					return null;
+				}
 				case "maps.addLayerFolder":
 				case "maps.renameLayer":
 				case "maps.moveLayer":
