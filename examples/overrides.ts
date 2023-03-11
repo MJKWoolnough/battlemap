@@ -375,6 +375,8 @@ Object.defineProperties(window, {
 					currentMap().data[(params as {key: string}).key] = (params as {data: any}).data;
 					return null;
 				case "maps.removeData":
+					delete currentMap().data[params as string];
+					return null;
 				case "maps.addLayer":
 				case "maps.addLayerFolder":
 				case "maps.renameLayer":
