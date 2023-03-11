@@ -73,6 +73,8 @@ type MapData = Layer & {
 	baseOpaque: boolean;
 	masks: number[][];
 	data: Record<string, unknown>;
+	lastTokenID: number;
+	tokenList: Record<number, {layer: Layer; token: Token}>;
 }
 
 type KeystoreData = {
@@ -390,7 +392,9 @@ Object.defineProperties(window, {
 							locked: false,
 							tokens: [],
 							walls: [],
-							children: []
+							children: [],
+							lastTokenID: 0,
+							tokenList: {}
 						})) - 1;
 					return {
 						"id": mid,
@@ -507,7 +511,19 @@ Object.defineProperties(window, {
 					}
 					return null;
 				}
-				case "maps.addToken":
+				case "maps.addToken": {
+					const nt = params as {token: Token; path: string},
+					      m = currentMap(),
+					      l = getLayer(nt.path);
+					if (l) {
+						if (!nt.token.id || nt.token.id in m.tokenList) {
+							nt.token.id = ++m.lastTokenID;
+						}
+						l.tokens.push(nt.token);
+						m.tokenList[nt.token.id] = {layer: l, token: nt.token};
+					}
+					return null;
+				}
 				case "maps.removeToken":
 				case "maps.setToken":
 				case "maps.setTokenMulti":
