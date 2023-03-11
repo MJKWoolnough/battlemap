@@ -611,7 +611,12 @@ Object.defineProperties(window, {
 					delete m.wallList[wall.id];
 					return null;
 				}
-				case "maps.modifyWall":
+				case "maps.modifyWall": {
+					const w = params as Wall,
+					      {wall} = currentMap().wallList[w.id];
+					Object.assign(wall, w);
+					return null;
+				}
 				case "maps.moveWall":
 					break;
 				case "music.list":
