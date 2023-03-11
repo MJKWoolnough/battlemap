@@ -560,7 +560,16 @@ Object.defineProperties(window, {
 						updateToken(tk);
 					}
 					return null;
-				case "maps.setTokenLayerPos":
+				case "maps.setTokenLayerPos": {
+					const lt = currentMap().tokenList[(params as {id: number}).id],
+					      to = getLayer((params as {to: string}).to);
+					if (to) {
+						lt.layer.children.splice(lt.layer.tokens.indexOf(lt.token), 1);
+						to.tokens.splice((params as {newPos: number}).newPos, 0, lt.token);
+						lt.layer = to;
+					}
+					return null;
+				}
 				case "maps.shiftLayer":
 				case "maps.addWall":
 				case "maps.removeWall":
