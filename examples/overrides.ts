@@ -434,7 +434,10 @@ Object.defineProperties(window, {
 					});
 					return null;
 				}
-				case "maps.renameLayer":
+				case "maps.renameLayer": {
+					(getLayer((params as {path: string}).path) ?? {"name": ""}).name = uniqueLayer((params as {name: string}).name);
+					return null;
+				}
 				case "maps.moveLayer":
 				case "maps.showLayer":
 				case "maps.hideLayer":
