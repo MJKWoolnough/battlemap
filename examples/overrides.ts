@@ -488,6 +488,8 @@ Object.defineProperties(window, {
 					return null;
 				}
 				case "maps.addToMask":
+					currentMap().masks.push(params as number[]);
+					return null;
 				case "maps.removeFromMask":
 				case "maps.setMask":
 				case "maps.removeLayer":
