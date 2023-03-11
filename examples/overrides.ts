@@ -450,7 +450,7 @@ Object.defineProperties(window, {
 					(getLayer((params as {path: string}).path) ?? {"name": ""}).name = uniqueLayer((params as {name: string}).name);
 					return null;
 				}
-				case "maps.moveLayer":
+				case "maps.moveLayer": {
 					const moveLayer = params as {from: string; to: string; position: number},
 					     [pl, l] = getParentLayer(moveLayer.from),
 					     to = getLayer(moveLayer.to);
@@ -459,6 +459,7 @@ Object.defineProperties(window, {
 						to.children.splice(moveLayer.position, 0, l);
 					}
 					return null;
+				}
 				case "maps.showLayer": {
 					const l = getLayer(params as string);
 					if (l) {
@@ -499,7 +500,13 @@ Object.defineProperties(window, {
 					m.baseOpaque = (params as {baseOpaque: boolean}).baseOpaque;
 					return null;
 				}
-				case "maps.removeLayer":
+				case "maps.removeLayer": {
+					const [pl, l] = getParentLayer(params as string);
+					if (pl && l) {
+						pl.children.splice(pl.children.indexOf(l), 1);
+					}
+					return null;
+				}
 				case "maps.addToken":
 				case "maps.removeToken":
 				case "maps.setToken":
