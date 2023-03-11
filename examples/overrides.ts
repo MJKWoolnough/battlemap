@@ -286,7 +286,8 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 		name = id + "";
 	}
 	return {"id": id, "path": path.slice(0, name.length) + addItemTo(parent.items, name, id)};
-      };
+      },
+      currentMap = () => exampleData.mapData[exampleData.currentMap];
 
 Object.defineProperties(window, {
 	"WebSocket": {
@@ -351,24 +352,24 @@ Object.defineProperties(window, {
 					};
 				}
 				case "maps.setMapDetails": {
-					Object.assign(exampleData.mapData[exampleData.currentMap], params);
+					Object.assign(currentMap(), params);
 					return null;
 				}
 				case "maps.setMapStart": {
 					const data = params as [number, number],
-					      m = exampleData.mapData[exampleData.currentMap];
+					      m = currentMap();
 					m.startX = data[0];
 					m.startY = data[1];
 					return null;
 				}
 				case "maps.setGridDistance":
-					exampleData.mapData[exampleData.currentMap].gridDistance = params as number;
+					currentMap().gridDistance = params as number;
 					return null;
 				case "maps.setGridDiagonal":
-					exampleData.mapData[exampleData.currentMap].gridDiagonal = params as boolean;
+					currentMap().gridDiagonal = params as boolean;
 					return null;
 				case "maps.setLightColour":
-					exampleData.mapData[exampleData.currentMap].lightColour = params as Colour;
+					currentMap().lightColour = params as Colour;
 					return null;
 				case "maps.setData":
 				case "maps.removeData":
