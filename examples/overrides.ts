@@ -372,6 +372,8 @@ Object.defineProperties(window, {
 					currentMap().lightColour = params as Colour;
 					return null;
 				case "maps.setData":
+					currentMap().data[(params as {key: string}).key] = (params as {data: any}).data;
+					return null;
 				case "maps.removeData":
 				case "maps.addLayer":
 				case "maps.addLayerFolder":
