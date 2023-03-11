@@ -491,6 +491,8 @@ Object.defineProperties(window, {
 					currentMap().masks.push(params as number[]);
 					return null;
 				case "maps.removeFromMask":
+					currentMap().masks.splice(params as number, 1);
+					return null;
 				case "maps.setMask":
 				case "maps.removeLayer":
 				case "maps.addToken":
