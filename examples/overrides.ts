@@ -617,8 +617,16 @@ Object.defineProperties(window, {
 					Object.assign(wall, w);
 					return null;
 				}
-				case "maps.moveWall":
-					break;
+				case "maps.moveWall": {
+					const lw = currentMap().wallList[(params as {id: number}).id],
+					      to = getLayer((params as {path: string}).path);
+					if (to) {
+						lw.layer.walls.splice(lw.layer.walls.indexOf(lw.wall), 1);
+						to.walls.push(lw.wall);
+						lw.layer = to;
+					}
+					return null;
+				}
 				case "music.list":
 					return exampleData.music;
 				case "music.new":
