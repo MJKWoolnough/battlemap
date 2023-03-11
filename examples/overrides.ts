@@ -172,6 +172,12 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 	}
 	return ["", p] as const;
       },
+      trimLeft = (str: string, char: string) => {
+	while (str.charAt(0) === char) {
+		str = str.slice(1);
+	}
+	return str;
+      },
       trimRight = (str: string, char: string) => {
 	while (str.charAt(str.length - 1) === char) {
 		str = str.slice(0, -1);
@@ -288,16 +294,33 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 	return {"id": id, "path": path.slice(0, name.length) + addItemTo(parent.items, name, id)};
       },
       currentMap = () => exampleData.mapData[exampleData.currentMap],
-      getLayerNames = (layers: Layer = currentMap(), ls: string[] = []) => {
+      getLayers = (layers: Layer = currentMap(), ls: Record<string, Layer> = {}) => {
 	for (const layer of layers.children) {
-		ls.push(layer.name);
-		getLayerNames(layer, ls);
+		ls[layer.name] = layer;
+		getLayers(layer, ls);
 	}
 	return ls;
       },
       uniqueLayer = (name: string) => {
-	const ls = getLayerNames();
-	return uniqueName(name, name => !ls.includes(name));
+	const ls = getLayers();
+	return uniqueName(name, name => !(name in ls));
+      },
+      getLayer = (path: string) => {
+	let l = currentMap() as Layer;
+	Loop:
+	for (const p of trimRight(trimLeft(path, "/"), "/").split("/")) {
+		if (!p) {
+			continue;
+		}
+		for (const m of l.children) {
+			if (m.name === p) {
+				l = m;
+				continue Loop;
+			}
+		}
+		return null;
+	}
+	return l;
       };
 
 Object.defineProperties(window, {
@@ -399,7 +422,18 @@ Object.defineProperties(window, {
 					});
 					return null;
 				}
-				case "maps.addLayerFolder":
+				case "maps.addLayerFolder": {
+					const [parent, name] = splitAfterLastSlash(params as string);
+					getLayer(parent)?.children.push({
+						"name": uniqueLayer(name),
+						"hidden": false,
+						"locked": false,
+						"tokens": [],
+						"walls": [],
+						"children": []
+					});
+					return null;
+				}
 				case "maps.renameLayer":
 				case "maps.moveLayer":
 				case "maps.showLayer":
