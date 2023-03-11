@@ -79,7 +79,9 @@ type MapData = Layer & {
 	masks: number[][];
 	data: Record<string, unknown>;
 	lastTokenID: number;
+	lastWallID: number;
 	tokenList: Record<number, {layer: Layer; token: Token}>;
+	wallList: Record<number, {layer: Layer, wall: Wall}>;
 }
 
 type KeystoreData = {
@@ -415,7 +417,9 @@ Object.defineProperties(window, {
 							walls: [],
 							children: [],
 							lastTokenID: 0,
-							tokenList: {}
+							lastWallID: 0,
+							tokenList: {},
+							wallList: {}
 						})) - 1;
 					return {
 						"id": mid,
@@ -587,7 +591,19 @@ Object.defineProperties(window, {
 					}
 					return null;
 				}
-				case "maps.addWall":
+				case "maps.addWall": {
+					const aw = params as {path: string, wall: Wall},
+					      m = currentMap(),
+					      l = getLayer(aw.path);
+					if (l) {
+						if (aw.wall.id in m.walls || !aw.wall.id || aw.wall.id > m.lastWallID) {
+							aw.wall.id = ++m.lastWallID;
+						}
+						l.walls.push(aw.wall);
+						m.wallList[aw.wall.id] = {layer: l, wall: aw.wall};
+					}
+					return aw.wall.id;
+				}
 				case "maps.removeWall":
 				case "maps.modifyWall":
 				case "maps.moveWall":
