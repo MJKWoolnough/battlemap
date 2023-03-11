@@ -524,7 +524,13 @@ Object.defineProperties(window, {
 					}
 					return null;
 				}
-				case "maps.removeToken":
+				case "maps.removeToken": {
+					const m = currentMap(),
+					      {layer, token} = m.tokenList[params as number];
+					layer.tokens.splice(layer.tokens.indexOf(token), 1);
+					delete m.tokenList[params as number];
+					return null;
+				}
 				case "maps.setToken":
 				case "maps.setTokenMulti":
 				case "maps.setTokenLayerPos":
