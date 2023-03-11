@@ -459,10 +459,34 @@ Object.defineProperties(window, {
 						to.children.splice(moveLayer.position, 0, l);
 					}
 					return null;
-				case "maps.showLayer":
-				case "maps.hideLayer":
-				case "maps.lockLayer":
-				case "maps.unlockLayer":
+				case "maps.showLayer": {
+					const l = getLayer(params as string);
+					if (l) {
+						l.hidden = false;
+					}
+					return null;
+				}
+				case "maps.hideLayer": {
+					const l = getLayer(params as string);
+					if (l) {
+						l.hidden = true;
+					}
+					return null;
+				}
+				case "maps.lockLayer": {
+					const l = getLayer(params as string);
+					if (l) {
+						l.locked = true;
+					}
+					return null;
+				}
+				case "maps.unlockLayer": {
+					const l = getLayer(params as string);
+					if (l) {
+						l.locked = false;
+					}
+					return null;
+				}
 				case "maps.addToMask":
 				case "maps.removeFromMask":
 				case "maps.setMask":
