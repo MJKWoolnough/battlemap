@@ -604,7 +604,13 @@ Object.defineProperties(window, {
 					}
 					return aw.wall.id;
 				}
-				case "maps.removeWall":
+				case "maps.removeWall": {
+					const m = currentMap(),
+					      {layer, wall} = m.wallList[params as number];
+					layer.walls.splice(layer.walls.indexOf(wall));
+					delete m.wallList[wall.id];
+					return null;
+				}
 				case "maps.modifyWall":
 				case "maps.moveWall":
 					break;
