@@ -321,6 +321,18 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 		return null;
 	}
 	return l;
+      },
+      getParentLayer = (path: string) => {
+	const [parentStr, name] = splitAfterLastSlash(trimRight(path, "/")),
+	      parent = getLayer(parentStr);
+	if (parent) {
+		for (const l of parent.children) {
+			if (l.name === name) {
+				return [parent, l];
+			}
+		}
+	}
+	return [null, null];
       };
 
 Object.defineProperties(window, {
@@ -439,6 +451,14 @@ Object.defineProperties(window, {
 					return null;
 				}
 				case "maps.moveLayer":
+					const moveLayer = params as {from: string; to: string; position: number},
+					     [pl, l] = getParentLayer(moveLayer.from),
+					     to = getLayer(moveLayer.to);
+					if (pl && l && to) {
+						pl.children.splice(pl.children.indexOf(l), 1);
+						to.children.splice(moveLayer.position, 0, l);
+					}
+					return null;
 				case "maps.showLayer":
 				case "maps.hideLayer":
 				case "maps.lockLayer":
