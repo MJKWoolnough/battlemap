@@ -570,7 +570,23 @@ Object.defineProperties(window, {
 					}
 					return null;
 				}
-				case "maps.shiftLayer":
+				case "maps.shiftLayer": {
+					const l = getLayer((params as {path: string}).path),
+					      {dx, dy} = params as {dx: number; dy: number};
+					if (l) {
+						for (const tk of l.tokens) {
+							tk.x += dx;
+							tk.y += dy;
+						}
+						for (const wall of l.walls) {
+							wall.x1 += dx;
+							wall.y1 += dy;
+							wall.x2 += dx;
+							wall.y2 += dy;
+						}
+					}
+					return null;
+				}
 				case "maps.addWall":
 				case "maps.removeWall":
 				case "maps.modifyWall":
