@@ -543,7 +543,7 @@ Object.defineProperties(window, {
 						l.tokens.push(nt.token);
 						m.tokenList[nt.token.id] = {layer: l, token: nt.token};
 					}
-					return null;
+					return nt.token.id;
 				}
 				case "maps.removeToken": {
 					const m = currentMap(),
