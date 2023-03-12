@@ -358,7 +358,31 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 	for (const key of Object.keys(st)) {
 		(tk as any)[key] = st[key as keyof SetToken];
 	}
+      },
+      initMap = (map: MapData, layer: Layer) => {
+	for (const token of layer.tokens) {
+		map.tokenList[token.id] = {layer, token};
+		if (token.id > map.lastTokenID) {
+			map.lastTokenID = token.id;
+		}
+	}
+	for (const wall of layer.walls) {
+		map.wallList[wall.id] = {layer, wall};
+		if (wall.id > map.lastWallID) {
+			map.lastWallID = wall.id;
+		}
+	}
+	for (const l of layer.children) {
+		initMap(map, l);
+	}
       };
+
+for (const m of exampleData.mapData) {
+	m.lastTokenID = m.lastWallID = 0;
+	m.tokenList = {};
+	m.wallList = {};
+	initMap(m, m);
+}
 
 Object.defineProperties(window, {
 	"WebSocket": {
