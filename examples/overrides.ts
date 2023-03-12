@@ -63,9 +63,9 @@ type Layer = {
 	name: string;
 	hidden: boolean;
 	locked: boolean;
-	tokens: Token[];
-	walls: Wall[];
-	children: Layer[];
+	tokens?: Token[];
+	walls?: Wall[];
+	children?: Layer[];
 }
 
 type MapData = Layer & {
@@ -309,7 +309,7 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
       },
       currentMap = () => exampleData.mapData[exampleData.currentMap],
       getLayers = (layers: Layer = currentMap(), ls: Record<string, Layer> = {}) => {
-	for (const layer of layers.children) {
+	for (const layer of layers.children ?? []) {
 		ls[layer.name] = layer;
 		getLayers(layer, ls);
 	}
@@ -326,7 +326,7 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 		if (!p) {
 			continue;
 		}
-		for (const m of l.children) {
+		for (const m of l.children ?? []) {
 			if (m.name === p) {
 				l = m;
 				continue Loop;
@@ -340,7 +340,7 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 	const [parentStr, name] = splitAfterLastSlash(trimRight(path, "/")),
 	      parent = getLayer(parentStr);
 	if (parent) {
-		for (const l of parent.children) {
+		for (const l of parent.children ?? []) {
 			if (l.name === name) {
 				return [parent, l];
 			}
@@ -365,19 +365,19 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 	}
       },
       initMap = (map: MapData, layer: Layer) => {
-	for (const token of layer.tokens) {
+	for (const token of layer.tokens ?? []) {
 		map[tokenList][token.id] = {layer, token};
 		if (token.id > map[lastTokenID]) {
 			map[lastTokenID] = token.id;
 		}
 	}
-	for (const wall of layer.walls) {
+	for (const wall of layer.walls ?? []) {
 		map[wallList][wall.id] = {layer, wall};
 		if (wall.id > map[lastWallID]) {
 			map[lastWallID] = wall.id;
 		}
 	}
-	for (const l of layer.children) {
+	for (const l of layer.children ?? []) {
 		initMap(map, l);
 	}
       };
@@ -450,24 +450,21 @@ Object.defineProperties(window, {
 									hidden: false,
 									locked: false,
 									tokens: [],
-									walls: [],
-									children: []
+									walls: []
 								},
 								{
 									name: "Light",
 									hidden: false,
 									locked: false,
 									tokens: [],
-									walls: [],
-									children: []
+									walls: []
 								},
 								{
 									name: "Grid",
 									hidden: false,
 									locked: false,
 									tokens: [],
-									walls: [],
-									children: []
+									walls: []
 								}
 							],
 							[lastTokenID]: 0,
@@ -507,7 +504,7 @@ Object.defineProperties(window, {
 					delete currentMap().data[params as string];
 					return null;
 				case "maps.addLayer": {
-					currentMap().children.push({
+					currentMap().children?.push({
 						"name": uniqueLayer(params as string),
 						"hidden": false,
 						"locked": false,
@@ -519,7 +516,7 @@ Object.defineProperties(window, {
 				}
 				case "maps.addLayerFolder": {
 					const [parent, name] = splitAfterLastSlash(params as string);
-					getLayer(parent)?.children.push({
+					getLayer(parent)?.children?.push({
 						"name": uniqueLayer(name),
 						"hidden": false,
 						"locked": false,
@@ -538,8 +535,8 @@ Object.defineProperties(window, {
 					     [pl, l] = getParentLayer(moveLayer.from),
 					     to = getLayer(moveLayer.to);
 					if (pl && l && to) {
-						pl.children.splice(pl.children.indexOf(l), 1);
-						to.children.splice(moveLayer.position, 0, l);
+						pl.children?.splice(pl.children.indexOf(l), 1);
+						to.children?.splice(moveLayer.position, 0, l);
 					}
 					return null;
 				}
@@ -586,7 +583,7 @@ Object.defineProperties(window, {
 				case "maps.removeLayer": {
 					const [pl, l] = getParentLayer(params as string);
 					if (pl && l) {
-						pl.children.splice(pl.children.indexOf(l), 1);
+						pl.children?.splice(pl.children.indexOf(l), 1);
 					}
 					return null;
 				}
@@ -598,7 +595,7 @@ Object.defineProperties(window, {
 						if (!nt.token.id || nt.token.id in m[tokenList]) {
 							nt.token.id = ++m[lastTokenID];
 						}
-						l.tokens.push(nt.token);
+						l.tokens?.push(nt.token);
 						m[tokenList][nt.token.id] = {layer: l, token: nt.token};
 					}
 					return nt.token.id;
@@ -606,7 +603,7 @@ Object.defineProperties(window, {
 				case "maps.removeToken": {
 					const m = currentMap(),
 					      {layer, token} = m[tokenList][params as number];
-					layer.tokens.splice(layer.tokens.indexOf(token), 1);
+					layer.tokens?.splice(layer.tokens.indexOf(token), 1);
 					delete m[tokenList][params as number];
 					return null;
 				}
@@ -622,8 +619,8 @@ Object.defineProperties(window, {
 					const lt = currentMap()[tokenList][(params as {id: number}).id],
 					      to = getLayer((params as {to: string}).to);
 					if (to) {
-						lt.layer.children.splice(lt.layer.tokens.indexOf(lt.token), 1);
-						to.tokens.splice((params as {newPos: number}).newPos, 0, lt.token);
+						lt.layer.tokens?.splice(lt.layer.tokens.indexOf(lt.token), 1);
+						to.tokens?.splice((params as {newPos: number}).newPos, 0, lt.token);
 						lt.layer = to;
 					}
 					return null;
@@ -632,11 +629,11 @@ Object.defineProperties(window, {
 					const l = getLayer((params as {path: string}).path),
 					      {dx, dy} = params as {dx: number; dy: number};
 					if (l) {
-						for (const tk of l.tokens) {
+						for (const tk of l.tokens ?? []) {
 							tk.x += dx;
 							tk.y += dy;
 						}
-						for (const wall of l.walls) {
+						for (const wall of l.walls ?? []) {
 							wall.x1 += dx;
 							wall.y1 += dy;
 							wall.x2 += dx;
@@ -650,10 +647,10 @@ Object.defineProperties(window, {
 					      m = currentMap(),
 					      l = getLayer(aw.path);
 					if (l) {
-						if (aw.wall.id in m.walls || !aw.wall.id || aw.wall.id > m[lastWallID]) {
+						if (aw.wall.id in m.walls! || !aw.wall.id || aw.wall.id > m[lastWallID]) {
 							aw.wall.id = ++m[lastWallID];
 						}
-						l.walls.push(aw.wall);
+						l.walls?.push(aw.wall);
 						m[wallList][aw.wall.id] = {layer: l, wall: aw.wall};
 					}
 					return aw.wall.id;
@@ -661,7 +658,7 @@ Object.defineProperties(window, {
 				case "maps.removeWall": {
 					const m = currentMap(),
 					      {layer, wall} = m[wallList][params as number];
-					layer.walls.splice(layer.walls.indexOf(wall));
+					layer.walls?.splice(layer.walls.indexOf(wall));
 					delete m[wallList][wall.id];
 					return null;
 				}
@@ -675,8 +672,8 @@ Object.defineProperties(window, {
 					const lw = currentMap()[wallList][(params as {id: number}).id],
 					      to = getLayer((params as {path: string}).path);
 					if (to) {
-						lw.layer.walls.splice(lw.layer.walls.indexOf(lw.wall), 1);
-						to.walls.push(lw.wall);
+						lw.layer.walls?.splice(lw.layer.walls.indexOf(lw.wall), 1);
+						to.walls?.push(lw.wall);
 						lw.layer = to;
 					}
 					return null;
