@@ -1,3 +1,8 @@
+const lastTokenID = Symbol("lastTokenID"),
+      tokenList = Symbol("tokenList"),
+      lastWallID = Symbol("lastWallID"),
+      wallList = Symbol("wallList");
+
 type Folder = {
 	folders: Record<string, Folder>;
 	items: Record<string, number>;
@@ -78,10 +83,10 @@ type MapData = Layer & {
 	baseOpaque: boolean;
 	masks: number[][];
 	data: Record<string, unknown>;
-	lastTokenID: number;
-	lastWallID: number;
-	tokenList: Record<number, {layer: Layer; token: Token}>;
-	wallList: Record<number, {layer: Layer, wall: Wall}>;
+	[lastTokenID]: number;
+	[lastWallID]: number;
+	[tokenList]: Record<number, {layer: Layer; token: Token}>;
+	[wallList]: Record<number, {layer: Layer, wall: Wall}>;
 }
 
 type KeystoreData = {
@@ -134,7 +139,7 @@ declare const exampleData: {
 	}>;
 	localStorage: Record<string, string>;
 };
-{
+
 const uniqueName = (name: string, checker: (name: string) => boolean) => {
 	if (checker(name)) {
 		return name;
@@ -344,7 +349,7 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 	return [null, null];
       },
       updateToken = (st: SetToken) => {
-	const {token: tk} = currentMap().tokenList[st.id];
+	const {token: tk} = currentMap()[tokenList][st.id];
 	if (st.tokenData) {
 		Object.assign(tk.tokenData, st.tokenData);
 		delete st.tokenData;
@@ -361,15 +366,15 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
       },
       initMap = (map: MapData, layer: Layer) => {
 	for (const token of layer.tokens) {
-		map.tokenList[token.id] = {layer, token};
-		if (token.id > map.lastTokenID) {
-			map.lastTokenID = token.id;
+		map[tokenList][token.id] = {layer, token};
+		if (token.id > map[lastTokenID]) {
+			map[lastTokenID] = token.id;
 		}
 	}
 	for (const wall of layer.walls) {
-		map.wallList[wall.id] = {layer, wall};
-		if (wall.id > map.lastWallID) {
-			map.lastWallID = wall.id;
+		map[wallList][wall.id] = {layer, wall};
+		if (wall.id > map[lastWallID]) {
+			map[lastWallID] = wall.id;
 		}
 	}
 	for (const l of layer.children) {
@@ -378,9 +383,9 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
       };
 
 for (const m of exampleData.mapData) {
-	m.lastTokenID = m.lastWallID = 0;
-	m.tokenList = {};
-	m.wallList = {};
+	m[lastTokenID] = m[lastWallID] = 0;
+	m[tokenList] = {};
+	m[wallList] = {};
 	initMap(m, m);
 }
 
@@ -440,10 +445,10 @@ Object.defineProperties(window, {
 							tokens: [],
 							walls: [],
 							children: [],
-							lastTokenID: 0,
-							lastWallID: 0,
-							tokenList: {},
-							wallList: {}
+							[lastTokenID]: 0,
+							[lastWallID]: 0,
+							[tokenList]: {},
+							[wallList]: {}
 						})) - 1;
 					return {
 						"id": mid,
@@ -565,19 +570,19 @@ Object.defineProperties(window, {
 					      m = currentMap(),
 					      l = getLayer(nt.path);
 					if (l) {
-						if (!nt.token.id || nt.token.id in m.tokenList) {
-							nt.token.id = ++m.lastTokenID;
+						if (!nt.token.id || nt.token.id in m[tokenList]) {
+							nt.token.id = ++m[lastTokenID];
 						}
 						l.tokens.push(nt.token);
-						m.tokenList[nt.token.id] = {layer: l, token: nt.token};
+						m[tokenList][nt.token.id] = {layer: l, token: nt.token};
 					}
 					return nt.token.id;
 				}
 				case "maps.removeToken": {
 					const m = currentMap(),
-					      {layer, token} = m.tokenList[params as number];
+					      {layer, token} = m[tokenList][params as number];
 					layer.tokens.splice(layer.tokens.indexOf(token), 1);
-					delete m.tokenList[params as number];
+					delete m[tokenList][params as number];
 					return null;
 				}
 				case "maps.setToken":
@@ -589,7 +594,7 @@ Object.defineProperties(window, {
 					}
 					return null;
 				case "maps.setTokenLayerPos": {
-					const lt = currentMap().tokenList[(params as {id: number}).id],
+					const lt = currentMap()[tokenList][(params as {id: number}).id],
 					      to = getLayer((params as {to: string}).to);
 					if (to) {
 						lt.layer.children.splice(lt.layer.tokens.indexOf(lt.token), 1);
@@ -620,29 +625,29 @@ Object.defineProperties(window, {
 					      m = currentMap(),
 					      l = getLayer(aw.path);
 					if (l) {
-						if (aw.wall.id in m.walls || !aw.wall.id || aw.wall.id > m.lastWallID) {
-							aw.wall.id = ++m.lastWallID;
+						if (aw.wall.id in m.walls || !aw.wall.id || aw.wall.id > m[lastWallID]) {
+							aw.wall.id = ++m[lastWallID];
 						}
 						l.walls.push(aw.wall);
-						m.wallList[aw.wall.id] = {layer: l, wall: aw.wall};
+						m[wallList][aw.wall.id] = {layer: l, wall: aw.wall};
 					}
 					return aw.wall.id;
 				}
 				case "maps.removeWall": {
 					const m = currentMap(),
-					      {layer, wall} = m.wallList[params as number];
+					      {layer, wall} = m[wallList][params as number];
 					layer.walls.splice(layer.walls.indexOf(wall));
-					delete m.wallList[wall.id];
+					delete m[wallList][wall.id];
 					return null;
 				}
 				case "maps.modifyWall": {
 					const w = params as Wall,
-					      {wall} = currentMap().wallList[w.id];
+					      {wall} = currentMap()[wallList][w.id];
 					Object.assign(wall, w);
 					return null;
 				}
 				case "maps.moveWall": {
-					const lw = currentMap().wallList[(params as {id: number}).id],
+					const lw = currentMap()[wallList][(params as {id: number}).id],
 					      to = getLayer((params as {path: string}).path);
 					if (to) {
 						lw.layer.walls.splice(lw.layer.walls.indexOf(lw.wall), 1);
@@ -827,4 +832,3 @@ Object.defineProperties(window, {
 		"value": () => console.log(exampleData)
 	}
 });
-}
