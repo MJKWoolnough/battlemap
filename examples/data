@@ -11,7 +11,7 @@
     ]
   },
   "mapData": [
-    {"tokens": [], "walls": [], "children": []}
+    {}
   ],
   "characterData": [
     {}
