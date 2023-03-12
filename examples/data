@@ -11,7 +11,7 @@
     ]
   },
   "mapData": [
-    {}
+    {"tokens": [], "walls": [], "children": []}
   ],
   "characterData": [
     {}
@@ -32,7 +32,7 @@
     "folders": {},
     "items": {}
   },
-  music: [],
+  "music": [],
   "plugins": {
     "5e.js": {
       "enabled": true,
