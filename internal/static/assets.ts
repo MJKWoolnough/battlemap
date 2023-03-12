@@ -180,7 +180,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 		root.windowIcon = icon;
 		clearNode(base, {"class": `${assets} ${folders}`}, [
 			button({"onclick": () => {
-				const file = input({accept, "multiple": "multiple", "name": "asset", "type": "file", "onchange": () => {
+				const file = input({accept, "multiple": true, "name": "asset", "type": "file", "onchange": () => {
 					uploadAsset(root, id, new FormData(f), w)
 					.then(() => w.remove())
 					.catch(handleError)
