@@ -510,7 +510,6 @@ Object.defineProperties(window, {
 						"locked": false,
 						"tokens": [],
 						"walls": [],
-						"children": []
 					});
 					return null;
 				}
@@ -520,8 +519,6 @@ Object.defineProperties(window, {
 						"name": uniqueLayer(name),
 						"hidden": false,
 						"locked": false,
-						"tokens": [],
-						"walls": [],
 						"children": []
 					});
 					return null;
