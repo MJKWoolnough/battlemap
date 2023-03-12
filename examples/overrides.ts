@@ -444,7 +444,32 @@ Object.defineProperties(window, {
 							locked: false,
 							tokens: [],
 							walls: [],
-							children: [],
+							children: [
+								{
+									name: "Layer",
+									hidden: false,
+									locked: false,
+									tokens: [],
+									walls: [],
+									children: []
+								},
+								{
+									name: "Light",
+									hidden: false,
+									locked: false,
+									tokens: [],
+									walls: [],
+									children: []
+								},
+								{
+									name: "Grid",
+									hidden: false,
+									locked: false,
+									tokens: [],
+									walls: [],
+									children: []
+								}
+							],
 							[lastTokenID]: 0,
 							[lastWallID]: 0,
 							[tokenList]: {},
