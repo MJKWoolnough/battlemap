@@ -813,6 +813,57 @@ Object.defineProperties(window, {
 	},
 	"XMLHttpRequest": {
 		"value": class XMLHttpRequest extends EventTarget {
+			#upload = {"addEventListener": (_name: string, _fn: Function) => {}};
+			#url = "";
+			#to: number = -1;
+			response: any;
+			responseType = "";
+			readyState = 4;
+			responseText = "Bad Upload";
+			status = 200;
+			get upload () {
+				return this.#upload;
+			}
+			abort() {
+				if (this.#to >= 0) {
+					clearTimeout(this.#to);
+					this.#to = -1;
+				}
+			}
+			open(_method: string, url: string) {
+				this.#url = url;
+			}
+			setRequestHeader(_header: string, _value: string) {}
+			overrideMimeType(_mime: string) {}
+			send(body?: XMLHttpRequestBodyInit | Document | null | undefined) {
+				this.#to = setTimeout(() => {
+					this.#to = -1;
+					const url = new URL(this.#url, "file:///"),
+					      type = trimLeft(trimRight(url.pathname, "/"), "/"),
+					      path = Array.from(url.searchParams).find(([name]) => name === "path")?.[1] ?? "";
+					if ((type === "images" || type === "audio")  && body instanceof FormData) {
+						const ps: Promise<void>[] = [],
+						      response: {id: number; name: string}[]  = this.response = [];
+						for (const file of body.getAll("asset")) {
+							if (file instanceof File) {
+								let fn: Function;
+								const fr = new FileReader();
+								ps.push(new Promise(sFn => fn = sFn));
+								fr.addEventListener("load", () => {
+									const id = exampleData.urls[type].push(fr.result as string) - 1;
+									response.push({id, name: addItemTo(getFolder(exampleData[type], path)!.items, file.name, id)});
+									fn();
+								});
+								fr.readAsDataURL(file);
+							}
+						}
+						Promise.all(ps).then(() => this.dispatchEvent(new Event("readystatechange")));
+					} else {
+						this.status = 400;
+						this.dispatchEvent(new Event("readystatechange"));
+					}
+				});
+			}
 		}
 	},
 	"localStorage": {
