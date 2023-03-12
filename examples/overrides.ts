@@ -531,9 +531,9 @@ Object.defineProperties(window, {
 					const moveLayer = params as {from: string; to: string; position: number},
 					     [pl, l] = getParentLayer(moveLayer.from),
 					     to = getLayer(moveLayer.to);
-					if (pl && l && to) {
-						pl.children?.splice(pl.children.indexOf(l), 1);
-						to.children?.splice(moveLayer.position, 0, l);
+					if (pl?.children && l && to?.children) {
+						pl.children.splice(pl.children.indexOf(l), 1);
+						to.children.splice(moveLayer.position, 0, l);
 					}
 					return null;
 				}
@@ -615,7 +615,7 @@ Object.defineProperties(window, {
 				case "maps.setTokenLayerPos": {
 					const lt = currentMap()[tokenList][(params as {id: number}).id],
 					      to = getLayer((params as {to: string}).to);
-					if (to) {
+					if (to?.tokens && lt.layer.tokens) {
 						lt.layer.tokens?.splice(lt.layer.tokens.indexOf(lt.token), 1);
 						to.tokens?.splice((params as {newPos: number}).newPos, 0, lt.token);
 						lt.layer = to;
@@ -668,9 +668,9 @@ Object.defineProperties(window, {
 				case "maps.moveWall": {
 					const lw = currentMap()[wallList][(params as {id: number}).id],
 					      to = getLayer((params as {path: string}).path);
-					if (to) {
-						lw.layer.walls?.splice(lw.layer.walls.indexOf(lw.wall), 1);
-						to.walls?.push(lw.wall);
+					if (to?.walls && lw.layer.walls) {
+						lw.layer.walls.splice(lw.layer.walls.indexOf(lw.wall), 1);
+						to.walls.push(lw.wall);
 						lw.layer = to;
 					}
 					return null;
