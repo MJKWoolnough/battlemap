@@ -8,7 +8,7 @@ This project is currently in a work-in-progess state, with frequent updates.
 
 ## Features
 
-* Map creation where you can easily add multiple layers, each of which can be separately toggle for visibility, allowing hidden tokens, simple doors/windows, multi-levelled maps, and much more.
+* Map creation where you can easily add multiple layers, each of which can be separately toggled for visibility, allowing hidden tokens, simple doors/windows, multi-levelled maps, and much more.
 * Character creation, so you can easily reuse monsters, NPCs and players across maps.
 * Dynamic, top-down, ray-traced, vector based lighting system, allowing for more atmospheric looking maps.
 * Multi-track Audio system that synchronises audio across all clients.
