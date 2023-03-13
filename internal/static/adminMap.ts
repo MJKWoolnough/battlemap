@@ -184,7 +184,7 @@ export default (base: HTMLElement) => {
 					img({"src": imageIDtoURL(image.id), "onload": function(this: HTMLImageElement) {
 						const {width, height} = this;
 						if (selected.layer === layer && width > 0 && height > 0) {
-							const token = {"id": 0, "src": image.id, x, y, width, height, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColours": [], "lightStages": [], "lightTimings": []};
+							const token = {"id": 0, "src": image.id, x, y, "width": width || mapData.gridSize, "height": height || mapData.gridSize, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColours": [], "lightStages": [], "lightTimings": []};
 							if (token.snap) {
 								[token.x, token.y] = snapTokenToGrid(token.x, token.y, token.width, token.height);
 							}
@@ -205,8 +205,8 @@ export default (base: HTMLElement) => {
 		} else if (dragImage.is(e)) {
 			const {id, width, height} = dragImage.get(e);
 			token.src = id;
-			token.width = width;
-			token.height = height;
+			token.width = width || mapData.gridSize;
+			token.height = height || mapData.gridSize;
 		} else {
 			return;
 		}
