@@ -504,24 +504,26 @@ Object.defineProperties(window, {
 					delete currentMap().data[params as string];
 					return null;
 				case "maps.addLayer": {
+					const name = uniqueLayer(params as string);
 					currentMap().children?.push({
-						"name": uniqueLayer(params as string),
+						name,
 						"hidden": false,
 						"locked": false,
 						"tokens": [],
 						"walls": [],
 					});
-					return null;
+					return name;
 				}
 				case "maps.addLayerFolder": {
-					const [parent, name] = splitAfterLastSlash(params as string);
+					const [parent, oldName] = splitAfterLastSlash(params as string),
+					      name = uniqueLayer(oldName);
 					getLayer(parent)?.children?.push({
-						"name": uniqueLayer(name),
+						name,
 						"hidden": false,
 						"locked": false,
 						"children": []
 					});
-					return null;
+					return parent + "/" + name;
 				}
 				case "maps.renameLayer": {
 					const data = params as {path: string; name: string};
