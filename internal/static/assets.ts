@@ -205,7 +205,7 @@ export const audioAssetName = (id: Uint, fn: (name: string) => void) => getAsset
 imageAssetName = (id: Uint, fn: (name: string) => void) => getAssetName(id, fn, imageAssets),
 uploadImages = uploadAsset.bind(null, imageRoot, "images"),
 uploadAudio = uploadAsset.bind(null, audioRoot, "audio"),
-dragImageFiles = new DragFiles("image/gif", "image/png", "image/jpeg", "image/webp", "video/apng"),
+dragImageFiles = new DragFiles("image/gif", "image/png", "image/jpeg", "image/webp", "video/apng", "image/svg+xml"),
 dragAudioFiles = new DragFiles("application/ogg", "audio/mpeg"),
 dragAudio = new DragTransfer<AudioAsset>("audioasset"),
 dragImage = new DragTransfer<ImageAsset>("imageasset"),
