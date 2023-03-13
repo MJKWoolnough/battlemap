@@ -524,8 +524,9 @@ Object.defineProperties(window, {
 					return null;
 				}
 				case "maps.renameLayer": {
-					(getLayer((params as {path: string}).path) ?? {"name": ""}).name = uniqueLayer((params as {name: string}).name);
-					return null;
+					const data = params as {path: string; name: string};
+					data.name = (getLayer(data.path) ?? {"name": ""}).name = uniqueLayer(data.name);
+					return data;
 				}
 				case "maps.moveLayer": {
 					const moveLayer = params as {from: string; to: string; position: number},
