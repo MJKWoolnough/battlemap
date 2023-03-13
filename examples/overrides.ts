@@ -257,7 +257,7 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 		newParent = getFolder(root, to);
 	}
 	delete oldParent.items[oldName];
-	return "/" + addItemTo(newParent!.items, newName, iid);
+	return to + "/" + addItemTo(newParent!.items, newName, iid);
       },
       folderMove = (root: Folder, from: string, to: string) => {
 	const [oldParent, oldName, fd] = getParentFolder(root, from);
@@ -279,7 +279,7 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 		return "";
 	}
 	delete oldParent.folders[oldName];
-	return "/" + addFolderTo(newParent!.folders, newName, fd);
+	return to + "/" + addFolderTo(newParent!.folders, newName, fd);
       },
       itemDelete = (root: Folder, item: string) => {
 	const [parent, oldName, iid] = getFolderItem(root, item);
