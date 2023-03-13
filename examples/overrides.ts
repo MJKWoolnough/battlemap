@@ -238,7 +238,7 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 	if (!parent || !name) {
 		return "";
 	}
-	return path.slice(0, name.length) + addFolderTo(parent.folders, name, {folders: {}, items: {}});
+	return path.slice(0, path.length - name.length) + addFolderTo(parent.folders, name, {folders: {}, items: {}});
       },
       itemMove = (root: Folder, from: string, to: string) => {
 	const [oldParent, oldName, iid] = getFolderItem(root, from);
