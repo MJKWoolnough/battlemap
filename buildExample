@@ -1,0 +1,36 @@
+#!/bin/bash
+
+dataFile="$(cat $1)";
+bm="$(realpath "$(dirname "$0")")";
+data="$bm/internal/static/";
+jslibJS="$(realpath "$bm/../jslib/lib.js/")";
+shift;
+
+(
+	cd "$data";
+	head -n5 index.html | tr -d '\n	';
+	echo -n "<script type=\"module\">";
+	(
+		echo -n "const exampleData = $dataFile";
+		echo ";";
+		echo "{";
+		cat "$bm/examples/overrides.js";
+		echo "}";
+		while IFS= read -r line; do
+			if [ "$line" = "	return url => Promise.resolve(imports.get(url) ?? import(url));" ]; then
+				echo -n "		const plugins = new Map([";
+				while read plugin; do
+					echo "[\"/plugins/$plugin\", async () => {";
+					jspacker -i "/plugins/$plugin" -p | sed -e 's@import\.meta@\{"url": "/plugins/'"$plugin"'"\}@g';
+					echo -e "\nreturn {};\n}],";
+				done < <(echo "$dataFile" | jq -r ".plugins | keys[]");
+				echo "]);";
+				echo "	return url => Promise.resolve(imports.get(url) ?? plugins.get(url)?.() ?? import(url));";
+			else
+				echo "$line";
+			fi;
+		done < <(jspacker -i "/$(grep "<script" index.html | sed -e 's/.*src="\([^"]*\)".*/\1/')");
+	) | sed -e 's/^\(.*imageIDtoURL =\).*\(.\)$/\1 id => exampleData.urls.images[id]\2/' -e 's/^\(.*audioIDtoURL =\).*\(.\)$/\1 id => exampleData.urls.audio[id]\2/' -e 's/\("type": "submit"\)/\1, "disabled": ""/' | terser -m  --module --compress pure_getters,passes=3 --ecma 6 --format ascii_only | tr -d '\n';
+	echo -n "</script>";
+	tail -n5 index.html | tr -d '\n	';
+);
