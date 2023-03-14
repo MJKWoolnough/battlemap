@@ -778,7 +778,7 @@ export default (base: HTMLElement) => {
 		removeLayer(path);
 		undo.clear();
 	});
-	rpc.waitTokenAdd().when(({path, token}) => doTokenAdd(path, token, false)(token.id));
+	rpc.waitTokenAdd().when(({path, token, pos}) => doTokenAdd(path, token, false, pos)(token.id));
 	rpc.waitTokenMoveLayerPos().when(({id, to, newPos}) => doTokenMoveLayerPos(id, to, newPos, false));
 	rpc.waitTokenSet().when(t => doTokenSet(t, false));
 	rpc.waitTokenSetMulti().when(t => doTokenSetMulti(t, false));
