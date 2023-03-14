@@ -11,7 +11,7 @@ shift;
 	head -n5 index.html | tr -d '\n	';
 	echo -n "<script type=\"module\">";
 	(
-		echo -n "const exampleData = $dataFile";
+		echo -n "const exampleData = $(echo "$dataFile" | sed -e 's/\"admin\": *[^,]*,/\"admin\": window.location.search === "?admin",/')";
 		echo ";";
 		echo "{";
 		cat "$bm/examples/overrides.js";
@@ -30,7 +30,7 @@ shift;
 				echo "$line";
 			fi;
 		done < <(jspacker -i "/$(grep "<script" index.html | sed -e 's/.*src="\([^"]*\)".*/\1/')");
-	) | sed -e 's/^\(.*imageIDtoURL =\).*\(.\)$/\1 id => exampleData.urls.images[id]\2/' -e 's/^\(.*audioIDtoURL =\).*\(.\)$/\1 id => exampleData.urls.audio[id]\2/' -e 's/\("type": "submit"\)/\1, "disabled": ""/' | terser -m  --module --compress pure_getters,passes=3 --ecma 6 --format ascii_only | tr -d '\n';
+	) | sed -e 's/^\(.*imageIDtoURL =\).*\(.\)$/\1 id => exampleData.urls.images[id]\2/' -e 's/^\(.*audioIDtoURL =\).*\(.\)$/\1 id => exampleData.urls.audio[id]\2/' -e 's@"login/logout" : "login/login"@"?" : "?admin", "method": "post"@' | terser -m  --module --compress pure_getters,passes=3 --ecma 6 --format ascii_only | tr -d '\n';
 	echo -n "</script>";
 	tail -n5 index.html | tr -d '\n	';
 );
