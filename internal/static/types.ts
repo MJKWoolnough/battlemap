@@ -134,7 +134,7 @@ export type RPC = RPCWaits & {
 	addToMask:        (mask: Mask)                               => Promise<void>;
 	removeFromMask:   (mask: Uint)                               => Promise<void>;
 	setMask:          (baseOpaque: boolean, masks: Mask[])       => Promise<void>;
-	addToken:         (path: string, token: Token)               => Promise<Uint>;
+	addToken:         (path: string, token: Token, pos?: Uint)   => Promise<Uint>;
 	removeToken:      (id: Uint)                                 => Promise<void>;
 	setToken:         (t: TokenSet)                              => Promise<void>;
 	setTokenMulti:    (t: TokenSet[])                            => Promise<void>;
@@ -303,6 +303,7 @@ export type ID = {
 export type TokenAdd = {
 	path: string;
 	token: Token;
+	pos?: Uint;
 }
 
 export type TokenMoveLayerPos = ID & {
