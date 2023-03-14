@@ -172,7 +172,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["removeFromMask",   "maps.removeFromMask",    "!",                       returnVoid,       "waitMaskRemove", ""],
 			["setMask",          "maps.setMask",          ["baseOpaque", "masks"],    returnVoid,       "waitMaskSet", ""],
 			["removeLayer",      "maps.removeLayer",       "!",                       returnVoid,       "waitLayerRemove", ""],
-			["addToken",         "maps.addToken",         ["path", "token"],          checkUint,        "waitTokenAdd", "token/id"],
+			["addToken",         "maps.addToken",         ["path", "token", "pos"],   checkUint,        "waitTokenAdd", "token/id"],
 			["removeToken",      "maps.removeToken",       "!",                       returnVoid,       "waitTokenRemove", ""],
 			["setToken",         "maps.setToken",          "!",                       returnVoid,       "waitTokenSet", ""],
 			["setTokenMulti",    "maps.setTokenMulti",     "!",                       returnVoid,       "waitTokenMultiSet", ""],
@@ -551,7 +551,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 	return true;
       },
-      checksTokenAdd: checkers = [[checkObject, ""], [checkString, "path"], [checkToken, "token"]],
+      checksTokenAdd: checkers = [[checkObject, ""], [checkString, "path"], [checkToken, "token"], [checkUint, "?pos"]],
       checkTokenAdd = (data: any): data is TokenAdd => checker(data, "TokenAdd", checksTokenAdd),
       checksLayerFolder: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkArray, "children"]],
       checksLayerTokens: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkBoolean, "locked"], [checkArray, "tokens"], [checkArray, "walls"]],
