@@ -284,11 +284,12 @@ func (l *layer) removeToken(id uint64) {
 	l.Tokens = l.Tokens[:len(l.Tokens)-1]
 }
 
-func (l *layer) addToken(tk *token, pos uint) {
+func (l *layer) addToken(tk *token, pos uint) uint {
 	if pos >= uint(len(l.Tokens)) {
 		pos = uint(len(l.Tokens))
 	}
 	l.Tokens = append(l.Tokens, nil)
 	copy(l.Tokens[pos+1:], l.Tokens[pos:])
 	l.Tokens[pos] = tk
+	return pos
 }
