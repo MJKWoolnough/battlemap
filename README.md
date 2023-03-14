@@ -35,3 +35,7 @@ This project is currently in a work-in-progess state, with frequent updates.
 Simple screenshot showing lighting effect (will be made more graphical in the future).
 
 <a href="https://raw.githubusercontent.com/MJKWoolnough/battlemap/master/screenshots/screenshot.svg">![Screenshot](/screenshots/screenshot.svg)</a>
+
+## Examples
+
+Example 1: [Player](https://vimagination.zapto.org/battlemap/files/examples/example1.html), [Admin](https://vimagination.zapto.org/battlemap/files/examples/example1.html?admin)
