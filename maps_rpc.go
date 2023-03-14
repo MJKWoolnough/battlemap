@@ -2,6 +2,7 @@ package battlemap
 
 import (
 	"encoding/json"
+	"math"
 	"strconv"
 
 	"vimagination.zapto.org/keystore"
@@ -540,8 +541,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		var newToken struct {
 			Token *token `json:"token"`
 			Path  string `json:"path"`
+			Pos   uint   `json:"pos"`
 		}
 		newToken.Token = new(token)
+		newToken.Pos = math.MaxUint
 		if err := json.Unmarshal(data, &newToken); err != nil {
 			return nil, err
 		}
@@ -549,15 +552,15 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, tokenLayer, func(mp *levelMap, l *layer) bool {
+			newToken.Pos = l.addToken(newToken.Token, newToken.Pos)
 			if _, ok := mp.tokens[newToken.Token.ID]; ok || newToken.Token.ID == 0 {
 				mp.lastTokenID++
 				newToken.Token.ID = mp.lastTokenID
-				data = append(newToken.Token.appendTo(append(appendString(append(data[:0], "{\"path\":"...), newToken.Path), ",\"token\":"...), false), '}')
+				data = append(strconv.AppendUint(append(newToken.Token.appendTo(append(appendString(append(data[:0], "{\"path\":"...), newToken.Path), ",\"token\":"...), false), ",\"pos\":"...), uint64(newToken.Pos), 10), '}')
 			}
-			l.Tokens = append(l.Tokens, newToken.Token)
 			mp.tokens[newToken.Token.ID] = layerToken{l, newToken.Token}
 			m.socket.broadcastMapChange(cd, broadcastTokenAdd, data, userAdmin)
-			m.socket.broadcastMapChange(cd, broadcastTokenAdd, append(newToken.Token.appendTo(append(appendString(append(data[:0], "{\"path\":"...), newToken.Path), ",\"token\":"...), true), '}'), userNotAdmin)
+			m.socket.broadcastMapChange(cd, broadcastTokenAdd, append(strconv.AppendUint(append(newToken.Token.appendTo(append(appendString(append(data[:0], "{\"path\":"...), newToken.Path), ",\"token\":"...), true), ",\"pos\":"...), uint64(newToken.Pos), 10), '}'), userNotAdmin)
 			return true
 		}); err != nil {
 			return nil, err
