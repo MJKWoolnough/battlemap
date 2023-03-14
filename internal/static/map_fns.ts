@@ -273,7 +273,7 @@ doLayerRename = (path: string, name: string, sendRPC = true) => {
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_LAYER_RENAME"]);
 },
-doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
+doTokenAdd = (path: string, tk: Token, sendRPC = true, pos: undefined | Uint = undefined) => {
 	const layer = getLayer(path);
 	if (!layer || !isSVGLayer(layer)) {
 		handleError("Invalid layer for token add");
@@ -283,7 +283,11 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 	      hasLight = token.hasLight(),
 	      addToken = (id: Uint) => {
 		token.id = id;
-		layer.tokens.push(token);
+		if (pos === undefined) {
+			layer.tokens.push(token);
+		} else {
+			layer.tokens.splice(pos, 0, token);
+		}
 		tokens.set(id, {layer, token});
 		if (hasLight) {
 			updateLight();
@@ -291,7 +295,7 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 	      },
 	      doIt = (sendRPC = true) => {
 		if (sendRPC) {
-			queue(() => rpc.addToken(path, token).then(addToken));
+			queue(() => rpc.addToken(path, token, pos).then(addToken));
 		}
 		return undoIt;
 	      },
@@ -415,7 +419,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 	      },
 	      undoIt = () => {
 		layer.tokens.splice(pos, 0, token);
-		queue(() => rpc.addToken(layer.path, token).then(id => {
+		queue(() => rpc.addToken(layer.path, token, pos).then(id => {
 			token.id = id;
 			tokens.set(id, {layer, token});
 		}));
