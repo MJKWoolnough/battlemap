@@ -98,7 +98,7 @@ inited.then(() => {
 						}
 					} else if (dragImage.is(e)) {
 						const {id: src, width, height} = dragImage.get(e);
-						setToken = () => fullToken({src, width, height});
+						setToken = () => fullToken({src, "width": width || mapData.gridSize, "height": height || mapData.gridSize});
 						amendNode(this, {"style": `background-image: url(${imageIDtoURL(src)})`});
 						setCursor();
 					}
