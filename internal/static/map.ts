@@ -748,7 +748,11 @@ export default (base: HTMLElement) => {
 			} else {
 				token = new shapeClass(tk.token);
 			}
-			layer.tokens.push(token);
+			if (tk.pos === undefined) {
+				layer.tokens.push(token);
+			} else {
+				layer.tokens.splice(tk.pos, 0, token);
+			}
 			tokens.set(token.id, {layer, token});
 			if (token.hasLight()) {
 				updateLight();
