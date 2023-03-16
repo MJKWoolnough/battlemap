@@ -722,7 +722,7 @@ Object.defineProperties(window, {
 				}
 				case "music.rename": {
 					const data = params as {id: number; name: string};
-					return exampleData.music[data.id]!.name = uniqueName(data.name, name => {
+					return exampleData.music[data.id].name = uniqueName(data.name, name => {
 						for (const mid in exampleData.music) {
 							if (exampleData.music[mid].name === name) {
 								return false;
