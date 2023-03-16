@@ -692,7 +692,24 @@ Object.defineProperties(window, {
 					track.id = exampleData.music.push(track) - 1;
 					return {"id": track.id, name};
 				}
-				case "music.rename":
+				case "music.rename": {
+					const data = params as {id: number; name: string};
+					let mp: MusicPack | null = null;
+					for (const m of exampleData.music) {
+						if (m.id === data.id) {
+							mp = m;
+							break;
+						}
+					}
+					return mp!.name = uniqueName(data.name, name => {
+						for (const mp of exampleData.music) {
+							if (mp.name === name) {
+								return false;
+							}
+						}
+						return true;
+					});
+				}
 				case "music.remove":
 				case "music.copy":
 				case "music.setVolume":
