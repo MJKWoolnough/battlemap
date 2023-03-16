@@ -1,7 +1,10 @@
 const lastTokenID = Symbol("lastTokenID"),
       tokenList = Symbol("tokenList"),
       lastWallID = Symbol("lastWallID"),
-      wallList = Symbol("wallList");
+      wallList = Symbol("wallList"),
+      lastMapID = Symbol("lastMapID"),
+      lastCharacterID = Symbol("lastCharacterID"),
+      lastMusicPackID = Symbol("lastMusicPackID");
 
 type Folder = {
 	folders: Record<string, Folder>;
@@ -101,7 +104,6 @@ type MusicTrack = {
 }
 
 type MusicPack = {
-	id: number;
 	name: string;
 	tracks: MusicTrack[];
 	volume: number;
@@ -126,18 +128,21 @@ declare const exampleData: {
 		images: string[];
 		audio: string[];
 	};
-	mapData: MapData[];
-	characterData: Record<string, KeystoreData>[];
+	mapData: Record<number, MapData>;
+	characterData: Record<number, Record<string, KeystoreData>>;
 	images: Folder;
 	audio: Folder;
 	characters: Folder;
 	maps: Folder;
-	music: MusicPack[];
+	music: Record<number, MusicPack>;
 	plugins: Record<string, {
 		enabled: boolean;
 		data: Record<string, KeystoreData>;
 	}>;
 	localStorage: Record<string, string>;
+	[lastCharacterID]: number;
+	[lastMapID]: number;
+	[lastMusicPackID]: number;
 };
 
 const uniqueName = (name: string, checker: (name: string) => boolean) => {
@@ -382,11 +387,34 @@ const uniqueName = (name: string, checker: (name: string) => boolean) => {
 	}
       };
 
-for (const m of exampleData.mapData) {
+exampleData[lastCharacterID] = 0;
+exampleData[lastMapID] = 0;
+exampleData[lastMusicPackID] = 0;
+
+for (const cStr in exampleData.characterData) {
+	const cID = parseInt(cStr);
+	if (cID < exampleData[lastCharacterID]) {
+		exampleData[lastCharacterID] = cID;
+	}
+}
+
+for (const mStr in exampleData.mapData) {
+	const mID = parseInt(mStr),
+	      m = exampleData.mapData[mID];
+	if (mID < exampleData[lastMapID]) {
+		exampleData[lastMapID] = mID;
+	}
 	m[lastTokenID] = m[lastWallID] = 0;
 	m[tokenList] = {};
 	m[wallList] = {};
 	initMap(m, m);
+}
+
+for (const mStr in exampleData.music) {
+	const mID = parseInt(mStr);
+	if (mID < exampleData[lastMusicPackID]) {
+		exampleData[lastMusicPackID] = mID;
+	}
 }
 
 Object.defineProperties(window, {
@@ -423,7 +451,8 @@ Object.defineProperties(window, {
 				case "maps.getMapData":
 					return exampleData.mapData[params as number];
 				case "maps.new": {
-					const mid = exampleData.mapData.push(Object.assign(params as {
+					const mid = ++exampleData[lastMusicPackID];
+					exampleData.mapData[mid] = Object.assign(params as {
 							name: string;
 							width: number;
 							height: number;
@@ -471,7 +500,7 @@ Object.defineProperties(window, {
 							[lastWallID]: 0,
 							[tokenList]: {},
 							[wallList]: {}
-						})) - 1;
+						})
 					return {
 						"id": mid,
 						"name": addItemTo(exampleData.maps.items, (params as {name: string}).name, mid)
@@ -681,29 +710,22 @@ Object.defineProperties(window, {
 				case "music.list":
 					return exampleData.music;
 				case "music.new": {
-					const name = uniqueName(params as string, name => !exampleData.music.some(m => m.name === name)),
-					      track = {
-						"id": 0,
+					const name = uniqueName(params as string, name => !Object.values(exampleData.music).some(m => m.name === name)),
+					      id = ++exampleData[lastMusicPackID];
+					exampleData.music[id] = {
 						name,
 						"tracks": [],
 						"volume": 0,
 						"playTime": 0
-					      };
-					track.id = exampleData.music.push(track) - 1;
-					return {"id": track.id, name};
+					};
+					return {id, name};
 				}
 				case "music.rename": {
-					const data = params as {id: number; name: string};
-					let mp: MusicPack | null = null;
-					for (const m of exampleData.music) {
-						if (m.id === data.id) {
-							mp = m;
-							break;
-						}
-					}
+					const data = params as {id: number; name: string},
+					      mp = exampleData.music[data.id];
 					return mp!.name = uniqueName(data.name, name => {
-						for (const mp of exampleData.music) {
-							if (mp.name === name) {
+						for (const mid in exampleData.music) {
+							if (exampleData.music[mid].name === name) {
 								return false;
 							}
 						}
@@ -711,10 +733,7 @@ Object.defineProperties(window, {
 					});
 				}
 				case "music.remove": {
-					const pos = exampleData.music.findIndex(mp => mp.id === params as number);
-					if (pos >= 0) {
-						exampleData.music.splice(pos, 1);
-					}
+					delete exampleData.music[params as number];
 					return null;
 				}
 				case "music.copy":
@@ -732,8 +751,8 @@ Object.defineProperties(window, {
 						path: string;
 						data: Record<string, KeystoreData>;
 					      },
-					      id = exampleData.characterData.length;
-					exampleData.characterData.push(data.data);
+					      id = ++exampleData[lastCharacterID]
+					exampleData.characterData[id] = data.data;
 					return {id, "path": addItemTo(exampleData.characters.items, data.path, id)};
 				}
 				case "characters.modify": {
@@ -828,11 +847,11 @@ Object.defineProperties(window, {
 				case "characters.copy": {
 					const [p, name] = getFolderItem(exampleData.characters, (params as IDPath).path),
 					      ms = exampleData.characterData[(params as IDPath).id],
-					      newID = exampleData.characterData.length;
+					      newID = ++exampleData[lastCharacterID];
 					if (!p || !ms) {
 						return null;
 					}
-					exampleData.characterData.push(JSON.parse(JSON.stringify(ms)));
+					exampleData.characterData[newID] = JSON.parse(JSON.stringify(ms));
 					return {"id": newID, "path": (params as IDPath).path.slice(0, name.length) + addItemTo(p.items, name, newID)};
 				}
 				case "maps.list":
@@ -850,11 +869,11 @@ Object.defineProperties(window, {
 				case "maps.copy": {
 					const [p, name] = getFolderItem(exampleData.maps, (params as IDPath).path),
 					      ms = exampleData.mapData[(params as IDPath).id],
-					      newID = exampleData.mapData.length;
+					      newID = ++exampleData[lastMapID];
 					if (!p || !ms) {
 						return null;
 					}
-					exampleData.mapData.push(JSON.parse(JSON.stringify(ms)));
+					exampleData.mapData[newID] = JSON.parse(JSON.stringify(ms));
 					return {"id": newID, "path": (params as IDPath).path.slice(0, name.length) + addItemTo(p.items, name, newID)};
 				}
 				}
