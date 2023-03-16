@@ -748,6 +748,8 @@ Object.defineProperties(window, {
 					return {id, name}
 				}
 				case "music.setVolume":
+					exampleData.music[(params as {id: number}).id].volume = (params as {volume: number}).volume;
+					return null;
 				case "music.playPack":
 				case "music.stopPack":
 				case "music.stopAllPacks":
