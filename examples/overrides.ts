@@ -735,7 +735,18 @@ Object.defineProperties(window, {
 					delete exampleData.music[params as number];
 					return null;
 				}
-				case "music.copy":
+				case "music.copy": {
+					const name = uniqueName((params as {name: string}).name, name => !Object.values(exampleData.music).some(m => m.name === name)),
+					      id = ++exampleData[lastMusicPackID],
+					      mp = exampleData.music[(params as {id: number}).id];
+					exampleData.music[id] = {
+						name,
+						"tracks": JSON.parse(JSON.stringify(mp.tracks)),
+						"volume": mp.volume,
+						"playTime": 0
+					};
+					return {id, name}
+				}
 				case "music.setVolume":
 				case "music.playPack":
 				case "music.stopPack":
