@@ -19,9 +19,8 @@
       ""
     ]
   },
-  "mapData": [
-    {},
-    {
+  "mapData": {
+    "1": {
       "name": "Vampire Attack",
       "width": 3000,
       "height": 3000,
@@ -791,10 +790,9 @@
         }
       ]
     }
-  ],
-  "characterData": [
-    {},
-    {
+  },
+  "characterData": {
+    "1": {
       "name": {
         "user": true,
         "data": "Vampire"
@@ -853,7 +851,7 @@
         ]
       }
     },
-    {
+    "2": {
       "name": {
         "user": true,
         "data": "Werewolf"
@@ -908,7 +906,7 @@
         ]
       }
     },
-    {
+    "3": {
       "name": {
         "user": true,
         "data": "Svevdor"
@@ -947,7 +945,7 @@
         ]
       }
     },
-    {
+    "4": {
       "name": {
         "user": true,
         "data": "Opal"
@@ -986,7 +984,7 @@
         ]
       }
     },
-    {
+    "5": {
       "name": {
         "user": true,
         "data": "Vax"
@@ -1086,7 +1084,7 @@
       "Werewolf": 2
     }
   },
-  "music": [],
+  "music": {},
   "plugins": {
     "5e.js": {
       "enabled": true,
