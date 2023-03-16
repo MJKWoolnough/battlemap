@@ -710,7 +710,13 @@ Object.defineProperties(window, {
 						return true;
 					});
 				}
-				case "music.remove":
+				case "music.remove": {
+					const pos = exampleData.music.findIndex(mp => mp.id === params as number);
+					if (pos >= 0) {
+						exampleData.music.splice(pos, 1);
+					}
+					return null;
+				}
 				case "music.copy":
 				case "music.setVolume":
 				case "music.playPack":
