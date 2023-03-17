@@ -768,6 +768,8 @@ Object.defineProperties(window, {
 					return null;
 				}
 				case "music.removeTrack":
+					exampleData.music[(params as {id: number}).id].tracks.splice((params as {track: number}).track, 1);
+					return null;
 				case "music.setTrackVolume":
 				case "music.setTrackRepeat":
 					break;
