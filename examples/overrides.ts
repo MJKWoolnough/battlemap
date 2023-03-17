@@ -771,6 +771,8 @@ Object.defineProperties(window, {
 					exampleData.music[(params as {id: number}).id].tracks.splice((params as {track: number}).track, 1);
 					return null;
 				case "music.setTrackVolume":
+					exampleData.music[(params as {id: number}).id].tracks[(params as {track: number}).track].volume = (params as {volume: number}).volume;
+					return null;
 				case "music.setTrackRepeat":
 					break;
 				case "characters.create": {
