@@ -708,7 +708,7 @@ Object.defineProperties(window, {
 					return null;
 				}
 				case "music.list":
-					return exampleData.music;
+					return Object.values(exampleData.music);
 				case "music.new": {
 					const name = uniqueName(params as string, name => !Object.values(exampleData.music).some(m => m.name === name)),
 					      id = ++exampleData[lastMusicPackID];
