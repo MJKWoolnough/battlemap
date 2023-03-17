@@ -561,8 +561,8 @@ Object.defineProperties(window, {
 				}
 				case "maps.moveLayer": {
 					const moveLayer = params as {from: string; to: string; position: number},
-					     [pl, l] = getParentLayer(moveLayer.from),
-					     to = getLayer(moveLayer.to);
+					      [pl, l] = getParentLayer(moveLayer.from),
+					      to = getLayer(moveLayer.to);
 					if (pl?.children && l && to?.children) {
 						pl.children.splice(pl.children.indexOf(l), 1);
 						to.children.splice(moveLayer.position, 0, l);
