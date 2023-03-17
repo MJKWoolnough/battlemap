@@ -760,7 +760,13 @@ Object.defineProperties(window, {
 						exampleData.music[mid].playTime = 0;
 					}
 					return null;
-				case "music.addTracks":
+				case "music.addTracks": {
+					const mp = exampleData.music[(params as {id: number}).id];
+					for (const id of (params as {tracks: number[]}).tracks) {
+						mp.tracks.push({id, "volume": 255, "repeat": 0});
+					}
+					return null;
+				}
 				case "music.removeTrack":
 				case "music.setTrackVolume":
 				case "music.setTrackRepeat":
