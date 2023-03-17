@@ -756,6 +756,10 @@ Object.defineProperties(window, {
 					exampleData.music[params as number].playTime = 0;
 					return null;
 				case "music.stopAllPacks":
+					for (const mid in exampleData.music) {
+						exampleData.music[mid].playTime = 0;
+					}
+					return null;
 				case "music.addTracks":
 				case "music.removeTrack":
 				case "music.setTrackVolume":
