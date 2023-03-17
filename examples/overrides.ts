@@ -731,10 +731,9 @@ Object.defineProperties(window, {
 						return true;
 					});
 				}
-				case "music.remove": {
+				case "music.remove":
 					delete exampleData.music[params as number];
 					return null;
-				}
 				case "music.copy": {
 					const name = uniqueName((params as {name: string}).name, name => !Object.values(exampleData.music).some(m => m.name === name)),
 					      id = ++exampleData[lastMusicPackID],
