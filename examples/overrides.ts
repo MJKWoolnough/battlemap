@@ -774,7 +774,8 @@ Object.defineProperties(window, {
 					exampleData.music[(params as {id: number}).id].tracks[(params as {track: number}).track].volume = (params as {volume: number}).volume;
 					return null;
 				case "music.setTrackRepeat":
-					break;
+					exampleData.music[(params as {id: number}).id].tracks[(params as {track: number}).track].repeat = (params as {repeat: number}).repeat;
+					return null;
 				case "characters.create": {
 					const data = params as {
 						path: string;
