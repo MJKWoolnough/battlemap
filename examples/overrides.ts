@@ -539,7 +539,7 @@ Object.defineProperties(window, {
 						"hidden": false,
 						"locked": false,
 						"tokens": [],
-						"walls": [],
+						"walls": []
 					});
 					return name;
 				}
