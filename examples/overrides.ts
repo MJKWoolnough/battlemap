@@ -753,6 +753,8 @@ Object.defineProperties(window, {
 				case "music.playPack":
 					return exampleData.music[(params as {id: number}).id].playTime = (params as {playTime: number}).playTime || Math.floor(Date.now() / 1000);
 				case "music.stopPack":
+					exampleData.music[params as number].playTime = 0;
+					return null;
 				case "music.stopAllPacks":
 				case "music.addTracks":
 				case "music.removeTrack":
