@@ -500,7 +500,7 @@ Object.defineProperties(window, {
 							[lastWallID]: 0,
 							[tokenList]: {},
 							[wallList]: {}
-						})
+						});
 					return {
 						"id": mid,
 						"name": addItemTo(exampleData.maps.items, (params as {name: string}).name, mid)
@@ -780,7 +780,7 @@ Object.defineProperties(window, {
 						path: string;
 						data: Record<string, KeystoreData>;
 					      },
-					      id = ++exampleData[lastCharacterID]
+					      id = ++exampleData[lastCharacterID];
 					exampleData.characterData[id] = data.data;
 					return {id, "path": addItemTo(exampleData.characters.items, data.path, id)};
 				}
