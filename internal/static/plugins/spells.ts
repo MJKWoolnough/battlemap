@@ -1,4 +1,4 @@
-import type {Uint} from '../types.js';
+import type {RPCWaits, Uint} from '../types.js';
 import type {Colour} from '../colours.js';
 import {id} from '../lib/css.js';
 import {amendNode} from '../lib/dom.js';
@@ -155,7 +155,12 @@ if (isAdmin) {
 		div({"style": "display: var(--spell-display, none)"}, labels([lang["SPELL_WIDTH"], ": "], input({"type": "number", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
 			setSize(size, width = checkInt(parseInt(this.value), 1, 1000, 10));
 		}})))
-	      ]);
+	      ]),
+	      tokenMoved = () => {
+		if (over && (selectedEffect === coneEffect || selectedEffect === lineEffect)) {
+			setTokenCentre()
+		}
+	      };
 	addTool(Object.freeze({
 		"name": lang["TITLE"],
 		"id": "tool_spells",
@@ -221,11 +226,10 @@ if (isAdmin) {
 		}
 	}));
 	mapLoadedReceive(() => setSize(size, width));
-	tokenSelectedReceive(() => {
-		if (over && (selectedEffect === coneEffect || selectedEffect === lineEffect)) {
-			setTokenCentre()
-		}
-	});
+	tokenSelectedReceive(tokenMoved);
+	for (const k of (["waitTokenMoveLayerPos", "waitTokenSet", "waitTokenSetMulti", "waitLayerShift"] as (keyof RPCWaits)[])) {
+		combined[k]().when(() => setTimeout(tokenMoved));
+	}
 } else {
 	let lastEffect: SVGGElement | null = null;
 	rpc.waitBroadcast().when(({type, data}) => {
