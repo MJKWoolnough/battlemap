@@ -10,7 +10,7 @@ import {defaultIcon, desktop as adesktop, setDefaultIcon, setLanguage, shell as 
 import lang from './language.js';
 import {loading} from './shared.js';
 
-export {ShellElement, WindowElement};
+export type {ShellElement, WindowElement};
 
 export type WindowData = [Int, Int, Uint, Uint];
 
