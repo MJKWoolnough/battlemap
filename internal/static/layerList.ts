@@ -494,10 +494,10 @@ menuItems.push([5, () => isAdmin ? [
 		});
 		at("@media (prefers-color-scheme: light)", {
 			[`:root.${invertID}`]: inverted
-		})
+		});
 		at("@media (prefers-color-scheme: dark)", {
 			[`:root:not(.${invertID})`]: inverted
-		})
+		});
 		mapLoadedReceive(() => loadFn());
 		return base;
 	})(),
