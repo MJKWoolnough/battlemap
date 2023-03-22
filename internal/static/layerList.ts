@@ -490,7 +490,7 @@ menuItems.push([5, () => isAdmin ? [
 			},
 			[`.${adminHideLight} #${toggleAdminLight}`]: {
 				"--off": "#000"
-			},
+			}
 		});
 		at("@media (prefers-color-scheme: light)", {
 			[`:root.${invertID}`]: inverted
