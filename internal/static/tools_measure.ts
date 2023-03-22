@@ -113,7 +113,7 @@ inited.then(() => {
 	      shiftSnap = () => snap.click(),
 	      [setupMouse0, cancelMouse0] = mouseDragEvent(0, undefined, (e: MouseEvent) => {
 		if (!e.ctrlKey) {
-			stopMeasurement()
+			stopMeasurement();
 			cancelMouse2();
 		}
 	      }),
