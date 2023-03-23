@@ -984,6 +984,14 @@ Object.defineProperties(window, {
 		})()
 	},
 	"saveData": {
-		"value": () => console.log(exampleData)
+		"value": () => {
+			for (let i = 0; i < exampleData.urls.images.length; i++) {
+				const url = exampleData.urls.images[i];
+				if (url.startsWith("data:image/svg+xml;base64,")) {
+					exampleData.urls.images[i] = "data:image/svg+xml," + atob(url.slice(26)).replaceAll("#", "%23").replaceAll(/\n[ 	]*/g, "");
+				}
+			}
+			console.log(exampleData);
+		}
 	}
 });
