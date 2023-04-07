@@ -910,25 +910,23 @@ if (isAdmin) {
 	      addToken = (t: ShapechangeToken, row: Uint) => {
 		tickers.push([]);
 		const name = span(t["5e-shapechange-name"]),
-		      i = img({"src": imageIDtoURL(t.src)}),
 		      r = tr([
 			th([
 				div({"class": [tokenSelector, tokenSelector5E], "style": "width: 100px; height: 100px"}, [
-					button({"title": lang["SHAPECHANGE_CHANGE"], "onclick": () => {
+					button({"title": lang["SHAPECHANGE_CHANGE"], "style": `background-image: url(${imageIDtoURL(t["src"])})`, "onclick": function(this: HTMLButtonElement) {
 						const gt = getToken();
 						if (gt) {
 							const token = asInitialToken(gt);
 							shell.confirm(mainLang["TOKEN_REPLACE"], mainLang["TOKEN_REPLACE_CONFIRM"]).then(replace => {
 								if (replace) {
 									Object.assign(t, token);
-									amendNode(i, {"src": imageIDtoURL(t.src)});
+									amendNode(this, {"style": {"background-image": imageIDtoURL(t.src)}});
 								}
 							});
 						} else {
 							shell.alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
 						}
 					}}),
-					i
 				]),
 				br(),
 				name,
