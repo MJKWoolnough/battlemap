@@ -973,7 +973,7 @@ if (isAdmin) {
 			const t = getToken();
 			if (t) {
 				const token = asInitialToken(t);
-				shell.prompt(lang["SHAPECHANGE_TOKEN_NAME"], lang["SHAPECHANGE_TOKEN_NAME_LONG"]).then(name => {
+				shell.prompt(lang["SHAPECHANGE_TOKEN_NAME"], lang["SHAPECHANGE_TOKEN_NAME_LONG"], selected?.token?.getData("name")).then(name => {
 					if (name) {
 						const t = Object.assign(token, {"5e-shapechange-name": name}) as ShapechangeToken;
 						amendNode(ticks, addToken(t, shapechangeTokens.length));
