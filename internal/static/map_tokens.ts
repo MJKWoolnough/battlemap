@@ -6,7 +6,7 @@ import {Pipe} from './lib/inter.js';
 import {setAndReturn} from './lib/misc.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
-import {imageIDtoURL} from './assets.js';
+import {imageIDtoURL} from './asset_urls.js';
 import {Colour, noColour} from './colours.js';
 import {cursors, gridPattern, lighting, mapMask} from './ids.js';
 import {timeShift} from './rpc.js';

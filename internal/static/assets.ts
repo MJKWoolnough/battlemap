@@ -10,6 +10,7 @@ import {Pipe} from './lib/inter.js';
 import {autoFocus, isInt, setAndReturn} from './lib/misc.js';
 import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
+import {audioIDtoURL, imageIDtoURL} from './asset_urls.js';
 import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
 import {dragOver, folderDragging, folders} from './ids.js';
 import lang from './language.js';
@@ -208,9 +209,7 @@ uploadAudio = uploadAsset.bind(null, audioRoot, "audio"),
 dragImageFiles = new DragFiles("image/gif", "image/png", "image/jpeg", "image/webp", "video/apng", "image/svg+xml"),
 dragAudioFiles = new DragFiles("application/ogg", "audio/mpeg"),
 dragAudio = new DragTransfer<AudioAsset>("audioasset"),
-dragImage = new DragTransfer<ImageAsset>("imageasset"),
-imageIDtoURL = (id: Uint) => `/images/${id}`,
-audioIDtoURL = (id: Uint) => `/audio/${id}`;
+dragImage = new DragTransfer<ImageAsset>("imageasset");
 
 register("imageAsset", [imageIcon, lang["TAB_IMAGES"]]);
 register("audioAsset", [audioIcon, lang["TAB_AUDIO"]]);
