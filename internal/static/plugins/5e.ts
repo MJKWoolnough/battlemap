@@ -926,7 +926,7 @@ if (isAdmin) {
 						} else {
 							shell.alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
 						}
-					}}),
+					}})
 				]),
 				br(),
 				name,
