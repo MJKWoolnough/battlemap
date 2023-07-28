@@ -253,7 +253,7 @@ const [panelsID, tabsID, panelContainerID, panelOnTopID, tabLabelsID, panelHider
 	" menu-item[disabled],menu-submenu[disabled]": {
 		"color": "#888"
 	}
-      }
+      };
 add({
 	"html, body": {
 		"color": "#000",
