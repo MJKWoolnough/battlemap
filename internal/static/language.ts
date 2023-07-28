@@ -1,10 +1,10 @@
-import type {Binding, Bound} from './lib/bind.js';
+import type {Binding} from './lib/bind.js';
 import bind from './lib/bind.js';
 import {StringSetting} from './lib/settings.js';
 
 export const language = new StringSetting("language", navigator.language),
 makeLangPack = <T extends Record<string, string>>(base: T, alternates: Record<string, Partial<T>> = {}) => {
-	const pack = {} as Record<keyof T, Bound<string>>;
+	const pack = {} as Record<keyof T, Binding<string>>;
 	for (const s in base) {
 		pack[s] = bind("");
 	}
