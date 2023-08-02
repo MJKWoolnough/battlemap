@@ -6,7 +6,7 @@ import {button, div, h2, img, table, tbody, td, th, thead, tr} from '../lib/html
 import {NodeArray, node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
 import {mapLoadReceive} from '../adminMap.js';
-import {imageIDtoURL} from '../assets.js';
+import {imageIDtoURL} from '../asset_urls.js';
 import {language, makeLangPack} from '../language.js';
 import {SVGToken, tokens} from '../map_tokens.js';
 import {addPlugin} from '../plugins.js';
