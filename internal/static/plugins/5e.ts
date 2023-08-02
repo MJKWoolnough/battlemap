@@ -16,7 +16,7 @@ import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
 import {BoolSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {selectToken} from '../adminMap.js';
-import {imageIDtoURL} from '../assets.js';
+import {imageIDtoURL} from '../asset_urls.js';
 import {Colour, ColourSetting, makeColourPicker} from '../colours.js';
 import {adminHideLight, itemControl, lighting, settingsTicker, tokenSelector} from '../ids.js';
 import {registerKeyEvent} from '../keys.js';
