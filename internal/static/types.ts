@@ -1,6 +1,6 @@
 import type {Subscription} from './lib/inter.js';
 import type {TypeGuardOf} from './lib/typeguard.js';
-import {Arr, Any, Bool, Int, Str, Obj, Or, Tuple, Val} from './lib/typeguard.js';
+import {And, Any, Arr, Bool, Int, Str, Obj, Or, Tuple, Val} from './lib/typeguard.js';
 import {isColour} from './colours.js';
 
 export type Int = number;
@@ -190,6 +190,12 @@ export type MapData = LayerFolder & MapDetails & MaskSet & {
 	data: Record<string, any>;
 }
 
+export const isID = Obj({
+	id: isUint
+});
+
+export type ID = TypeGuardOf<typeof isID>;
+
 export const isIDName = Obj({
 	id: isUint,
 	name: isStr
@@ -296,14 +302,18 @@ export type LayerFolder = FolderItems & IDName & {
 	children: (LayerTokens | LayerFolder)[];
 }
 
-export type LayerMove = FromTo & {
-	position: Uint;
-}
+export const isLayerMove = And(isFromTo, Obj({
+	position: isUint
+}));
 
-export type BroadcastWindow = ID & {
-	module: string;
-	contents: string;
-}
+export type LayerMove = TypeGuardOf<typeof isLayerMove>;
+
+export const isBroadcastWindow = And(isID, Obj({
+	module: isStr,
+	contents: isStr
+}));
+
+export type BroadcastWindow = TypeGuardOf<typeof isBroadcastWindow>;
 
 export const isBroadcast = Obj({
 	type: Any(),
@@ -319,22 +329,18 @@ export const isLayerRename = Obj({
 
 export type LayerRename = TypeGuardOf<typeof isLayerRename>;
 
-export const isID = Obj({
-	id: isUint
-});
-
-export type ID = TypeGuardOf<typeof isID>;
-
 export type TokenAdd = {
 	path: string;
 	token: Token;
 	pos?: Uint;
 }
 
-export type TokenMoveLayerPos = ID & {
-	to: string;
-	newPos: Uint;
-}
+export const isTokenMoveLayerPos = And(isID, Obj({
+	to: isStr,
+	newPos: isUint
+}));
+
+export type TokenMoveLayerPos = TypeGuardOf<typeof isTokenMoveLayerPos>;
 
 export const isLayerShift = Obj({
 	path: isStr,
@@ -365,14 +371,16 @@ export const isWallData = Obj({
 	scattering: isByte
 });
 
-type WallData = TypeGuardOf<typeof isWallData>;
+export const isWall = And(isID, isWallData);
 
-export type Wall = WallData & ID;
+export type Wall = TypeGuardOf<typeof isWall>;
 
-export type WallPath = {
-	path: string;
-	wall: Wall;
-}
+export const isWallPath = Obj({
+	path: isStr,
+	wall: isWall
+});
+
+export type WallPath = TypeGuardOf<typeof isWallPath>;
 
 export const isTokenLight = Obj({
 	lightColours: Arr(Arr(isColour)),
@@ -398,46 +406,64 @@ export const isKeyData = Obj({
 
 export type KeyData = TypeGuardOf<typeof isKeyData>;
 
-export type MusicTrack = ID & {
-	volume: Uint;
-	repeat: Int;
-}
+export const isMusicTrack = And(isID, Obj({
+	volume: isUint,
+	repeat: isInt
+}));
 
-export type MusicPack = IDName & {
-	tracks: MusicTrack[];
-	volume: Uint;
-	playTime: Uint;
-}
+export type MusicTrack = TypeGuardOf<typeof isMusicTrack>;
 
-export type MusicPackVolume = ID & {
-	volume: Uint;
-}
+export const isMusicPack = And(isIDName, Obj({
+	tracks: Arr(isMusicTrack),
+	volume: isUint,
+	playTime: isUint
+}));
 
-export type MusicPackPlay = ID & {
-	playTime: Uint;
-}
+export type MusicPack = TypeGuardOf<typeof isMusicPack>;
 
-export type MusicPackTrackAdd = ID & {
-	tracks: Uint[];
-}
+export const isMusicPackVolume = And(isID, Obj({
+	volume: isUint
+}));
 
-export type MusicPackTrackRemove = ID & {
-	track: Uint;
-}
+export type MusicPackVolume = TypeGuardOf<typeof isMusicPackTrackVolume>;
 
-export type MusicPackTrackVolume = ID & {
-	track: Uint;
-	volume: Uint;
-}
+export const isMusicPackPlay = And(isID, Obj({
+	playTime: isUint,
+}));
 
-export type MusicPackTrackRepeat = ID & {
-	track: Uint;
-	repeat: Int;
-}
+export type MusicPackPlay = TypeGuardOf<typeof isMusicPackPlay>;
 
-export type IDPath = ID & {
-	path: string;
-}
+export const isMusicPackTrackAdd = And(isID, Obj({
+	tracks: Arr(isUint)
+}));
+
+export type MusicPackTrackAdd = TypeGuardOf<typeof isMusicPackTrackAdd>;
+
+export const isMusicPackTrackRemove = And(isID, Obj({
+	track: isUint
+}));
+
+export type MusicPackTrackRemove = TypeGuardOf<typeof isMusicPackTrackRemove>;
+
+export const isMusicPackTrackVolume = And(isID, Obj({
+	track: isUint,
+	volume: isUint
+}));
+
+export type MusicPackTrackVolume = TypeGuardOf<typeof isMusicPackTrackVolume>;
+
+export const isMusicPackTrackRepeat = And(isID, Obj({
+	track: isUint,
+	repeat: isInt
+}));
+
+export type MusicPackTrackRepeat = TypeGuardOf<typeof isMusicPackTrackRepeat>;
+
+export const isIDPath = And(isID, Obj({
+	path: isStr
+}));
+
+export type IDPath = TypeGuardOf<typeof isIDPath>;
 
 export const isMapStart = Tuple(isUint, isUint);
 
