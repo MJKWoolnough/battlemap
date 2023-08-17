@@ -7,6 +7,10 @@ export type Int = number;
 export type Uint = number;
 export type Byte = number;
 
+const isInt = Int(),
+      isUint = Int(0),
+      isByte = Int(0, 255);
+
 type FolderWaits = {
 	waitAdded:         () => Subscription<IDName[]>;
 	waitMoved:         () => Subscription<FromTo>;
@@ -184,7 +188,7 @@ export type MapData = LayerFolder & MapDetails & MaskSet & {
 }
 
 export const isIDName = Obj({
-	id: Int(0),
+	id: isUint,
 	name: Str()
 });
 
@@ -198,8 +202,8 @@ export const isFromTo = Obj({
 export type FromTo = TypeGuardOf<typeof isFromTo>;
 
 export const isWidthHeight = Obj({
-	width: Int(0),
-	height: Int(0),
+	width: isUint,
+	height: isUint,
 });
 
 export type WidthHeight = TypeGuardOf<typeof isWidthHeight>;
@@ -253,8 +257,8 @@ export type TokenDrawing = TokenShape & {
 }
 
 export const isCoords = Obj({
-	x: Int(),
-	y: Int()
+	x: isInt,
+	y: isInt
 });
 
 export type Coords = TypeGuardOf<typeof isCoords>;
@@ -310,7 +314,9 @@ export const isLayerRename = Obj({
 
 export type LayerRename = TypeGuardOf<typeof isLayerRename>;
 
-export const isID = Obj({"id": Int(0)});
+export const isID = Obj({
+	id: isUint
+});
 
 export type ID = TypeGuardOf<typeof isID>;
 
@@ -327,8 +333,8 @@ export type TokenMoveLayerPos = ID & {
 
 export const isLayerShift = Obj({
 	path: Str(),
-	dx: Int(),
-	dy: Int()
+	dx: isInt,
+	dy: isInt
 });
 
 export type LayerShift = TypeGuardOf<typeof isLayerShift>;
@@ -427,8 +433,8 @@ export type IDPath = ID & {
 export type MapStart = [Uint, Uint];
 
 export const isCopy = Obj({
-	oldID: Int(0),
-	newID: Int(0),
+	oldID: isUint,
+	newID: isUint,
 	path: Str()
 });
 
