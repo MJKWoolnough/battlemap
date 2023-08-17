@@ -10,7 +10,8 @@ type Colour = TypeGuardOf<typeof isColour>;
 
 const isInt = Int(),
       isUint = Int(0),
-      isByte = Int(0, 255);
+      isByte = Int(0, 255),
+      isStr = Str();
 
 type FolderWaits = {
 	waitAdded:         () => Subscription<IDName[]>;
@@ -190,14 +191,14 @@ export type MapData = LayerFolder & MapDetails & MaskSet & {
 
 export const isIDName = Obj({
 	id: isUint,
-	name: Str()
+	name: isStr
 });
 
 export type IDName = TypeGuardOf<typeof isIDName>;
 
 export const isFromTo = Obj({
-	from: Str(),
-	to: Str()
+	from: isStr,
+	to: isStr
 });
 
 export type FromTo = TypeGuardOf<typeof isFromTo>;
@@ -311,8 +312,8 @@ export const isBroadcast = Obj({
 export type Broadcast = TypeGuardOf<typeof isBroadcast>;
 
 export const isLayerRename = Obj({
-	path: Str(),
-	name: Str()
+	path: isStr,
+	name: isStr
 });
 
 export type LayerRename = TypeGuardOf<typeof isLayerRename>;
@@ -335,7 +336,7 @@ export type TokenMoveLayerPos = ID & {
 }
 
 export const isLayerShift = Obj({
-	path: Str(),
+	path: isStr,
 	dx: isInt,
 	dy: isInt
 });
@@ -388,7 +389,7 @@ export type PluginDataChange = KeystoreDataChange & {
 }
 
 export const isKeyData = Obj({
-	key: Str(),
+	key: isStr,
 	data: Any()
 });
 
@@ -440,7 +441,7 @@ export type MapStart = [Uint, Uint];
 export const isCopy = Obj({
 	oldID: isUint,
 	newID: isUint,
-	path: Str()
+	path: isStr
 });
 
 export type Copy = TypeGuardOf<typeof isCopy>;
