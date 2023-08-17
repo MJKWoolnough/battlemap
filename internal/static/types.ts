@@ -1,6 +1,6 @@
 import type {Subscription} from './lib/inter.js';
 import type {TypeGuardOf} from './lib/typeguard.js';
-import {And, Any, Arr, Bool, Int, Str, Obj, Or, Tuple, Val} from './lib/typeguard.js';
+import {And, Any, Arr, Bool, Int, Str, Obj, Or, Rec, Tuple, Undefined, Val} from './lib/typeguard.js';
 import {isColour} from './colours.js';
 
 export type Int = number;
@@ -181,6 +181,26 @@ export type RPC = RPCWaits & {
 	broadcast:       (data: Broadcast)                            => Promise<void>;
 }
 
+export const isKeystoreData = Obj({
+	user: isBool,
+	data: Any()
+});
+
+export type KeystoreData<T = any> = {
+	user: boolean;
+	data: T;
+}
+
+export const isPlugin = Obj({
+	enabled: isBool,
+	data: Rec(isStr, isKeystoreData)
+});
+
+export type Plugin = {
+	enabled: boolean;
+	data: Record<string, KeystoreData>;
+}
+
 export type MapData = LayerFolder & MapDetails & MaskSet & {
 	startX: Uint;
 	startY: Uint;
@@ -237,35 +257,41 @@ export const isGridDetails = Obj({
 
 export type GridDetails = TypeGuardOf<typeof isGridDetails>;
 
-export type Token = TokenImage | TokenShape | TokenDrawing;
+export const isTokenLight = Obj({
+	lightColours: Arr(Arr(isColour)),
+	lightStages: Arr(isUint),
+	lightTimings: Arr(isUint)
+});
 
-type TokenShared = TokenLight & ID & WidthHeight & {
-	x:          Int;
-	y:          Int;
-	rotation:   Byte;
-	tokenType?: Uint;
-	snap:       boolean;
-	tokenData:  Record<string, KeystoreData>;
-}
+export type TokenLight = TypeGuardOf<typeof isTokenLight>;
 
-export type TokenImage = TokenShared & {
-	src:           Uint;
-	patternWidth:  Uint;
-	patternHeight: Uint;
-	flip:        boolean;
-	flop:        boolean;
-}
+export const isTokenShared = And(isTokenLight, isID, isWidthHeight, Obj({
+	x: isInt,
+	y: isInt,
+	rotation: isByte,
+	tokenType: Or(Undefined(), isUint),
+	tokenData: Rec(isStr, isKeystoreData)
+}));
 
-export type TokenShape = TokenShared & {
-	fill:        Colour;
-	stroke:      Colour;
-	strokeWidth: Uint;
-	isEllipse?:  boolean;
-}
+export const isTokenImage = And(isTokenShared, Obj({
+	src: isUint,
+	patternWidth: isUint,
+	patternHeight: isUint,
+	flip: isBool,
+	flop: isBool
+}));
 
-export type TokenDrawing = TokenShape & {
-	points: Coords[];
-}
+export type TokenImage = TypeGuardOf<typeof isTokenImage>;
+
+export const isTokenShape = And(isTokenShared, Obj({
+	fill: isColour,
+	stroke: isColour,
+	strokeWidth: isUint,
+	isEllipse: Or(Undefined(), isBool)
+}));
+
+export type TokenShape = TypeGuardOf<typeof isTokenShape>;
+
 
 export const isCoords = Obj({
 	x: isInt,
@@ -274,27 +300,61 @@ export const isCoords = Obj({
 
 export type Coords = TypeGuardOf<typeof isCoords>;
 
+export const isTokenDrawing = And(isTokenShape, Obj({
+	points: Arr(isCoords)
+}));
+
+export type TokenDrawing = TypeGuardOf<typeof isTokenDrawing>;
+
+export const isToken = Or(isTokenImage, isTokenShape, isTokenDrawing);
+
+export type Token = TypeGuardOf<typeof isToken>;
+
 export type TokenSet = Partial<TokenImage> & Partial<TokenDrawing> & ID & {
 	removeTokenData?: string[];
 }
 
-export type CharacterToken = TokenLight & WidthHeight & {
-	src: Uint;
-	patternWidth: Uint;
-	patternHeight: Uint;
-	rotation: Byte;
-	flip: boolean;
-	flop: boolean;
-	snap: boolean;
-	tokenData: Record<string, KeystoreData>;
-}
+export const isCharacterToken = And(isTokenLight, isWidthHeight, Obj({
+	src: isUint,
+	patternWidth: isUint,
+	patternHeight: isUint,
+	rotation: isByte,
+	flip: isBool,
+	blop: isBool,
+	snap: isBool,
+	tokenData: Rec(isStr, isKeystoreData)
+}));
 
-export type LayerTokens = IDName & {
-	hidden: boolean;
-	locked: boolean;
-	tokens: Token[];
-	walls: Wall[];
-}
+export type CharacterToken = TypeGuardOf<typeof isCharacterToken>;
+
+export const isWallData = Obj({
+	x1: isInt,
+	y1: isInt,
+	x2: isInt,
+	y2: isInt,
+	colour: isColour,
+	scattering: isByte
+});
+
+export const isWall = And(isID, isWallData);
+
+export type Wall = TypeGuardOf<typeof isWall>;
+
+export const isWallPath = Obj({
+	path: isStr,
+	wall: isWall
+});
+
+export type WallPath = TypeGuardOf<typeof isWallPath>;
+
+export const isLayerTokens = And(isIDName, Obj({
+	hidden: isBool,
+	locked: isBool,
+	tokens: Arr(isToken),
+	walls: Arr(isWall)
+}));
+
+export type LayerTokens = TypeGuardOf<typeof isLayerTokens>;
 
 export type LayerFolder = FolderItems & IDName & {
 	hidden: boolean;
@@ -329,11 +389,13 @@ export const isLayerRename = Obj({
 
 export type LayerRename = TypeGuardOf<typeof isLayerRename>;
 
-export type TokenAdd = {
-	path: string;
-	token: Token;
-	pos?: Uint;
-}
+export const isTokenAdd = Obj({
+	path: isStr,
+	token: isToken,
+	pos: Or(Undefined(), isUint)
+});
+
+export type TokenAdd = TypeGuardOf<typeof isTokenAdd>;
 
 export const isTokenMoveLayerPos = And(isID, Obj({
 	to: isStr,
@@ -350,54 +412,22 @@ export const isLayerShift = Obj({
 
 export type LayerShift = TypeGuardOf<typeof isLayerShift>;
 
-export type KeystoreData<T = any> = {
-	user: boolean;
-	data: T;
-}
-
-export type KeystoreDataChange = {
-	setting: Record<string, KeystoreData>;
-	removing: string[];
-}
-
-export type CharacterDataChange = ID & KeystoreDataChange;
-
-export const isWallData = Obj({
-	x1: isInt,
-	y1: isInt,
-	x2: isInt,
-	y2: isInt,
-	colour: isColour,
-	scattering: isByte
+export const isKeystoreDataChange = Obj({
+	setting: Rec(isStr, isKeystoreData),
+	remove: Arr(isStr)
 });
 
-export const isWall = And(isID, isWallData);
+export type KeystoreDataChange = TypeGuardOf<typeof isKeystoreDataChange>;
 
-export type Wall = TypeGuardOf<typeof isWall>;
+export const isCharacterDataChange = And(isID, isKeystoreDataChange);
 
-export const isWallPath = Obj({
-	path: isStr,
-	wall: isWall
-});
+export type CharacterDataChange = TypeGuardOf<typeof isCharacterDataChange>;
 
-export type WallPath = TypeGuardOf<typeof isWallPath>;
+export const isPluginDataChange = And(isKeystoreDataChange, Obj({
+	id: isStr
+}));
 
-export const isTokenLight = Obj({
-	lightColours: Arr(Arr(isColour)),
-	lightStages: Arr(isUint),
-	lightTimings: Arr(isUint)
-});
-
-export type TokenLight = TypeGuardOf<typeof isTokenLight>;
-
-export type Plugin = {
-	enabled: boolean;
-	data: Record<string, KeystoreData>;
-}
-
-export type PluginDataChange = KeystoreDataChange & {
-	id: string;
-}
+export type PluginDataChange = TypeGuardOf<typeof isPluginDataChange>;
 
 export const isKeyData = Obj({
 	key: isStr,
