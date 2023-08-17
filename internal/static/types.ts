@@ -1,5 +1,7 @@
 import type {Subscription} from './lib/inter.js';
+import type {TypeGuardOf} from './lib/typeguard.js';
 import type {Colour} from './colours.js';
+import {Any, Int, Str, Obj} from './lib/typeguard.js';
 
 export type Int = number;
 export type Uint = number;
@@ -181,20 +183,26 @@ export type MapData = LayerFolder & MapDetails & MaskSet & {
 	data: Record<string, any>;
 }
 
-export type IDName = {
-	id:   Uint;
-	name: string;
-}
+export const isIDName = Obj({
+	id: Int(0),
+	name: Str()
+});
 
-export type FromTo = {
-	from: string;
-	to:   string;
-}
+export type IDName = TypeGuardOf<typeof isIDName>;
 
-export type WidthHeight = {
-	width: Uint;
-	height: Uint;
-}
+export const isFromTo = Obj({
+	from: Str(),
+	to: Str()
+});
+
+export type FromTo = TypeGuardOf<typeof isFromTo>;
+
+export const isWidthHeight = Obj({
+	width: Int(0),
+	height: Int(0),
+});
+
+export type WidthHeight = TypeGuardOf<typeof isWidthHeight>;
 
 export type FolderItems = {
 	folders: Record<string, FolderItems>;
@@ -244,10 +252,12 @@ export type TokenDrawing = TokenShape & {
 	points: Coords[];
 }
 
-export type Coords = {
-	x: Int;
-	y: Int;
-}
+export const isCoords = Obj({
+	x: Int(),
+	y: Int()
+});
+
+export type Coords = TypeGuardOf<typeof isCoords>;
 
 export type TokenSet = Partial<TokenImage> & Partial<TokenDrawing> & ID & {
 	removeTokenData?: string[];
@@ -286,19 +296,23 @@ export type BroadcastWindow = ID & {
 	contents: string;
 }
 
-export type Broadcast = {
-	type: any;
-	data: any;
-}
+export const isBroadcast = Obj({
+	type: Any(),
+	data: Any()
+});
 
-export type LayerRename = {
-	path: string;
-	name: string;
-}
+export type Broadcast = TypeGuardOf<typeof isBroadcast>;
 
-export type ID = {
-	id: Uint;
-}
+export const isLayerRename = Obj({
+	path: Str(),
+	name: Str()
+});
+
+export type LayerRename = TypeGuardOf<typeof isLayerRename>;
+
+export const isID = Obj({"id": Int(0)});
+
+export type ID = TypeGuardOf<typeof isID>;
 
 export type TokenAdd = {
 	path: string;
@@ -311,11 +325,13 @@ export type TokenMoveLayerPos = ID & {
 	newPos: Uint;
 }
 
-export type LayerShift = {
-	path: string;
-	dx: Int;
-	dy: Int;
-}
+export const isLayerShift = Obj({
+	path: Str(),
+	dx: Int(),
+	dy: Int()
+});
+
+export type LayerShift = TypeGuardOf<typeof isLayerShift>;
 
 export type KeystoreData<T = any> = {
 	user: boolean;
@@ -360,10 +376,12 @@ export type PluginDataChange = KeystoreDataChange & {
 	id: string;
 }
 
-export type KeyData = {
-	key: string;
-	data: any;
-}
+export const isKeyData = Obj({
+	key: Str(),
+	data: Any()
+});
+
+export type KeyData = TypeGuardOf<typeof isKeyData>;
 
 export type MusicTrack = ID & {
 	volume: Uint;
@@ -408,11 +426,13 @@ export type IDPath = ID & {
 
 export type MapStart = [Uint, Uint];
 
-export type Copy = {
-	oldID: Uint;
-	newID: Uint;
-	path: string;
-}
+export const isCopy = Obj({
+	oldID: Int(0),
+	newID: Int(0),
+	path: Str()
+});
+
+export type Copy = TypeGuardOf<typeof isCopy>;
 
 export type Mask = [0|1, Uint, Uint, Uint, Uint] | [2|3, Uint, Uint, Uint, Uint] | [4|5, Uint, Uint, Uint, Uint, Uint, Uint, ...Uint[]];
 
