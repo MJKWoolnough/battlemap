@@ -1,6 +1,6 @@
 import type {Subscription} from './lib/inter.js';
 import type {TypeGuardOf} from './lib/typeguard.js';
-import {Arr, Any, Int, Str, Obj, Or, Tuple, Val} from './lib/typeguard.js';
+import {Arr, Any, Bool, Int, Str, Obj, Or, Tuple, Val} from './lib/typeguard.js';
 import {isColour} from './colours.js';
 
 export type Int = number;
@@ -11,6 +11,7 @@ type Colour = TypeGuardOf<typeof isColour>;
 const isInt = Int(),
       isUint = Int(0),
       isByte = Int(0, 255),
+      isBool = Bool(),
       isStr = Str();
 
 type FolderWaits = {
@@ -454,7 +455,9 @@ export const isMask = Or(Tuple(Or(Val(0), Val(1), Val(2), Val(3)), isUint, isUin
 
 export type Mask = TypeGuardOf<typeof isMask>;
 
-export type MaskSet = {
-	baseOpaque: boolean;
-	masks: Mask[];
-}
+export const isMaskSet = Obj({
+	baseOpaque: isBool,
+	masks: Arr(isMask)
+});
+
+export type MaskSet = TypeGuardOf<typeof isMaskSet>;
