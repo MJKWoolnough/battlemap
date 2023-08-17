@@ -1,6 +1,6 @@
 import type {Subscription} from './lib/inter.js';
 import type {TypeGuardOf} from './lib/typeguard.js';
-import {Any, Int, Str, Obj} from './lib/typeguard.js';
+import {Arr, Any, Int, Str, Obj, Tuple} from './lib/typeguard.js';
 import {isColour} from './colours.js';
 
 export type Int = number;
@@ -373,11 +373,13 @@ export type WallPath = {
 	wall: Wall;
 }
 
-export type TokenLight = {
-	lightColours: Colour[][];
-	lightStages: Uint[];
-	lightTimings: Uint[];
-}
+export const isTokenLight = Obj({
+	lightColours: Arr(Arr(isColour)),
+	lightStages: Arr(isUint),
+	lightTimings: Arr(isUint)
+});
+
+export type TokenLight = TypeGuardOf<typeof isTokenLight>;
 
 export type Plugin = {
 	enabled: boolean;
@@ -436,7 +438,9 @@ export type IDPath = ID & {
 	path: string;
 }
 
-export type MapStart = [Uint, Uint];
+export const isMapStart = Tuple(isUint, isUint);
+
+export type MapStart = TypeGuardOf<typeof isMapStart>;
 
 export const isCopy = Obj({
 	oldID: isUint,
