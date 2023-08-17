@@ -7,6 +7,7 @@ import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input} from './lib/html.js';
 import {checkInt, isInt} from './lib/misc.js';
 import {JSONSetting} from './lib/settings.js';
+import {asTypeGuard, Int, Obj} from './lib/typeguard.js';
 import lang from './language.js';
 import {labels} from './shared.js';
 import {shell, windows} from './windows.js';
@@ -46,7 +47,16 @@ export class ColourSetting extends JSONSetting<Colour> {
 	}
 }
 
-export const hex2Colour = (hex: string, a = 255) => new Colour(checkInt(parseInt(hex.slice(1, 3), 16), 0, 255), checkInt(parseInt(hex.slice(3, 5), 16), 0, 255), checkInt(parseInt(hex.slice(5, 7), 16), 0, 255), a),
+export const isColour = asTypeGuard((v: unknown): v is Colour => {
+	if (colourTG(v)) {
+		Colour.from(v);
+
+		return true;
+	}
+
+	return false;
+}),
+hex2Colour = (hex: string, a = 255) => new Colour(checkInt(parseInt(hex.slice(1, 3), 16), 0, 255), checkInt(parseInt(hex.slice(3, 5), 16), 0, 255), checkInt(parseInt(hex.slice(5, 7), 16), 0, 255), a),
 noColour = new Colour(0, 0, 0, 0),
 colourPicker = (parent: WindowElement | ShellElement, title: string | Binding, colour: Colour = noColour, icon?: string | Binding) => new Promise<Colour>((resolve, reject) => {
 	const dragKey = dragColour.register(() => hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))),
@@ -106,7 +116,14 @@ dragColour = new DragTransfer<Colour>("colour");
 
 const iconImg = img({"src": 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"%3E%3Cstyle type="text/css"%3Esvg%7Bbackground-color:%23000%7Dcircle%7Bmix-blend-mode:screen%7D%3C/style%3E%3Ccircle r="10" cx="10" cy="10" fill="%23f00" /%3E%3Ccircle r="10" cx="20" cy="10" fill="%230f0" /%3E%3Ccircle r="10" cx="15" cy="20" fill="%2300f" /%3E%3C/svg%3E%0A'}),
       dragCheck = setDragEffect({"copy": [dragColour]}),
-      [checkboard, colourButton] = ids(2);
+      [checkboard, colourButton] = ids(2),
+      colourTG = Obj({
+	      r: Int(0, 255),
+	      g: Int(0, 255),
+	      b: Int(0, 255),
+	      a: Int(0, 255)
+      });
+
 
 add({
 	[`.${checkboard}`]: {
