@@ -1,6 +1,6 @@
 import type {Subscription} from './lib/inter.js';
 import type {TypeGuardOf} from './lib/typeguard.js';
-import {Arr, Any, Int, Str, Obj, Tuple} from './lib/typeguard.js';
+import {Arr, Any, Int, Str, Obj, Or, Tuple, Val} from './lib/typeguard.js';
 import {isColour} from './colours.js';
 
 export type Int = number;
@@ -450,7 +450,9 @@ export const isCopy = Obj({
 
 export type Copy = TypeGuardOf<typeof isCopy>;
 
-export type Mask = [0|1, Uint, Uint, Uint, Uint] | [2|3, Uint, Uint, Uint, Uint] | [4|5, Uint, Uint, Uint, Uint, Uint, Uint, ...Uint[]];
+export const isMask = Or(Tuple(Or(Val(0), Val(1), Val(2), Val(3)), isUint, isUint, isUint, isUint), Tuple(Or(Val(4), Val(5)), isUint, isUint, isUint, isUint, isUint, isUint, ...isUint));
+
+export type Mask = TypeGuardOf<typeof isMask>;
 
 export type MaskSet = {
 	baseOpaque: boolean;
