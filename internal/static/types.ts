@@ -1,11 +1,12 @@
 import type {Subscription} from './lib/inter.js';
 import type {TypeGuardOf} from './lib/typeguard.js';
-import type {Colour} from './colours.js';
 import {Any, Int, Str, Obj} from './lib/typeguard.js';
+import {isColour} from './colours.js';
 
 export type Int = number;
 export type Uint = number;
 export type Byte = number;
+type Colour = TypeGuardOf<typeof isColour>;
 
 const isInt = Int(),
       isUint = Int(0),
@@ -219,12 +220,14 @@ type NewMap = MapDetails & {
 	name: string;
 }
 
-export type GridDetails = {
-	gridType: Byte;
-	gridSize: Uint;
-	gridStroke: Uint;
-	gridColour: Colour;
-}
+export const isGridDetails = Obj({
+	gridType: isByte,
+	gridSize: isUint,
+	gridStroke: isUint,
+	gridColour: isColour
+});
+
+export type GridDetails = TypeGuardOf<typeof isGridDetails>;
 
 export type Token = TokenImage | TokenShape | TokenDrawing;
 
@@ -351,14 +354,16 @@ export type KeystoreDataChange = {
 
 export type CharacterDataChange = ID & KeystoreDataChange;
 
-type WallData = {
-	x1: Int;
-	y1: Int;
-	x2: Int;
-	y2: Int;
-	colour: Colour;
-	scattering: Byte;
-}
+export const isWallData = Obj({
+	x1: isInt,
+	y1: isInt,
+	x2: isInt,
+	y2: isInt,
+	colour: isColour,
+	scattering: isByte
+});
+
+type WallData = TypeGuardOf<typeof isWallData>;
 
 export type Wall = WallData & ID;
 
