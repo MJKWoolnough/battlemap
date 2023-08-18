@@ -1,6 +1,6 @@
 import type {Subscription} from './lib/inter.js';
 import type {TypeGuardOf} from './lib/typeguard.js';
-import {And, Any, Arr, Bool, Int, Str, Obj, Or, Rec, Tuple, Undefined, Val} from './lib/typeguard.js';
+import {And, Any, Arr, Bool, Int, Str, Obj, Opt, Or, Rec, Tuple, Val} from './lib/typeguard.js';
 import {isColour} from './colours.js';
 
 export type Int = number;
@@ -269,7 +269,7 @@ export const isTokenShared = And(isTokenLight, isID, isWidthHeight, Obj({
 	x: isInt,
 	y: isInt,
 	rotation: isByte,
-	tokenType: Or(Undefined(), isUint),
+	tokenType: Opt(isUint),
 	tokenData: Rec(isStr, isKeystoreData)
 }));
 
@@ -287,7 +287,7 @@ export const isTokenShape = And(isTokenShared, Obj({
 	fill: isColour,
 	stroke: isColour,
 	strokeWidth: isUint,
-	isEllipse: Or(Undefined(), isBool)
+	isEllipse: Opt(isBool)
 }));
 
 export type TokenShape = TypeGuardOf<typeof isTokenShape>;
@@ -392,7 +392,7 @@ export type LayerRename = TypeGuardOf<typeof isLayerRename>;
 export const isTokenAdd = Obj({
 	path: isStr,
 	token: isToken,
-	pos: Or(Undefined(), isUint)
+	pos: Opt(isUint)
 });
 
 export type TokenAdd = TypeGuardOf<typeof isTokenAdd>;
