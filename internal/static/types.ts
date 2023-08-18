@@ -198,7 +198,7 @@ isIDName = Obj({
 }),
 isWidthHeight = Obj({
 	width: isUint,
-	height: isUint,
+	height: isUint
 }),
 isTokenLight = Obj({
 	lightColours: Arr(Arr(isColour)),
@@ -355,7 +355,7 @@ isMusicPackVolume = And(isID, Obj({
 	volume: isUint
 })),
 isMusicPackPlay = And(isID, Obj({
-	playTime: isUint,
+	playTime: isUint
 })),
 isMusicPackTrackAdd = And(isID, Obj({
 	tracks: Arr(isUint)
