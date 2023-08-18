@@ -1,6 +1,6 @@
 import type {Subscription} from './lib/inter.js';
-import type {TypeGuardOf} from './lib/typeguard.js';
-import {And, Any, Arr, Bool, Int, Str, Obj, Opt, Or, Rec, Tuple, Val} from './lib/typeguard.js';
+import type {TypeGuard, TypeGuardOf} from './lib/typeguard.js';
+import {And, Any, Arr, Bool, Int, Str, Obj, Opt, Or, Part, Rec, Recur, Tuple, Val} from './lib/typeguard.js';
 import {isColour} from './colours.js';
 
 export type Int = number;
@@ -201,15 +201,6 @@ export type Plugin = {
 	data: Record<string, KeystoreData>;
 }
 
-export type MapData = LayerFolder & MapDetails & MaskSet & {
-	startX: Uint;
-	startY: Uint;
-	gridDistance: Uint;
-	gridDiagonal: boolean;
-	lightColour: Colour;
-	data: Record<string, any>;
-}
-
 export const isID = Obj({
 	id: isUint
 });
@@ -223,39 +214,12 @@ export const isIDName = Obj({
 
 export type IDName = TypeGuardOf<typeof isIDName>;
 
-export const isFromTo = Obj({
-	from: isStr,
-	to: isStr
-});
-
-export type FromTo = TypeGuardOf<typeof isFromTo>;
-
 export const isWidthHeight = Obj({
 	width: isUint,
 	height: isUint,
 });
 
 export type WidthHeight = TypeGuardOf<typeof isWidthHeight>;
-
-export type FolderItems = {
-	folders: Record<string, FolderItems>;
-	items:  Record<string, Uint>;
-}
-
-export type MapDetails = GridDetails & WidthHeight;
-
-type NewMap = MapDetails & {
-	name: string;
-}
-
-export const isGridDetails = Obj({
-	gridType: isByte,
-	gridSize: isUint,
-	gridStroke: isUint,
-	gridColour: isColour
-});
-
-export type GridDetails = TypeGuardOf<typeof isGridDetails>;
 
 export const isTokenLight = Obj({
 	lightColours: Arr(Arr(isColour)),
@@ -310,9 +274,102 @@ export const isToken = Or(isTokenImage, isTokenShape, isTokenDrawing);
 
 export type Token = TypeGuardOf<typeof isToken>;
 
-export type TokenSet = Partial<TokenImage> & Partial<TokenDrawing> & ID & {
-	removeTokenData?: string[];
+export const isWallData = Obj({
+	x1: isInt,
+	y1: isInt,
+	x2: isInt,
+	y2: isInt,
+	colour: isColour,
+	scattering: isByte
+});
+
+export const isWall = And(isID, isWallData);
+
+export type Wall = TypeGuardOf<typeof isWall>;
+
+export const isLayerTokens = And(isIDName, Obj({
+	hidden: isBool,
+	locked: isBool,
+	tokens: Arr(isToken),
+	walls: Arr(isWall)
+}));
+
+export type LayerTokens = TypeGuardOf<typeof isLayerTokens>;
+
+export const isFolderItems: TypeGuard<FolderItems> = Obj({
+	folder: Rec(isStr, Recur(() => isFolderItems)),
+	items: Rec(isStr, isUint)
+})
+
+export type FolderItems = {
+	folders: Record<string, FolderItems>;
+	items:  Record<string, Uint>;
 }
+
+export const isLayerFolder: TypeGuard<LayerFolder> = And(isFolderItems, isIDName, Obj({
+	hidden: isBool,
+	locked: isBool,
+	children: Arr(Or(isLayerTokens, Recur(() => isLayerFolder)))
+}));
+
+export type LayerFolder = FolderItems & IDName & {
+	hidden: boolean;
+	locked: boolean;
+	children: (LayerTokens | LayerFolder)[];
+}
+export const isMask = Or(Tuple(Or(Val(0), Val(1), Val(2), Val(3)), isUint, isUint, isUint, isUint), Tuple(Or(Val(4), Val(5)), isUint, isUint, isUint, isUint, isUint, isUint, ...isUint));
+
+export type Mask = TypeGuardOf<typeof isMask>;
+
+export const isMaskSet = Obj({
+	baseOpaque: isBool,
+	masks: Arr(isMask)
+});
+
+export type MaskSet = TypeGuardOf<typeof isMaskSet>;
+
+export const isGridDetails = Obj({
+	gridType: isByte,
+	gridSize: isUint,
+	gridStroke: isUint,
+	gridColour: isColour
+});
+
+export type GridDetails = TypeGuardOf<typeof isGridDetails>;
+
+export const isMapDetails = And(isGridDetails, isWidthHeight);
+
+export type MapDetails = TypeGuardOf<typeof isMapDetails>;
+
+export const isMapData = And(isLayerFolder, isMapDetails, isMaskSet, Obj({
+	startX: isUint,
+	startY: isUint,
+	gridDistance: isUint,
+	gridDiagonal: isBool,
+	lightColor: isColour,
+	data: Rec(isStr, Any())
+}));
+
+export type MapData = TypeGuardOf<typeof isMapData>;
+
+export const isFromTo = Obj({
+	from: isStr,
+	to: isStr
+});
+
+export type FromTo = TypeGuardOf<typeof isFromTo>;
+
+export const isNewMap = And(isMapDetails, Obj({
+	name: isStr
+}));
+
+type NewMap = TypeGuardOf<typeof isNewMap>;
+
+export const isTokenSet = And(Part(isTokenImage), Part(isTokenDrawing), isID, Obj({
+	removeTokenData: Opt(Arr(isStr))
+}));
+
+export type TokenSet = TypeGuardOf<typeof isTokenSet>;
 
 export const isCharacterToken = And(isTokenLight, isWidthHeight, Obj({
 	src: isUint,
@@ -327,40 +384,12 @@ export const isCharacterToken = And(isTokenLight, isWidthHeight, Obj({
 
 export type CharacterToken = TypeGuardOf<typeof isCharacterToken>;
 
-export const isWallData = Obj({
-	x1: isInt,
-	y1: isInt,
-	x2: isInt,
-	y2: isInt,
-	colour: isColour,
-	scattering: isByte
-});
-
-export const isWall = And(isID, isWallData);
-
-export type Wall = TypeGuardOf<typeof isWall>;
-
 export const isWallPath = Obj({
 	path: isStr,
 	wall: isWall
 });
 
 export type WallPath = TypeGuardOf<typeof isWallPath>;
-
-export const isLayerTokens = And(isIDName, Obj({
-	hidden: isBool,
-	locked: isBool,
-	tokens: Arr(isToken),
-	walls: Arr(isWall)
-}));
-
-export type LayerTokens = TypeGuardOf<typeof isLayerTokens>;
-
-export type LayerFolder = FolderItems & IDName & {
-	hidden: boolean;
-	locked: boolean;
-	children: (LayerTokens | LayerFolder)[];
-}
 
 export const isLayerMove = And(isFromTo, Obj({
 	position: isUint
@@ -506,14 +535,3 @@ export const isCopy = Obj({
 });
 
 export type Copy = TypeGuardOf<typeof isCopy>;
-
-export const isMask = Or(Tuple(Or(Val(0), Val(1), Val(2), Val(3)), isUint, isUint, isUint, isUint), Tuple(Or(Val(4), Val(5)), isUint, isUint, isUint, isUint, isUint, isUint, ...isUint));
-
-export type Mask = TypeGuardOf<typeof isMask>;
-
-export const isMaskSet = Obj({
-	baseOpaque: isBool,
-	masks: Arr(isMask)
-});
-
-export type MaskSet = TypeGuardOf<typeof isMaskSet>;
