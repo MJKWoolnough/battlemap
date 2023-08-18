@@ -184,135 +184,110 @@ export type RPC = RPCWaits & {
 export const isKeystoreData = Obj({
 	user: isBool,
 	data: Any()
-});
-
-export const isPlugin = Obj({
+}),
+isPlugin = Obj({
 	enabled: isBool,
 	data: Rec(isStr, isKeystoreData)
-});
-
-export const isID = Obj({
+}),
+isID = Obj({
 	id: isUint
-});
-
-export const isIDName = Obj({
+}),
+isIDName = Obj({
 	id: isUint,
 	name: isStr
-});
-
-export const isWidthHeight = Obj({
+}),
+isWidthHeight = Obj({
 	width: isUint,
 	height: isUint,
-});
-
-export const isTokenLight = Obj({
+}),
+isTokenLight = Obj({
 	lightColours: Arr(Arr(isColour)),
 	lightStages: Arr(isUint),
 	lightTimings: Arr(isUint)
-});
-
-export const isTokenShared = And(isTokenLight, isID, isWidthHeight, Obj({
+}),
+isTokenShared = And(isTokenLight, isID, isWidthHeight, Obj({
 	x: isInt,
 	y: isInt,
 	rotation: isByte,
 	tokenType: Opt(isUint),
 	tokenData: Rec(isStr, isKeystoreData)
-}));
-
-export const isTokenImage = And(isTokenShared, Obj({
+})),
+isTokenImage = And(isTokenShared, Obj({
 	src: isUint,
 	patternWidth: isUint,
 	patternHeight: isUint,
 	flip: isBool,
 	flop: isBool
-}));
-
-export const isTokenShape = And(isTokenShared, Obj({
+})),
+isTokenShape = And(isTokenShared, Obj({
 	fill: isColour,
 	stroke: isColour,
 	strokeWidth: isUint,
 	isEllipse: Opt(isBool)
-}));
-
-export const isCoords = Obj({
+})),
+isCoords = Obj({
 	x: isInt,
 	y: isInt
-});
-
-export const isTokenDrawing = And(isTokenShape, Obj({
+}),
+isTokenDrawing = And(isTokenShape, Obj({
 	points: Arr(isCoords)
-}));
-
-export const isToken = Or(isTokenImage, isTokenShape, isTokenDrawing);
-
-export const isWallData = Obj({
+})),
+isToken = Or(isTokenImage, isTokenShape, isTokenDrawing),
+isWallData = Obj({
 	x1: isInt,
 	y1: isInt,
 	x2: isInt,
 	y2: isInt,
 	colour: isColour,
 	scattering: isByte
-});
-
-export const isWall = And(isID, isWallData);
-
-export const isLayerTokens = And(isIDName, Obj({
+}),
+isWall = And(isID, isWallData),
+isLayerTokens = And(isIDName, Obj({
 	hidden: isBool,
 	locked: isBool,
 	tokens: Arr(isToken),
 	walls: Arr(isWall)
-}));
-
-export const isFolderItems: TypeGuard<FolderItems> = Obj({
+})),
+isFolderItems: TypeGuard<FolderItems> = Obj({
 	folder: Rec(isStr, Recur(() => isFolderItems)),
 	items: Rec(isStr, isUint)
-})
-
-export const isLayerFolder: TypeGuard<LayerFolder> = And(isFolderItems, isIDName, Obj({
+}),
+isLayerFolder: TypeGuard<LayerFolder> = And(isFolderItems, isIDName, Obj({
 	hidden: isBool,
 	locked: isBool,
 	children: Arr(Or(isLayerTokens, Recur(() => isLayerFolder)))
-}));
-
-export const isMask = Or(Tuple(Or(Val(0), Val(1), Val(2), Val(3)), isUint, isUint, isUint, isUint), Tuple(Or(Val(4), Val(5)), isUint, isUint, isUint, isUint, isUint, isUint, ...isUint));
-
-export const isMaskSet = Obj({
+})),
+isMask = Or(Tuple(Or(Val(0), Val(1), Val(2), Val(3)), isUint, isUint, isUint, isUint), Tuple(Or(Val(4), Val(5)), isUint, isUint, isUint, isUint, isUint, isUint, ...isUint)),
+isMaskSet = Obj({
 	baseOpaque: isBool,
 	masks: Arr(isMask)
-});
-
-export const isGridDetails = Obj({
+}),
+isGridDetails = Obj({
 	gridType: isByte,
 	gridSize: isUint,
 	gridStroke: isUint,
 	gridColour: isColour
-});
-
-export const isMapDetails = And(isGridDetails, isWidthHeight);
-
-export const isMapData = And(isLayerFolder, isMapDetails, isMaskSet, Obj({
+}),
+isMapDetails = And(isGridDetails, isWidthHeight),
+isMapData = And(isLayerFolder, isMapDetails, isMaskSet, Obj({
 	startX: isUint,
 	startY: isUint,
 	gridDistance: isUint,
 	gridDiagonal: isBool,
 	lightColor: isColour,
 	data: Rec(isStr, Any())
-}));
-
-export const isFromTo = Obj({
+})),
+isFromTo = Obj({
 	from: isStr,
 	to: isStr
-});
-
-export const isNewMap = And(isMapDetails, Obj({
+}),
+isNewMap = And(isMapDetails, Obj({
 	name: isStr
-}));
-
-export const isTokenSet = And(Part(isTokenImage), Part(isTokenDrawing), isID, Obj({
+})),
+isTokenSet = And(Part(isTokenImage), Part(isTokenDrawing), isID, Obj({
 	removeTokenData: Opt(Arr(isStr))
-}));
-
-export const isCharacterToken = And(isTokenLight, isWidthHeight, Obj({
+})),
+isCharacterToken = And(isTokenLight, isWidthHeight, Obj({
 	src: isUint,
 	patternWidth: isUint,
 	patternHeight: isUint,
@@ -321,109 +296,86 @@ export const isCharacterToken = And(isTokenLight, isWidthHeight, Obj({
 	blop: isBool,
 	snap: isBool,
 	tokenData: Rec(isStr, isKeystoreData)
-}));
-
-export const isWallPath = Obj({
+})),
+isWallPath = Obj({
 	path: isStr,
 	wall: isWall
-});
-
-export const isLayerMove = And(isFromTo, Obj({
+}),
+isLayerMove = And(isFromTo, Obj({
 	position: isUint
-}));
-
-export const isBroadcastWindow = And(isID, Obj({
+})),
+isBroadcastWindow = And(isID, Obj({
 	module: isStr,
 	contents: isStr
-}));
-
-export const isBroadcast = Obj({
+})),
+isBroadcast = Obj({
 	type: Any(),
 	data: Any()
-});
-
-export const isLayerRename = Obj({
+}),
+isLayerRename = Obj({
 	path: isStr,
 	name: isStr
-});
-
-export const isTokenAdd = Obj({
+}),
+isTokenAdd = Obj({
 	path: isStr,
 	token: isToken,
 	pos: Opt(isUint)
-});
-
-export const isTokenMoveLayerPos = And(isID, Obj({
+}),
+isTokenMoveLayerPos = And(isID, Obj({
 	to: isStr,
 	newPos: isUint
-}));
-
-export const isLayerShift = Obj({
+})),
+isLayerShift = Obj({
 	path: isStr,
 	dx: isInt,
 	dy: isInt
-});
-
-export const isKeystoreDataChange = Obj({
+}),
+isKeystoreDataChange = Obj({
 	setting: Rec(isStr, isKeystoreData),
 	remove: Arr(isStr)
-});
-
-export const isCharacterDataChange = And(isID, isKeystoreDataChange);
-
-export const isPluginDataChange = And(isKeystoreDataChange, Obj({
+}),
+isCharacterDataChange = And(isID, isKeystoreDataChange),
+isPluginDataChange = And(isKeystoreDataChange, Obj({
 	id: isStr
-}));
-
-export const isKeyData = Obj({
+})),
+isKeyData = Obj({
 	key: isStr,
 	data: Any()
-});
-
-export const isMusicTrack = And(isID, Obj({
+}),
+isMusicTrack = And(isID, Obj({
 	volume: isUint,
 	repeat: isInt
-}));
-
-export const isMusicPack = And(isIDName, Obj({
+})),
+isMusicPack = And(isIDName, Obj({
 	tracks: Arr(isMusicTrack),
 	volume: isUint,
 	playTime: isUint
-}));
-
-export const isMusicPackVolume = And(isID, Obj({
+})),
+isMusicPackVolume = And(isID, Obj({
 	volume: isUint
-}));
-
-export const isMusicPackPlay = And(isID, Obj({
+})),
+isMusicPackPlay = And(isID, Obj({
 	playTime: isUint,
-}));
-
-export const isMusicPackTrackAdd = And(isID, Obj({
+})),
+isMusicPackTrackAdd = And(isID, Obj({
 	tracks: Arr(isUint)
-}));
-
-export const isMusicPackTrackRemove = And(isID, Obj({
+})),
+isMusicPackTrackRemove = And(isID, Obj({
 	track: isUint
-}));
-
-export const isMusicPackTrackVolume = And(isID, Obj({
+})),
+isMusicPackTrackVolume = And(isID, Obj({
 	track: isUint,
 	volume: isUint
-}));
-
-export const isMusicPackTrackRepeat = And(isID, Obj({
+})),
+isMusicPackTrackRepeat = And(isID, Obj({
 	track: isUint,
 	repeat: isInt
-}));
-
-export const isIDPath = And(isID, Obj({
+})),
+isIDPath = And(isID, Obj({
 	path: isStr
-}));
-
-export const isMapStart = Tuple(isUint, isUint);
-
-export const isCopy = Obj({
+})),
+isMapStart = Tuple(isUint, isUint),
+isCopy = Obj({
 	oldID: isUint,
 	newID: isUint,
 	path: isStr
