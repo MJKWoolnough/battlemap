@@ -8,7 +8,7 @@ import {RPC} from './lib/rpc.js';
 import {And, Arr, Obj, Tuple} from './lib/typeguard.js';
 import {Colour, isColour} from './colours.js';
 import lang from './language.js';
-import {isBool, isCharacterDataChange, isMapDetails, isMapStart, isLayerMove, isLayerRename, isMask, isMaskSet, isTokenAdd, isTokenMoveLayerPos, isTokenSet, isLayerShift, isWallPath, isWall, isIDPath, isIDName, isMusicPackVolume, isMusicPackPlay, isMusicPackTrackAdd, isMusicPackTrackRemove, isMusicPackTrackVolume, isMusicPackTrackRepeat, isPluginDataChange, isBroadcastWindow, isBroadcast, isKeyData, isMapData, isStr, isUint} from './types.js';
+import {isBool, isCharacterDataChange, isFromTo, isMapDetails, isMapStart, isLayerMove, isLayerRename, isMask, isMaskSet, isTokenAdd, isTokenMoveLayerPos, isTokenSet, isLayerShift, isWallPath, isWall, isIDPath, isIDName, isMusicPackVolume, isMusicPackPlay, isMusicPackTrackAdd, isMusicPackTrackRemove, isMusicPackTrackVolume, isMusicPackTrackRepeat, isPluginDataChange, isBroadcastWindow, isBroadcast, isKeyData, isMapData, isStr, isUint} from './types.js';
 import {shell} from './windows.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemCopy = -19, broadcastAudioItemCopy = -20, broadcastCharacterItemCopy = -21, broadcastMapItemCopy = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastLayerAdd = -37, broadcastLayerFolderAdd = -38, broadcastLayerMove = -39, broadcastLayerRename = -40, broadcastLayerRemove = -41, broadcastGridDistanceChange = -42, broadcastGridDiagonalChange = -43, broadcastMapLightChange = -44, broadcastLayerShow = -45, broadcastLayerHide = -46, broadcastLayerLock = -47, broadcastLayerUnlock = -48, broadcastMaskAdd = -49, broadcastMaskRemove = -50, broadcastMaskSet = -51, broadcastTokenAdd = -52, broadcastTokenRemove = -53, broadcastTokenMoveLayerPos = -54, broadcastTokenSet = -55, broadcastTokenSetMulti = -56, broadcastLayerShift = -57, broadcastWallAdd = -58, broadcastWallRemove = -59, broadcastWallModify = -60, broadcastWallMoveLayer = -61, broadcastMusicPackAdd = -62, broadcastMusicPackRename = -63, broadcastMusicPackRemove = -64, broadcastMusicPackCopy = -65, broadcastMusicPackVolume = -66, broadcastMusicPackPlay = -67, broadcastMusicPackStop = -68, broadcastMusicPackStopAll = -69, broadcastMusicPackTrackAdd = -70, broadcastMusicPackTrackRemove = -71, broadcastMusicPackTrackVolume = -72, broadcastMusicPackTrackRepeat = -73, broadcastPluginChange = -74, broadcastPluginSettingChange = -75, broadcastWindow = -76, broadcastSignalMeasure = -77, broadcastSignalPosition = -78, broadcastSignalMovePosition = -79, broadcastAny = -80;
@@ -420,6 +420,12 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	      newID: isUint
       })),
       isSignalPosition = Tuple(isUint, isUint),
+      isAdded = Arr(isIDName),
+      isCopied = Obj({
+	      oldID: isUint,
+	      newID: isUint,
+	      path: isStr
+      }),
       argProcessors: Record<string, (args: unknown[], names: string[]) => unknown> = {
 	"": () => {},
 	"!": (args: unknown[]) => args[0],
@@ -480,40 +486,40 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		["waitBroadcast",            broadcastAny,                  isBroadcast]
 	],
 	"images": [
-		["waitAdded",         broadcastImageItemAdd,      checkAdded],
-		["waitMoved",         broadcastImageItemMove,     checkFromTo],
-		["waitRemoved",       broadcastImageItemRemove,   checkString],
-		["waitCopied",        broadcastImageItemCopy,     checkCopied],
-		["waitFolderAdded",   broadcastImageFolderAdd,    checkString],
-		["waitFolderMoved",   broadcastImageFolderMove,   checkFromTo],
-		["waitFolderRemoved", broadcastImageFolderRemove, checkString]
+		["waitAdded",         broadcastImageItemAdd,      isAdded],
+		["waitMoved",         broadcastImageItemMove,     isFromTo],
+		["waitRemoved",       broadcastImageItemRemove,   isStr],
+		["waitCopied",        broadcastImageItemCopy,     isCopied],
+		["waitFolderAdded",   broadcastImageFolderAdd,    isStr],
+		["waitFolderMoved",   broadcastImageFolderMove,   isFromTo],
+		["waitFolderRemoved", broadcastImageFolderRemove, isStr]
 	],
 	"audio": [
-		["waitAdded",         broadcastAudioItemAdd,      checkAdded],
-		["waitMoved",         broadcastAudioItemMove,     checkFromTo],
-		["waitRemoved",       broadcastAudioItemRemove,   checkString],
-		["waitCopied",        broadcastAudioItemCopy,     checkCopied],
-		["waitFolderAdded",   broadcastAudioFolderAdd,    checkString],
-		["waitFolderMoved",   broadcastAudioFolderMove,   checkFromTo],
-		["waitFolderRemoved", broadcastAudioFolderRemove, checkString]
+		["waitAdded",         broadcastAudioItemAdd,      isAdded],
+		["waitMoved",         broadcastAudioItemMove,     isFromTo],
+		["waitRemoved",       broadcastAudioItemRemove,   isStr],
+		["waitCopied",        broadcastAudioItemCopy,     isCopied],
+		["waitFolderAdded",   broadcastAudioFolderAdd,    isStr],
+		["waitFolderMoved",   broadcastAudioFolderMove,   isFromTo],
+		["waitFolderRemoved", broadcastAudioFolderRemove, isStr]
 	],
 	"characters": [
-		["waitAdded",         broadcastCharacterItemAdd,      checkAdded],
-		["waitMoved",         broadcastCharacterItemMove,     checkFromTo],
-		["waitRemoved",       broadcastCharacterItemRemove,   checkString],
-		["waitCopied",        broadcastCharacterItemCopy,     checkCopied],
-		["waitFolderAdded",   broadcastCharacterFolderAdd,    checkString],
-		["waitFolderMoved",   broadcastCharacterFolderMove,   checkFromTo],
-		["waitFolderRemoved", broadcastCharacterFolderRemove, checkString]
+		["waitAdded",         broadcastCharacterItemAdd,      isAdded],
+		["waitMoved",         broadcastCharacterItemMove,     isFromTo],
+		["waitRemoved",       broadcastCharacterItemRemove,   isStr],
+		["waitCopied",        broadcastCharacterItemCopy,     isCopied],
+		["waitFolderAdded",   broadcastCharacterFolderAdd,    isStr],
+		["waitFolderMoved",   broadcastCharacterFolderMove,   isFromTo],
+		["waitFolderRemoved", broadcastCharacterFolderRemove, isStr]
 	],
 	"maps": [
-		["waitAdded",         broadcastMapItemAdd,      checkAdded],
-		["waitMoved",         broadcastMapItemMove,     checkFromTo],
-		["waitRemoved",       broadcastMapItemRemove,   checkString],
-		["waitCopied",        broadcastMapItemCopy,     checkCopied],
-		["waitFolderAdded",   broadcastMapFolderAdd,    checkString],
-		["waitFolderMoved",   broadcastMapFolderMove,   checkFromTo],
-		["waitFolderRemoved", broadcastMapFolderRemove, checkString]
+		["waitAdded",         broadcastMapItemAdd,      isAdded],
+		["waitMoved",         broadcastMapItemMove,     isFromTo],
+		["waitRemoved",       broadcastMapItemRemove,   isStr],
+		["waitCopied",        broadcastMapItemCopy,     isCopied],
+		["waitFolderAdded",   broadcastMapFolderAdd,    isStr],
+		["waitFolderMoved",   broadcastMapFolderMove,   isFromTo],
+		["waitFolderRemoved", broadcastMapFolderRemove, isStr]
 	]
       } as const,
       endpoints: Record<string, [string, string, keyof typeof argProcessors | string[], (data: any) => data is any, string, string][]> ={
