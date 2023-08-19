@@ -5,10 +5,10 @@ import {Subscription} from './lib/inter.js';
 import pageLoad from './lib/load.js';
 import {isInt, queue} from './lib/misc.js';
 import {RPC} from './lib/rpc.js';
-import {And, Arr, Obj, Tuple} from './lib/typeguard.js';
+import {And, Arr, Obj, Rec, Tuple} from './lib/typeguard.js';
 import {Colour, isColour} from './colours.js';
 import lang from './language.js';
-import {isBool, isCharacterDataChange, isFromTo, isMapDetails, isMapStart, isLayerMove, isLayerRename, isMask, isMaskSet, isTokenAdd, isTokenMoveLayerPos, isTokenSet, isLayerShift, isWallPath, isWall, isIDPath, isIDName, isMusicPackVolume, isMusicPackPlay, isMusicPackTrackAdd, isMusicPackTrackRemove, isMusicPackTrackVolume, isMusicPackTrackRepeat, isPluginDataChange, isBroadcastWindow, isBroadcast, isKeyData, isMapData, isStr, isUint} from './types.js';
+import {isBool, isCharacterDataChange, isFolderItems, isFromTo, isMapDetails, isMapStart, isMusicPack, isLayerMove, isLayerRename, isMask, isMaskSet, isTokenAdd, isTokenMoveLayerPos, isTokenSet, isLayerShift, isWallPath, isWall, isIDPath, isIDName, isMusicPackVolume, isMusicPackPlay, isMusicPackTrackAdd, isMusicPackTrackRemove, isMusicPackTrackVolume, isMusicPackTrackRepeat, isPluginDataChange, isBroadcastWindow, isBroadcast, isKeyData, isKeystoreData, isMapData, isPlugin, isStr, isUint} from './types.js';
 import {shell} from './windows.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemCopy = -19, broadcastAudioItemCopy = -20, broadcastCharacterItemCopy = -21, broadcastMapItemCopy = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastLayerAdd = -37, broadcastLayerFolderAdd = -38, broadcastLayerMove = -39, broadcastLayerRename = -40, broadcastLayerRemove = -41, broadcastGridDistanceChange = -42, broadcastGridDiagonalChange = -43, broadcastMapLightChange = -44, broadcastLayerShow = -45, broadcastLayerHide = -46, broadcastLayerLock = -47, broadcastLayerUnlock = -48, broadcastMaskAdd = -49, broadcastMaskRemove = -50, broadcastMaskSet = -51, broadcastTokenAdd = -52, broadcastTokenRemove = -53, broadcastTokenMoveLayerPos = -54, broadcastTokenSet = -55, broadcastTokenSetMulti = -56, broadcastLayerShift = -57, broadcastWallAdd = -58, broadcastWallRemove = -59, broadcastWallModify = -60, broadcastWallMoveLayer = -61, broadcastMusicPackAdd = -62, broadcastMusicPackRename = -63, broadcastMusicPackRemove = -64, broadcastMusicPackCopy = -65, broadcastMusicPackVolume = -66, broadcastMusicPackPlay = -67, broadcastMusicPackStop = -68, broadcastMusicPackStopAll = -69, broadcastMusicPackTrackAdd = -70, broadcastMusicPackTrackRemove = -71, broadcastMusicPackTrackVolume = -72, broadcastMusicPackTrackRepeat = -73, broadcastPluginChange = -74, broadcastPluginSettingChange = -75, broadcastWindow = -76, broadcastSignalMeasure = -77, broadcastSignalPosition = -78, broadcastSignalMovePosition = -79, broadcastAny = -80;
@@ -426,6 +426,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	      newID: isUint,
 	      path: isStr
       }),
+      isCharacter = Rec(isStr, isKeystoreData),
+      isPlugins = Rec(isStr, isPlugin),
       argProcessors: Record<string, (args: unknown[], names: string[]) => unknown> = {
 	"": () => {},
 	"!": (args: unknown[]) => args[0],
@@ -527,11 +529,11 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		["ready"      , "conn.ready"      , "", returnVoid, "", ""],
 
 		["setCurrentMap", "maps.setCurrentMap", "!", returnVoid,   "", ""],
-		["getUserMap",    "maps.getUserMap",    "",  checkUint,    "", ""],
+		["getUserMap",    "maps.getUserMap",    "",  isUint,       "", ""],
 		["setUserMap",    "maps.setUserMap",    "!", returnVoid,   "waitCurrentUserMap", ""],
-		["getMapData",    "maps.getMapData",    "!", checkMapData, "", ""],
+		["getMapData",    "maps.getMapData",    "!", isMapData,    "", ""],
 
-		["newMap",           "maps.new",             "!",            checkIDName, "", ""],
+		["newMap",           "maps.new",             "!",            isIDName,    "", ""],
 		["setMapDetails",    "maps.setMapDetails",   "!",            returnVoid,  "waitMapChange", ""],
 		["setMapStart",      "maps.setMapStart",     "!",            returnVoid,  "waitMapStartChange", ""],
 		["setGridDistance",  "maps.setGridDistance", "!",            returnVoid,  "waitGridDistanceChange", ""],
@@ -544,9 +546,9 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		["signalPosition",     "maps.signalPosition",     "!", returnVoid, "", ""],
 		["signalMovePosition", "maps.signalMovePosition", "!", returnVoid, "", ""],
 
-		["addLayer",         "maps.addLayer",          "!",                       checkString,      "waitLayerAdd", "*"],
-		["addLayerFolder",   "maps.addLayerFolder",    "!",                       checkString,      "waitLayerFolderAdd", "*"],
-		["renameLayer",      "maps.renameLayer",      ["path", "name"],           checkLayerRename, "waitLayerRename", "*"],
+		["addLayer",         "maps.addLayer",          "!",                       isStr,            "waitLayerAdd", "*"],
+		["addLayerFolder",   "maps.addLayerFolder",    "!",                       isStr,            "waitLayerFolderAdd", "*"],
+		["renameLayer",      "maps.renameLayer",      ["path", "name"],           isLayerRename,    "waitLayerRename", "*"],
 		["moveLayer",        "maps.moveLayer",        ["from", "to", "position"], returnVoid,       "waitLayerMove", ""],
 		["showLayer",        "maps.showLayer",         "!",                       returnVoid,       "waitLayerShow", ""],
 		["hideLayer",        "maps.hideLayer",         "!",                       returnVoid,       "waitLayerHide", ""],
@@ -556,36 +558,36 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		["removeFromMask",   "maps.removeFromMask",    "!",                       returnVoid,       "waitMaskRemove", ""],
 		["setMask",          "maps.setMask",          ["baseOpaque", "masks"],    returnVoid,       "waitMaskSet", ""],
 		["removeLayer",      "maps.removeLayer",       "!",                       returnVoid,       "waitLayerRemove", ""],
-		["addToken",         "maps.addToken",         ["path", "token", "pos"],   checkUint,        "waitTokenAdd", "token/id"],
+		["addToken",         "maps.addToken",         ["path", "token", "pos"],   isUint,           "waitTokenAdd", "token/id"],
 		["removeToken",      "maps.removeToken",       "!",                       returnVoid,       "waitTokenRemove", ""],
 		["setToken",         "maps.setToken",          "!",                       returnVoid,       "waitTokenSet", ""],
 		["setTokenMulti",    "maps.setTokenMulti",     "!",                       returnVoid,       "waitTokenMultiSet", ""],
 		["setTokenLayerPos", "maps.setTokenLayerPos", ["id", "to", "newPos"],     returnVoid,       "waitTokenMoveLayerPos", ""],
 		["shiftLayer",       "maps.shiftLayer",       ["path", "dx", "dy"],       returnVoid,       "waitLayerShift", ""],
-		["addWall",          "maps.addWall",          ["path", "wall"],           checkUint,        "waitWallAdded", "wall/id"],
+		["addWall",          "maps.addWall",          ["path", "wall"],           isUint,           "waitWallAdded", "wall/id"],
 		["removeWall",       "maps.removeWall",        "!",                       returnVoid,       "waitWallRemoved", ""],
 		["modifyWall",       "maps.modifyWall",        "!",                       returnVoid,       "waitWallModified", ""],
 		["moveWall",         "maps.moveWall",         ["id", "path"],             returnVoid,       "waitWallMoved", ""],
 
-		["musicPackList",        "music.list",            "",                       checkMusicPacks, "", ""],
-		["musicPackAdd",         "music.new",             "!",                      checkIDName,     "waitMusicPackAdd", "*"],
-		["musicPackRename",      "music.rename",         ["id", "name"],            checkString,     "waitMusicPackRename", "*"],
-		["musicPackRemove",      "music.remove",          "!",                      returnVoid,      "waitMusicPackRemove", ""],
-		["musicPackCopy",        "music.copy",           ["id", "name"],            checkIDName,     "waitMusicPackCopy", "name"],
-		["musicPackSetVolume",   "music.setVolume",      ["id", "volume"],          returnVoid,      "waitMusicPackVolume", ""],
-		["musicPackPlay",        "music.playPack",       ["id", "playTime"],        checkUint,       "waitMusicPackPlay", "*"],
-		["musicPackStop",        "music.stopPack",        "!",                      returnVoid,      "waitMusicPackStop", ""],
-		["musicPackStopAll",     "music.stopAllPacks",    "",                       returnVoid,      "waitMusicPackStopAll", ""],
-		["musicPackTrackAdd",    "music.addTracks",      ["id", "tracks"],          returnVoid,      "waitMusicPackTrackAdd", ""],
-		["musicPackTrackRemove", "music.removeTrack",    ["id", "track"],           returnVoid,      "waitMusicPackTrackRemove", ""],
-		["musicPackTrackVolume", "music.setTrackVolume", ["id", "track", "volume"], returnVoid,      "waitMusicPackTrackVolume", ""],
-		["musicPackTrackRepeat", "music.setTrackRepeat", ["id", "track", "repeat"], returnVoid,      "waitMusicPackTrackRepeat", ""],
+		["musicPackList",        "music.list",            "",                       Arr(isMusicPack), "", ""],
+		["musicPackAdd",         "music.new",             "!",                      isIDName,         "waitMusicPackAdd", "*"],
+		["musicPackRename",      "music.rename",         ["id", "name"],            isStr,            "waitMusicPackRename", "*"],
+		["musicPackRemove",      "music.remove",          "!",                      returnVoid,       "waitMusicPackRemove", ""],
+		["musicPackCopy",        "music.copy",           ["id", "name"],            isIDName,         "waitMusicPackCopy", "name"],
+		["musicPackSetVolume",   "music.setVolume",      ["id", "volume"],          returnVoid,       "waitMusicPackVolume", ""],
+		["musicPackPlay",        "music.playPack",       ["id", "playTime"],        isUint,           "waitMusicPackPlay", "*"],
+		["musicPackStop",        "music.stopPack",        "!",                      returnVoid,       "waitMusicPackStop", ""],
+		["musicPackStopAll",     "music.stopAllPacks",    "",                       returnVoid,       "waitMusicPackStopAll", ""],
+		["musicPackTrackAdd",    "music.addTracks",      ["id", "tracks"],          returnVoid,       "waitMusicPackTrackAdd", ""],
+		["musicPackTrackRemove", "music.removeTrack",    ["id", "track"],           returnVoid,       "waitMusicPackTrackRemove", ""],
+		["musicPackTrackVolume", "music.setTrackVolume", ["id", "track", "volume"], returnVoid,       "waitMusicPackTrackVolume", ""],
+		["musicPackTrackRepeat", "music.setTrackRepeat", ["id", "track", "repeat"], returnVoid,       "waitMusicPackTrackRepeat", ""],
 
-		["characterCreate", "characters.create", ["path", "data"],              checkIDPath,    "", ""],
-		["characterModify", "characters.modify", ["id", "setting", "removing"], returnVoid,     "waitCharacterDataChange", ""],
-		["characterGet",    "characters.get",     "!",                          checkCharacter, "", ""],
+		["characterCreate", "characters.create", ["path", "data"],              isIDPath,    "", ""],
+		["characterModify", "characters.modify", ["id", "setting", "removing"], returnVoid,  "waitCharacterDataChange", ""],
+		["characterGet",    "characters.get",     "!",                          isCharacter, "", ""],
 
-		["listPlugins",   "plugins.list",    "",                           checkPlugins, "", ""],
+		["listPlugins",   "plugins.list",    "",                           isPlugins,    "", ""],
 		["enablePlugin",  "plugins.enable",  "!",                          returnVoid,   "", ""],
 		["disablePlugin", "plugins.disable", "!",                          returnVoid,   "", ""],
 		["pluginSetting", "plugins.set",    ["id", "setting", "removing"], returnVoid,   "waitPluginSetting", ""],
@@ -594,40 +596,40 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		["broadcast",       "broadcast",        "!",                         returnVoid, "waitBroadcast", ""]
 	],
 	"images": [
-		["list",         "imageAssets.list",          "",            checkFolderItems, "", ""],
-		["createFolder", "imageAssets.createFolder",  "!",           checkString,      "waitFolderAdded", "*"],
-		["move",         "imageAssets.move",         ["from", "to"], checkString,      "waitMoved", "to"],
-		["moveFolder",   "imageAssets.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
-		["remove",       "imageAssets.remove",        "!",           returnVoid,       "waitRemoved", ""],
-		["removeFolder", "imageAssets.removeFolder",  "!",           returnVoid,       "waitFolderRemoved", ""],
-		["copy",         "imageAssets.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
+		["list",         "imageAssets.list",          "",            isFolderItems, "", ""],
+		["createFolder", "imageAssets.createFolder",  "!",           isStr,         "waitFolderAdded", "*"],
+		["move",         "imageAssets.move",         ["from", "to"], isStr,         "waitMoved", "to"],
+		["moveFolder",   "imageAssets.moveFolder",   ["from", "to"], isStr,         "waitFolderMoved", "to"],
+		["remove",       "imageAssets.remove",        "!",           returnVoid,    "waitRemoved", ""],
+		["removeFolder", "imageAssets.removeFolder",  "!",           returnVoid,    "waitFolderRemoved", ""],
+		["copy",         "imageAssets.copy",         ["id", "path"], isIDPath,      "waitCopied", "name"]
 	],
 	"audio": [
-		["list",         "audioAssets.list",          "",            checkFolderItems, "", ""],
-		["createFolder", "audioAssets.createFolder",  "!",           checkString,      "waitFolderAdded", ""],
-		["move",         "audioAssets.move",         ["from", "to"], checkString,      "waitMoved", "to"],
-		["moveFolder",   "audioAssets.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
-		["remove",       "audioAssets.remove",        "!",           returnVoid,       "waitRemoved", ""],
-		["removeFolder", "audioAssets.removeFolder",  "!",           returnVoid,       "waitFolderRemoved", ""],
-		["copy",         "audioAssets.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
+		["list",         "audioAssets.list",          "",            isFolderItems, "", ""],
+		["createFolder", "audioAssets.createFolder",  "!",           isStr,         "waitFolderAdded", ""],
+		["move",         "audioAssets.move",         ["from", "to"], isStr,         "waitMoved", "to"],
+		["moveFolder",   "audioAssets.moveFolder",   ["from", "to"], isStr,         "waitFolderMoved", "to"],
+		["remove",       "audioAssets.remove",        "!",           returnVoid,    "waitRemoved", ""],
+		["removeFolder", "audioAssets.removeFolder",  "!",           returnVoid,    "waitFolderRemoved", ""],
+		["copy",         "audioAssets.copy",         ["id", "path"], isIDPath,      "waitCopied", "name"]
 	],
 	"characters": [
-		["list",         "characters.list",          "",            checkFolderItems, "", ""],
-		["createFolder", "characters.createFolder",  "!",           checkString,      "waitFolderAdded", ""],
-		["move",         "characters.move",         ["from", "to"], checkString,      "waitMoved", "to"],
-		["moveFolder",   "characters.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
-		["remove",       "characters.remove",        "!",           returnVoid,       "waitRemoved", ""],
-		["removeFolder", "characters.removeFolder",  "!",           returnVoid,       "waitFolderRemoved", ""],
-		["copy",         "characters.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
+		["list",         "characters.list",          "",            isFolderItems, "", ""],
+		["createFolder", "characters.createFolder",  "!",           isStr,         "waitFolderAdded", ""],
+		["move",         "characters.move",         ["from", "to"], isStr,         "waitMoved", "to"],
+		["moveFolder",   "characters.moveFolder",   ["from", "to"], isStr,         "waitFolderMoved", "to"],
+		["remove",       "characters.remove",        "!",           returnVoid,    "waitRemoved", ""],
+		["removeFolder", "characters.removeFolder",  "!",           returnVoid,    "waitFolderRemoved", ""],
+		["copy",         "characters.copy",         ["id", "path"], isIDPath,      "waitCopied", "name"]
 	],
 	"maps": [
-		["list",         "maps.list",          "",            checkFolderItems, "", ""],
-		["createFolder", "maps.createFolder",  "!",           checkString,      "waitFolderAdded", ""],
-		["move",         "maps.move",         ["from", "to"], checkString,      "waitMoved", "to"],
-		["moveFolder",   "maps.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
-		["remove",       "maps.remove",        "!",           returnVoid,       "waitRemoved", ""],
-		["removeFolder", "maps.removeFolder",  "!",           returnVoid,       "waitFolderRemoved", ""],
-		["copy",         "maps.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
+		["list",         "maps.list",          "",            isFolderItems, "", ""],
+		["createFolder", "maps.createFolder",  "!",           isStr,         "waitFolderAdded", ""],
+		["move",         "maps.move",         ["from", "to"], isStr,         "waitMoved", "to"],
+		["moveFolder",   "maps.moveFolder",   ["from", "to"], isStr,         "waitFolderMoved", "to"],
+		["remove",       "maps.remove",        "!",           returnVoid,    "waitRemoved", ""],
+		["removeFolder", "maps.removeFolder",  "!",           returnVoid,    "waitFolderRemoved", ""],
+		["copy",         "maps.copy",         ["id", "path"], isIDPath,      "waitCopied", "name"]
 	]
       };
 
