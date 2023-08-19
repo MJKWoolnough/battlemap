@@ -8,7 +8,7 @@ export type Uint = number;
 export type Byte = number;
 type Colour = TypeGuardOf<typeof isColour>;
 
-const isInt = Int(),
+export const isInt = Int(),
       isUint = Int(0),
       isByte = Int(0, 255),
       isBool = Bool(),
