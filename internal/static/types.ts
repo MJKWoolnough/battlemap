@@ -1,6 +1,6 @@
 import type {Subscription} from './lib/inter.js';
 import type {TypeGuard, TypeGuardOf} from './lib/typeguard.js';
-import {And, Any, Arr, Bool, Int, Str, Obj, Opt, Or, Part, Rec, Recur, Tuple, Val} from './lib/typeguard.js';
+import {And, Any, Arr, Bool, Int, Obj, Opt, Or, Part, Rec, Recur, Str, Tuple, Val} from './lib/typeguard.js';
 import {isColour} from './colours.js';
 
 export type Int = number;
