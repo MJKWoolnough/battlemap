@@ -1,12 +1,14 @@
-import type {Broadcast, BroadcastWindow, CharacterDataChange, Copy, FolderItems, FromTo, IDName, IDPath, InternalWaits, KeyData, KeystoreData, KeystoreDataChange, LayerFolder, LayerMove, LayerRename, LayerShift, MapData, MapDetails, MapStart, Mask, MaskSet, MusicPack, MusicPackPlay, MusicPackTrackAdd, MusicPackTrackRemove, MusicPackTrackRepeat, MusicPackTrackVolume, MusicPackVolume, Plugin, PluginDataChange, RPC as RPCType, Token, TokenAdd, TokenMoveLayerPos, TokenSet, Uint, Wall, WallPath} from './types.js';
+import type {KeystoreData} from './types.js';
 import type {Binding} from './lib/bind.js';
 import {WS} from './lib/conn.js';
 import {Subscription} from './lib/inter.js';
 import pageLoad from './lib/load.js';
 import {isInt, queue} from './lib/misc.js';
 import {RPC} from './lib/rpc.js';
-import {Colour} from './colours.js';
+import {And, Arr, Obj, Tuple} from './lib/typeguard.js';
+import {Colour, isColour} from './colours.js';
 import lang from './language.js';
+import {isBool, isCharacterDataChange, isMapDetails, isMapStart, isLayerMove, isLayerRename, isMask, isMaskSet, isTokenAdd, isTokenMoveLayerPos, isTokenSet, isLayerShift, isWallPath, isWall, isIDPath, isIDName, isMusicPackVolume, isMusicPackPlay, isMusicPackTrackAdd, isMusicPackTrackRemove, isMusicPackTrackVolume, isMusicPackTrackRepeat, isPluginDataChange, isBroadcastWindow, isBroadcast, isKeyData, isMapData, isStr, isUint} from './types.js';
 import {shell} from './windows.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemCopy = -19, broadcastAudioItemCopy = -20, broadcastCharacterItemCopy = -21, broadcastMapItemCopy = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastLayerAdd = -37, broadcastLayerFolderAdd = -38, broadcastLayerMove = -39, broadcastLayerRename = -40, broadcastLayerRemove = -41, broadcastGridDistanceChange = -42, broadcastGridDiagonalChange = -43, broadcastMapLightChange = -44, broadcastLayerShow = -45, broadcastLayerHide = -46, broadcastLayerLock = -47, broadcastLayerUnlock = -48, broadcastMaskAdd = -49, broadcastMaskRemove = -50, broadcastMaskSet = -51, broadcastTokenAdd = -52, broadcastTokenRemove = -53, broadcastTokenMoveLayerPos = -54, broadcastTokenSet = -55, broadcastTokenSetMulti = -56, broadcastLayerShift = -57, broadcastWallAdd = -58, broadcastWallRemove = -59, broadcastWallModify = -60, broadcastWallMoveLayer = -61, broadcastMusicPackAdd = -62, broadcastMusicPackRename = -63, broadcastMusicPackRemove = -64, broadcastMusicPackCopy = -65, broadcastMusicPackVolume = -66, broadcastMusicPackPlay = -67, broadcastMusicPackStop = -68, broadcastMusicPackStopAll = -69, broadcastMusicPackTrackAdd = -70, broadcastMusicPackTrackRemove = -71, broadcastMusicPackTrackVolume = -72, broadcastMusicPackTrackRepeat = -73, broadcastPluginChange = -74, broadcastPluginSettingChange = -75, broadcastWindow = -76, broadcastSignalMeasure = -77, broadcastSignalPosition = -78, broadcastSignalMovePosition = -79, broadcastAny = -80;
@@ -414,6 +416,10 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 	return true;
       },
+      isMusicPackCopy = And(isIDName, Obj({
+	      newID: isUint
+      })),
+      isSignalPosition = Tuple(isUint, isUint),
       argProcessors: Record<string, (args: unknown[], names: string[]) => unknown> = {
 	"": () => {},
 	"!": (args: unknown[]) => args[0],
@@ -421,57 +427,57 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       },
       waiters = {
 	"": [
-		["waitCurrentUserMap",       broadcastCurrentUserMap,       checkUint],
-		["waitCurrentUserMapData",   broadcastCurrentUserMapData,   checkMapData],
-		["waitMapDataSet",           broadcastMapDataSet,           checkMapKeyData],
-		["waitMapDataRemove",        broadcastMapDataRemove,        checkString],
-		["waitCharacterDataChange",  broadcastCharacterDataChange,  checkCharacterDataChange],
-		["waitMapChange",            broadcastMapItemChange,        checkMapDetails],
-		["waitMapStartChange",       broadcastMapStartChange,       checkMapStart],
-		["waitLayerAdd",             broadcastLayerAdd,             checkString],
-		["waitLayerFolderAdd",       broadcastLayerFolderAdd,       checkString],
-		["waitLayerMove",            broadcastLayerMove,            checkLayerMove],
-		["waitLayerRename",          broadcastLayerRename,          checkLayerRename],
-		["waitLayerRemove",          broadcastLayerRemove,          checkString],
-		["waitGridDistanceChange",   broadcastGridDistanceChange,   checkUint],
-		["waitGridDiagonalChange",   broadcastGridDiagonalChange,   checkBoolean],
-		["waitMapLightChange",       broadcastMapLightChange,       checkColour],
-		["waitLayerShow",            broadcastLayerShow,            checkString],
-		["waitLayerHide",            broadcastLayerHide,            checkString],
-		["waitLayerLock",            broadcastLayerLock,            checkString],
-		["waitLayerUnlock",          broadcastLayerUnlock,          checkString],
-		["waitMaskAdd",              broadcastMaskAdd,              checkMask],
-		["waitMaskRemove",           broadcastMaskRemove,           checkUint],
-		["waitMaskSet",              broadcastMaskSet,              checkMaskSet],
-		["waitTokenAdd",             broadcastTokenAdd,             checkTokenAdd],
-		["waitTokenRemove",          broadcastTokenRemove,          checkUint],
-		["waitTokenMoveLayerPos",    broadcastTokenMoveLayerPos,    checkTokenMoveLayerPos],
-		["waitTokenSet",             broadcastTokenSet,             checkTokenSet],
-		["waitTokenSetMulti",        broadcastTokenSetMulti,        checkTokenMultiSet],
-		["waitLayerShift",           broadcastLayerShift,           checkLayerShift],
-		["waitWallAdded",            broadcastWallAdd,              checkWallPath],
-		["waitWallRemoved",          broadcastWallRemove,           checkUint],
-		["waitWallModified",         broadcastWallModify,           checkWall],
-		["waitWallMoved",            broadcastWallMoveLayer,        checkIDPath],
-		["waitMusicPackAdd",         broadcastMusicPackAdd,         checkIDName],
-		["waitMusicPackRename",      broadcastMusicPackRename,      checkIDName],
-		["waitMusicPackRemove",      broadcastMusicPackRemove,      checkUint],
-		["waitMusicPackCopy",        broadcastMusicPackCopy,        checkMusicPackCopy],
-		["waitMusicPackVolume",      broadcastMusicPackVolume,      checkMusicPackVolume],
-		["waitMusicPackPlay",        broadcastMusicPackPlay,        checkMusicPackPlay],
-		["waitMusicPackStop",        broadcastMusicPackStop,        checkUint],
+		["waitCurrentUserMap",       broadcastCurrentUserMap,       isUint],
+		["waitCurrentUserMapData",   broadcastCurrentUserMapData,   isMapData],
+		["waitMapDataSet",           broadcastMapDataSet,           isKeyData],
+		["waitMapDataRemove",        broadcastMapDataRemove,        isStr],
+		["waitCharacterDataChange",  broadcastCharacterDataChange,  isCharacterDataChange],
+		["waitMapChange",            broadcastMapItemChange,        isMapDetails],
+		["waitMapStartChange",       broadcastMapStartChange,       isMapStart],
+		["waitLayerAdd",             broadcastLayerAdd,             isStr],
+		["waitLayerFolderAdd",       broadcastLayerFolderAdd,       isStr],
+		["waitLayerMove",            broadcastLayerMove,            isLayerMove],
+		["waitLayerRename",          broadcastLayerRename,          isLayerRename],
+		["waitLayerRemove",          broadcastLayerRemove,          isStr],
+		["waitGridDistanceChange",   broadcastGridDistanceChange,   isUint],
+		["waitGridDiagonalChange",   broadcastGridDiagonalChange,   isBool],
+		["waitMapLightChange",       broadcastMapLightChange,       isColour],
+		["waitLayerShow",            broadcastLayerShow,            isStr],
+		["waitLayerHide",            broadcastLayerHide,            isStr],
+		["waitLayerLock",            broadcastLayerLock,            isStr],
+		["waitLayerUnlock",          broadcastLayerUnlock,          isStr],
+		["waitMaskAdd",              broadcastMaskAdd,              isMask],
+		["waitMaskRemove",           broadcastMaskRemove,           isUint],
+		["waitMaskSet",              broadcastMaskSet,              isMaskSet],
+		["waitTokenAdd",             broadcastTokenAdd,             isTokenAdd],
+		["waitTokenRemove",          broadcastTokenRemove,          isUint],
+		["waitTokenMoveLayerPos",    broadcastTokenMoveLayerPos,    isTokenMoveLayerPos],
+		["waitTokenSet",             broadcastTokenSet,             isTokenSet],
+		["waitTokenSetMulti",        broadcastTokenSetMulti,        Arr(isTokenSet)],
+		["waitLayerShift",           broadcastLayerShift,           isLayerShift],
+		["waitWallAdded",            broadcastWallAdd,              isWallPath],
+		["waitWallRemoved",          broadcastWallRemove,           isUint],
+		["waitWallModified",         broadcastWallModify,           isWall],
+		["waitWallMoved",            broadcastWallMoveLayer,        isIDPath],
+		["waitMusicPackAdd",         broadcastMusicPackAdd,         isIDName],
+		["waitMusicPackRename",      broadcastMusicPackRename,      isIDName],
+		["waitMusicPackRemove",      broadcastMusicPackRemove,      isUint],
+		["waitMusicPackCopy",        broadcastMusicPackCopy,        isMusicPackCopy],
+		["waitMusicPackVolume",      broadcastMusicPackVolume,      isMusicPackVolume],
+		["waitMusicPackPlay",        broadcastMusicPackPlay,        isMusicPackPlay],
+		["waitMusicPackStop",        broadcastMusicPackStop,        isUint],
 		["waitMusicPackStopAll",     broadcastMusicPackStopAll,     returnVoid],
-		["waitMusicPackTrackAdd",    broadcastMusicPackTrackAdd,    checkMusicPackTrackAdd],
-		["waitMusicPackTrackRemove", broadcastMusicPackTrackRemove, checkMusicPackTrack],
-		["waitMusicPackTrackVolume", broadcastMusicPackTrackVolume, checkMusicPackTrackVolume],
-		["waitMusicPackTrackRepeat", broadcastMusicPackTrackRepeat, checkMusicPackTrackRepeat],
+		["waitMusicPackTrackAdd",    broadcastMusicPackTrackAdd,    isMusicPackTrackAdd],
+		["waitMusicPackTrackRemove", broadcastMusicPackTrackRemove, isMusicPackTrackRemove],
+		["waitMusicPackTrackVolume", broadcastMusicPackTrackVolume, isMusicPackTrackVolume],
+		["waitMusicPackTrackRepeat", broadcastMusicPackTrackRepeat, isMusicPackTrackRepeat],
 		["waitPluginChange",         broadcastPluginChange,         returnVoid],
-		["waitPluginSetting",        broadcastPluginSettingChange,  checkPluginSetting],
-		["waitSignalMeasure",        broadcastSignalMeasure,        checkSignalMeasure],
-		["waitSignalPosition",       broadcastSignalPosition,       checkSignalPosition],
-		["waitSignalMovePosition",   broadcastSignalMovePosition,   checkSignalPosition],
-		["waitBroadcastWindow",      broadcastWindow,               checkBroadcastWindow],
-		["waitBroadcast",            broadcastAny,                  checkBroadcast]
+		["waitPluginSetting",        broadcastPluginSettingChange,  isPluginDataChange],
+		["waitSignalMeasure",        broadcastSignalMeasure,        Tuple(isUint, isUint, isUint, isUint, ...isUint)],
+		["waitSignalPosition",       broadcastSignalPosition,       isSignalPosition],
+		["waitSignalMovePosition",   broadcastSignalMovePosition,   isSignalPosition],
+		["waitBroadcastWindow",      broadcastWindow,               isBroadcastWindow],
+		["waitBroadcast",            broadcastAny,                  isBroadcast]
 	],
 	"images": [
 		["waitAdded",         broadcastImageItemAdd,      checkAdded],
