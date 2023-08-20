@@ -89,10 +89,10 @@ endpointWaiters = [
 	toRPC<[number, Keystore, string[]], undefined>("characterModify", "character.modify", ["id", "setting", "removing"], isUndefined, "waitCharacterDataChange", broadcastCharacterDataChange, ""),
 	toRPC<[number],                     Keystore> ("characterGet",    "character.get",    [""],                          isKeystore),
 
-	toRPC<[],                                               Record<string, Plugin>>("listPlugins",   "plugins.list",   [],   isPlugins),
-	toRPC<[string],                                         undefined>             ("enablePlugin",  "plugin.enable",  [""], isUndefined),
-	toRPC<[string],                                         undefined>             ("disablePlugin", "plugin.disable", [""], isUndefined),
-	toRPC<[string, Record<string, KeystoreData>, string[]], undefined>             ("pluginSetting", "plugin.set",     ["id", "setting", "removing"], isUndefined, "waitPluginSetting", broadcastPluginSettingChange, ""),
+	toRPC<[],                           Record<string, Plugin>>("listPlugins",   "plugins.list",   [],   isPlugins),
+	toRPC<[string],                     undefined>             ("enablePlugin",  "plugin.enable",  [""], isUndefined),
+	toRPC<[string],                     undefined>             ("disablePlugin", "plugin.disable", [""], isUndefined),
+	toRPC<[string, Keystore, string[]], undefined>             ("pluginSetting", "plugin.set",     ["id", "setting", "removing"], isUndefined, "waitPluginSetting", broadcastPluginSettingChange, ""),
 
 	toRPC<[string, number, string], undefined>("broadcastWindow", "broadcastWindow", ["module", "id", "contents"], isUndefined, "waitBroadcastWindow", broadcastWindow, ""),
 	toRPC<[Broadcast],              undefined>("broadcast",       "broadcast",       [""],                         isUndefined, "waitBroadcast",       broadcastAny, "")
