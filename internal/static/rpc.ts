@@ -1,14 +1,15 @@
-import type {KeystoreData} from './types.js';
+import type {Broadcast, GridDetails, IDName, IDPath, Keystore, KeystoreData, LayerRename, MapData, MapStart, Mask, MusicPack, NewMap, Plugin, Token, TokenSet, Wall} from './types.js';
 import type {Binding} from './lib/bind.js';
+import type {TypeGuard} from './lib/typeguard.js';
 import {WS} from './lib/conn.js';
 import {Subscription} from './lib/inter.js';
 import pageLoad from './lib/load.js';
 import {isInt, queue} from './lib/misc.js';
 import {RPC} from './lib/rpc.js';
-import {And, Arr, Obj, Rec, Tuple} from './lib/typeguard.js';
+import {And, Arr, Obj, Rec, Tuple, Undefined} from './lib/typeguard.js';
 import {Colour, isColour} from './colours.js';
 import lang from './language.js';
-import {isBool, isCharacterDataChange, isFolderItems, isFromTo, isMapDetails, isMapStart, isMusicPack, isLayerMove, isLayerRename, isMask, isMaskSet, isTokenAdd, isTokenMoveLayerPos, isTokenSet, isLayerShift, isWallPath, isWall, isIDPath, isIDName, isMusicPackVolume, isMusicPackPlay, isMusicPackTrackAdd, isMusicPackTrackRemove, isMusicPackTrackVolume, isMusicPackTrackRepeat, isPluginDataChange, isBroadcastWindow, isBroadcast, isKeyData, isKeystoreData, isMapData, isPlugin, isStr, isUint} from './types.js';
+import {isBool, isCharacterDataChange, isFolderItems, isFromTo, isKeystore, isMapDetails, isMapStart, isMusicPack, isLayerMove, isLayerRename, isMask, isMaskSet, isTokenAdd, isTokenMoveLayerPos, isTokenSet, isLayerShift, isWallPath, isWall, isIDPath, isIDName, isMusicPackVolume, isMusicPackPlay, isMusicPackTrackAdd, isMusicPackTrackRemove, isMusicPackTrackVolume, isMusicPackTrackRepeat, isPluginDataChange, isBroadcastWindow, isBroadcast, isKeyData, isMapData, isPlugin, isStr, isUint} from './types.js';
 import {shell} from './windows.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemCopy = -19, broadcastAudioItemCopy = -20, broadcastCharacterItemCopy = -21, broadcastMapItemCopy = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastLayerAdd = -37, broadcastLayerFolderAdd = -38, broadcastLayerMove = -39, broadcastLayerRename = -40, broadcastLayerRemove = -41, broadcastGridDistanceChange = -42, broadcastGridDiagonalChange = -43, broadcastMapLightChange = -44, broadcastLayerShow = -45, broadcastLayerHide = -46, broadcastLayerLock = -47, broadcastLayerUnlock = -48, broadcastMaskAdd = -49, broadcastMaskRemove = -50, broadcastMaskSet = -51, broadcastTokenAdd = -52, broadcastTokenRemove = -53, broadcastTokenMoveLayerPos = -54, broadcastTokenSet = -55, broadcastTokenSetMulti = -56, broadcastLayerShift = -57, broadcastWallAdd = -58, broadcastWallRemove = -59, broadcastWallModify = -60, broadcastWallMoveLayer = -61, broadcastMusicPackAdd = -62, broadcastMusicPackRename = -63, broadcastMusicPackRemove = -64, broadcastMusicPackCopy = -65, broadcastMusicPackVolume = -66, broadcastMusicPackPlay = -67, broadcastMusicPackStop = -68, broadcastMusicPackStopAll = -69, broadcastMusicPackTrackAdd = -70, broadcastMusicPackTrackRemove = -71, broadcastMusicPackTrackVolume = -72, broadcastMusicPackTrackRepeat = -73, broadcastPluginChange = -74, broadcastPluginSettingChange = -75, broadcastWindow = -76, broadcastSignalMeasure = -77, broadcastSignalPosition = -78, broadcastSignalMovePosition = -79, broadcastAny = -80;
@@ -19,7 +20,7 @@ type checkers = [(data: any, name: string, key?: string) => data is any, string]
 const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       tokenDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
       characterDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
-      returnVoid = (_?: any): _ is any => true,
+      returnVoid = (_: any): _ is any => true,
       throwError = (err: string) => {throw new TypeError(err)},
       checkInt = (data: any, name = "Int", key = ""): data is number => {
 	if (!isInt(data)) {
@@ -426,7 +427,6 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	      newID: isUint,
 	      path: isStr
       }),
-      isCharacter = Rec(isStr, isKeystoreData),
       isPlugins = Rec(isStr, isPlugin),
       argProcessors: Record<string, (args: unknown[], names: string[]) => unknown> = {
 	"": () => {},
@@ -585,7 +585,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 
 		["characterCreate", "characters.create", ["path", "data"],              isIDPath,    "", ""],
 		["characterModify", "characters.modify", ["id", "setting", "removing"], returnVoid,  "waitCharacterDataChange", ""],
-		["characterGet",    "characters.get",     "!",                          isCharacter, "", ""],
+		["characterGet",    "characters.get",     "!",                          isKeystore, "", ""],
 
 		["listPlugins",   "plugins.list",    "",                           isPlugins,    "", ""],
 		["enablePlugin",  "plugins.enable",  "!",                          returnVoid,   "", ""],
@@ -632,6 +632,81 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		["copy",         "maps.copy",         ["id", "path"], isIDPath,      "waitCopied", "name"]
 	]
       };
+
+type ArgTuple<N extends Number, U extends Omit<string, "">[] = []> = U["length"] extends N ? U : ArgTuple<N, [Omit<string, "">, ...U]>;
+
+const isUndefined = Undefined(),
+isMusicPacks = Arr(isMusicPack),
+toRPC = <const Args extends any[], T extends any, const ArgNames extends ArgTuple<Args["length"]> = ArgTuple<Args["length"]>>(name: string, endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: string, broadcastID?: number, waitTransform?: string): [string, string, [""] | Omit<string, "">[], TypeGuard<T>, string | undefined, number | undefined, string | undefined, ...Args[]] => [name, endpoint, args, typeguard, waiter, broadcastID, waitTransform],
+endpointWaiters = [
+	toRPC<[], undefined>("ready",         "conn.ready",         [],     isUndefined),
+	toRPC<[number], undefined>("setCurrentMap", "maps.setCurrentMap", [""], isUndefined),
+	toRPC<[],       number>     ("getUserMap",    "maps.getUserMap",    [],   isUint),
+	toRPC<[number], undefined>("setUserMap",    "maps.setUserMap",    [""], isUndefined, "waitCurrentUserMap", broadcastCurrentUserMap, ""),
+	toRPC<[number], MapData>  ("getMapData",    "maps.getMapData",    [""], isMapData),
+
+	toRPC<[NewMap],      IDName>   ("newMap",          "maps.new",             [""],            isIDName),
+	toRPC<[GridDetails], undefined>("setMapDetails",   "maps.setMapDetails",   [""],            isUndefined, "waitMapChange",          broadcastMapItemChange,      ""),
+	//toRPC<[MapStart],    typeof isUndefined>("setMapStart",     "maps.setStartMap",     [""],            isUndefined, "waitMapStartChange",     broadcastMapStartChange,     ""),
+	//toRPC<[number],      typeof isUint>     ("setGridDistance", "maps.setGridDistance", [""],            isUndefined, "waitGridDistanceChange", broadcastGridDistanceChange, ""),
+	toRPC<[boolean],     undefined>("setGridDiagonal", "maps.setGridDiagonal", [""],            isUndefined, "waitGridDiagonalChange", broadcastGridDiagonalChange, ""),
+	toRPC<[Colour],      undefined>("setLightColour",  "maps.setLightcolour",  [""],            isUndefined, "waitMapLightChange",     broadcastMapLightChange,     ""),
+	toRPC<[string, any], undefined>("setMapKeyData",   "maps.setData",         ["key", "data"], isUndefined, "waitMapDataSet",         broadcastMapDataSet,         ""),
+	toRPC<[string],      undefined>("removeMapKeyData", "maps.removeData",     [""],            isUndefined, "waitMapDataRemove",      broadcastMapDataRemove,      ""),
+
+	toRPC<[[number, number, number, number, ...number[]] | null], undefined>("signalMeasure",      "maps.signalMeasure",      [""], isUndefined),
+	toRPC<[[number, number]],                                     undefined>("signalPosition",     "maps.signalPosition",     [""], isUndefined),
+	toRPC<[[number, number]],                                     undefined>("signalMovePosition", "maps.signalMovePosition", [""], isUndefined),
+
+	toRPC<[string],                            string>     ("addLayer",         "maps.addLayer",         [""],                       isStr,         "waitLayerAdd",          broadcastLayerAdd,          "*"),
+	toRPC<[string],                            string>     ("addLayerFolder",   "maps.addLayerFolder",   [""],                       isStr,         "waitLayerFolderAdd",    broadcastLayerFolderAdd,    "*"),
+	toRPC<[string, string],                    LayerRename>("renameLayer",      "maps.renameLayer",      ["path", "name"],           isLayerRename, "waitLayerRename",       broadcastLayerRename,       "*"),
+	toRPC<[string, string, number],            undefined>  ("moveLayer",        "maps.moveLayer",        ["from", "to", "position"], isUndefined,   "waitLayerMove",         broadcastLayerMove,         ""),
+	toRPC<[string],                            undefined>  ("showLayer",        "maps.showLayer",        [""],                       isUndefined,   "waitLayerShow",         broadcastLayerShow,         ""),
+	toRPC<[string],                            undefined>  ("hideLayer",        "maps.hideLayer",        [""],                       isUndefined,   "waitLayerHide",         broadcastLayerHide,         ""),
+	toRPC<[string],                            undefined>  ("lockLayer",        "maps.lockLayer",        [""],                       isUndefined,   "waitLayerLock",         broadcastLayerLock,         ""),
+	toRPC<[string],                            undefined>  ("unlockLayer",      "maps.unlockLayer",      [""],                       isUndefined,   "waitLayerUnlock",       broadcastLayerUnlock,       ""),
+	toRPC<[string],                            undefined>  ("removeLayer",      "maps.removeLayer",      [""],                       isUndefined,   "waitLayerRemove",       broadcastLayerRemove,       ""),
+	toRPC<[Mask],                              undefined>  ("addToMask",        "maps.addToMask",        [""],                       isUndefined,   "waitMaskAdd",           broadcastMaskAdd,           ""),
+	toRPC<[number],                            undefined>  ("removeFromMask",   "maps.removeFromMask",   [""],                       isUndefined,   "waitMaskRemove",        broadcastMaskRemove,        ""),
+	toRPC<[boolean, Mask[]],                   undefined>  ("setMask",          "maps.setMask",          ["baseOpaque", "masks"],    isUndefined,   "waitMaskSet",           broadcastMaskSet,           ""),
+	toRPC<[string, Token, number | undefined], number>     ("addToken",         "maps.addToken",         ["path", "token", "pos"],   isUint,        "waitTokenAdd",          broadcastTokenAdd,          "token/id"),
+	toRPC<[number],                            undefined>  ("removeToken",      "maps.removeToken",      [""],                       isUndefined,   "waitTokenRemove",       broadcastTokenRemove,       ""),
+	toRPC<[TokenSet],                          undefined>  ("setToken",         "maps.setToken",         [""],                       isUndefined,   "waitTokenSet",          broadcastTokenSet,          ""),
+	toRPC<[TokenSet[]],                        undefined>  ("setTokenMulti",    "maps.setTokenMulti",    [""],                       isUndefined,   "waitTokenMultiSet",     broadcastTokenSetMulti,     ""),
+	toRPC<[number, string, number],            undefined>  ("setTokenLayerPos", "maps.setTokenLayerPos", ["id", "to", "newPos"],     isUndefined,   "waitTokenMoveLayerPos", broadcastTokenMoveLayerPos, ""),
+	toRPC<[string, number, number],            undefined>  ("shiftLayer",       "maps.shiftLayer",       ["path", "dx", "dy"],       isUndefined,   "waitLayerShift",        broadcastLayerShift,        ""),
+	toRPC<[string, Wall],                      number>     ("addWall",          "maps.addWall",          ["id", "wall"],             isUint,        "waitWallAdded",         broadcastWallAdd,           "wall/id"),
+	toRPC<[number],                            undefined>  ("removeWall",       "maps.removeWall",       [""],                       isUndefined,   "waitWallRemoved",       broadcastWallRemove,        ""),
+	toRPC<[Wall],                              undefined>  ("modifyWall",       "maps.modifyWall",       [""],                       isUndefined,   "waitWallModified",      broadcastWallModify,        ""),
+	toRPC<[number, string],                    undefined>  ("moveWall",         "maps.moveWall",         ["id", "path"],             isUndefined,   "waitWallMoved",         broadcastWallMoveLayer,     ""),
+
+	toRPC<[],                       MusicPack[]>("musicPackList",        "music.list",           [],                        isMusicPacks),
+	toRPC<[string],                 IDName>     ("musicPackAdd",         "music.new",            [""],                      isIDName,    "waitMusicPackAdd",         broadcastMusicPackAdd,         "*"),
+	toRPC<[number, string],         string>     ("musicPackRename",      "music.rename",         ["id", "name"],            isStr,       "waitMusicPackRename",      broadcastMusicPackRename,      "*"),
+	toRPC<[number],                 undefined>  ("musicPackRemove",      "music.remove",         [""],                      isUndefined, "waitMusicPackRemove",      broadcastMusicPackRemove,      ""),
+	toRPC<[number, string],         IDName>     ("musicPackCopy",        "music.copy",           ["id", "name"],            isIDName,    "waitMusicPackCopy",        broadcastMusicPackCopy,        "name"),
+	toRPC<[number, number],         undefined>  ("musicPackSetVolume",   "music.setVolume",      ["id", "volume"],          isUndefined, "waitMusicPackVolume",      broadcastMusicPackVolume,      ""),
+	toRPC<[number, number],         number>     ("musicPackPlay",        "music.playPack",       ["id", "playTime"],        isUint,      "waitMusicPackPlay",        broadcastMusicPackPlay,        "*"),
+	toRPC<[number],                 undefined>  ("musicPackStop",        "music.stopPack",       [""],                      isUndefined, "waitMusicPackStop",        broadcastMusicPackStop,        ""),
+	toRPC<[],                       undefined>  ("musicPackStopAll",     "music.stopAllPacks",   [],                        isUndefined, "waitMusicPackStopAll",     broadcastMusicPackStopAll,     ""),
+	toRPC<[number, number[]],       undefined>  ("musicPackTrackAdd",    "music.addTracks",      ["id", "tracks"],          isUndefined, "waitMusicPackTrackAdd",    broadcastMusicPackTrackAdd,    ""),
+	toRPC<[number, number],         undefined>  ("musicPackTrackRemove", "music.removeTrack",    ["id", "track"],           isUndefined, "waitMusicPackTrackRemove", broadcastMusicPackTrackRemove, ""),
+	toRPC<[number, number, number], undefined>  ("musicPackTrackVolume", "music.setTrackVolume", ["id", "track", "volume"], isUndefined, "waitMusicPackTrackVolume", broadcastMusicPackTrackVolume, ""),
+	toRPC<[number, number, number], undefined>  ("musicPackTrackRepeat", "music.setTrackRepeat", ["id", "track", "repeat"], isUndefined, "waitMusicPackTrackRepeat", broadcastMusicPackTrackRepeat, ""),
+
+	toRPC<[string, Keystore],           IDPath>   ("characterCreate", "character.create", ["path", "data"],              isIDPath), // waitCharacterAdded???
+	toRPC<[number, Keystore, string[]], undefined>("characterModify", "character.modify", ["id", "setting", "removing"], isUndefined, "waitCharacterDataChange", broadcastCharacterDataChange, ""),
+	toRPC<[number],                     Keystore> ("characterGet",    "character.get",    [""],                          isKeystore),
+
+	toRPC<[],                                               Record<string, Plugin>>("listPlugins",   "plugins.list",   [],   isPlugins),
+	toRPC<[string],                                         undefined>             ("enablePlugin",  "plugin.enable",  [""], isUndefined),
+	toRPC<[string],                                         undefined>             ("disablePlugin", "plugin.disable", [""], isUndefined),
+	toRPC<[string, Record<string, KeystoreData>, string[]], undefined>             ("pluginSetting", "plugin.set",     ["id", "setting", "removing"], isUndefined, "waitPluginSetting", broadcastPluginSettingChange, ""),
+
+	toRPC<[string, number, string], undefined>("broadcastWindow", "broadcastWindow", ["module", "id", "contents"], isUndefined, "waitBroadcastWindow", broadcastWindow, ""),
+	toRPC<[Broadcast],              undefined>("broadcast",       "broadcast",       [""],                         isUndefined, "waitBroadcast",       broadcastAny, "")
+] as const;
 
 export let isAdmin: boolean,
 isUser: boolean,
