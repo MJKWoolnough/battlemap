@@ -1,4 +1,4 @@
-import type {Broadcast, GridDetails, IDName, IDPath, Keystore, KeystoreData, LayerRename, MapData, Mask, MusicPack, NewMap, Plugin, Token, TokenSet, Wall} from './types.js';
+import type {Broadcast, GridDetails, IDName, IDPath, Keystore, KeystoreData, LayerRename, MapData, MapStart, Mask, MusicPack, NewMap, Plugin, Token, TokenSet, Wall} from './types.js';
 import type {Binding} from './lib/bind.js';
 import type {TypeGuard} from './lib/typeguard.js';
 import {WS} from './lib/conn.js';
