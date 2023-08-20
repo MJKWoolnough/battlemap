@@ -391,10 +391,7 @@ export type KeystoreData<T = any> = {
 	data: T;
 }
 
-export type Plugin = {
-	enabled: boolean;
-	data: Record<string, KeystoreData>;
-}
+export type Plugin = TypeGuardOf<typeof isPlugin>;
 
 export type ID = TypeGuardOf<typeof isID>;
 
