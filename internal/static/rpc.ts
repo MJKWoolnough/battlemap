@@ -38,7 +38,7 @@ endpointWaiters = [
 	toRPC<[NewMap],      IDName>   ("newMap",          "maps.new",             [""],            isIDName),
 	toRPC<[GridDetails], undefined>("setMapDetails",   "maps.setMapDetails",   [""],            isUndefined, "waitMapChange",          broadcastMapItemChange,      ""),
 	toRPC<[MapStart],    undefined>("setMapStart",     "maps.setStartMap",     [""],            isUndefined, "waitMapStartChange",     broadcastMapStartChange,     ""),
-	toRPC<[number],      number>   ("setGridDistance", "maps.setGridDistance", [""],            isUndefined, "waitGridDistanceChange", broadcastGridDistanceChange, ""),
+	toRPC<[number],      undefined>("setGridDistance", "maps.setGridDistance", [""],            isUndefined, "waitGridDistanceChange", broadcastGridDistanceChange, ""),
 	toRPC<[boolean],     undefined>("setGridDiagonal", "maps.setGridDiagonal", [""],            isUndefined, "waitGridDiagonalChange", broadcastGridDiagonalChange, ""),
 	toRPC<[Colour],      undefined>("setLightColour",  "maps.setLightcolour",  [""],            isUndefined, "waitMapLightChange",     broadcastMapLightChange,     ""),
 	toRPC<[string, any], undefined>("setMapKeyData",   "maps.setData",         ["key", "data"], isUndefined, "waitMapDataSet",         broadcastMapDataSet,         ""),
