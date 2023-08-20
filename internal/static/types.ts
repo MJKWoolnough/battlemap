@@ -185,6 +185,7 @@ export const isKeystoreData = Obj({
 	user: isBool,
 	data: Any()
 }),
+isKeystore = Rec(isStr, isKeystoreData),
 isPlugin = Obj({
 	enabled: isBool,
 	data: Rec(isStr, isKeystoreData)
@@ -382,6 +383,8 @@ isCopy = Obj({
 });
 
 export type Copy = TypeGuardOf<typeof isCopy>;
+
+export type Keystore = TypeGuardOf<typeof isKeystore>;
 
 export type KeystoreData<T = any> = {
 	user: boolean;
