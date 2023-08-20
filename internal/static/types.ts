@@ -437,7 +437,7 @@ export type MapData = TypeGuardOf<typeof isMapData>;
 
 export type FromTo = TypeGuardOf<typeof isFromTo>;
 
-type NewMap = TypeGuardOf<typeof isNewMap>;
+export type NewMap = TypeGuardOf<typeof isNewMap>;
 
 export type TokenSet = TypeGuardOf<typeof isTokenSet>;
 
