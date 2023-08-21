@@ -110,7 +110,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       images = folderWaits("images", broadcastImageItemAdd, broadcastImageItemMove, broadcastImageItemRemove, broadcastImageItemCopy, broadcastImageFolderAdd, broadcastImageFolderMove, broadcastImageFolderRemove),
       audio = folderWaits("audio", broadcastAudioItemAdd, broadcastAudioItemMove, broadcastAudioItemRemove, broadcastAudioItemCopy, broadcastAudioFolderAdd, broadcastAudioFolderMove, broadcastAudioFolderRemove),
       characters = folderWaits("characters", broadcastCharacterItemAdd, broadcastCharacterItemMove, broadcastCharacterItemRemove, broadcastCharacterItemCopy, broadcastCharacterFolderAdd, broadcastCharacterFolderMove, broadcastCharacterFolderRemove),
-      maps = folderWaits("maps", broadcastMapItemAdd, broadcastMapItemMove, broadcastMapItemRemove, broadcastMapItemCopy, broadcastMapFolderAdd, broadcastMapFolderMove, broadcastMapFolderRemove);
+      maps = folderWaits("maps", broadcastMapItemAdd, broadcastMapItemMove, broadcastMapItemRemove, broadcastMapItemCopy, broadcastMapFolderAdd, broadcastMapFolderMove, broadcastMapFolderRemove),
+      arpc = new RPC();
 
 export let isAdmin: boolean,
 isUser: boolean,
@@ -123,74 +124,19 @@ handleError = (e: Error | string | Binding) => {
 	console.log(e);
 	shell.alert(lang["ERROR"], (e instanceof Error ? e.message : Object.getPrototypeOf(e) === Object.prototype ? JSON.stringify(e): e.toString()) || lang["ERROR_UNKNOWN"]);
 },
-inited = pageLoad.then(() => WS("/socket").then(ws => {
-	const arpc = new RPC(ws),
-	      pseudoWait = () => new Subscription<any>(() => {});
+[rpc, internal, combined] = (() => {
 
-	for (const e in endpoints) {
-		const rk = (e === "" ? rpc : rpc[e as keyof RPCType]) as Record<string, Function>,
-		      ik = (e === "" ? internal : internal[e as keyof InternalWaits]) as Record<string, Function>;
-		for (const [name, endpoint, args, checker, internalWaiter, postKey] of endpoints[e]) {
-			const processArgs = argProcessors[typeof args === "string" ? args : "*"];
-			if (internalWaiter === "") {
-				rk[name] = (...params: unknown[]) => arpc.request(endpoint, processArgs(params, args as string[]), checker).catch(handleError);
-			} else {
-				const [iw, fn] = Subscription.bind(1);
-				ik[internalWaiter] = iw.splitCancel();
-				if (postKey === "") {
-					rk[name] = (...params: unknown[]) => {
-						const a = processArgs(params, args as string[]);
-						fn(a);
-						return arpc.request(endpoint, a, checker).catch(handleError);
-					};
-				} else if (postKey === "*") {
-					rk[name] = (...params: unknown[]) => arpc.request(endpoint, processArgs(params, args as string[]), checker).catch(handleError).then(data => {
-						fn(data);
-						return data;
-					});
-				} else if (postKey === "token/id") {
-					rk[name] = (...params: unknown[]) => {
-						const a = processArgs(params, args as string[]) as {token: {id: Uint}};
-						return arpc.request(endpoint, a, checker).catch(handleError).then(data => {
-							a.token.id = data;
-							fn(a);
-							return data;
-						});
-					}
-				} else {
-					rk[name] = (...params: unknown[]) => {
-						const a = processArgs(params, args as string[]) as object;
-						return arpc.request(endpoint, a, checker).catch(handleError).then(data => {
-							fn(Object.assign(a, {[postKey]: data}));
-							return data;
-						});
-					}
-				}
-			}
-		}
-	}
-	for (const k in waiters) {
-		const rk = (k === "" ? rpc : rpc[k as keyof RPCType]) as Record<string, Function>,
-		      ik = (k === "" ? internal : internal[k as keyof InternalWaits]) as Record<string, Function>,
-		      ck = (k === "" ? combined : combined[k as keyof InternalWaits]) as Record<string, Function>;
-		for (const [name, broadcastID, checker] of waiters[k as keyof typeof waiters]) {
-			const [waiter, fn] = Subscription.bind(1);
-			arpc.subscribe(broadcastID, checker).when(data => queue(async () => fn(data))).catch(handleError);
-			rk[name] = () => waiter;
-			if (ik[name]) {
-				ck[name] = Subscription.merge(rk[name](), ik[name]()).splitCancel();
-			} else {
-				ik[name] = pseudoWait;
-				ck[name] = rk[name];
-			}
-		}
-	}
+}),
+inited = pageLoad.then(() => WS("/socket").then(ws => {
+	arpc.reconnect(ws);
+
 	arpc.await(-999).catch(handleError);
-	Object.freeze(rpc);
-	return arpc.await(broadcastIsAdmin, checkUint).then(userLevel => {
+
+	return arpc.await(broadcastIsAdmin, isUint).then(userLevel => {
 		isAdmin = userLevel === 2;
 		isUser = userLevel === 1;
-		return arpc.request("conn.currentTime", (t: any): t is number => checkUint(t, "currentTime"));
+
+		return arpc.request("conn.currentTime", (t: any): t is number => isUint(t));
 	}).then(t => {
 		timeShift = t - Date.now() / 1000;
 	});
