@@ -99,6 +99,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       ] as const,
       folderWaits = (prefix: string, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => ([
 	toRPC<[], FolderItems>            ("list",         `${prefix}.list`,         [],             isFolderItems),
+	toRPC<[], undefined>              ("",             ``,                       [],             isUndefined, "waitAdded",         added,        "*"), 
 	toRPC<[string], string>           ("createFolder", `${prefix}.createFolder`, [""],           isStr,       "waitFolderAdded",   folderAdded,  "*"),
 	toRPC<[string, string], string>   ("move",         `${prefix}.move`,         ["from", "to"], isStr,       "waitMoved",         moved,        "to"),
 	toRPC<[string, string], string>   ("moveFolder",   `${prefix}.moveFolder`,   ["from", "to"], isStr,       "waitFolderMoved",   folderMoved,  "to"),
