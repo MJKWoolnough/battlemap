@@ -1,4 +1,4 @@
-import type {Broadcast, GridDetails, IDName, IDPath, Keystore, KeystoreData, LayerRename, MapData, MapStart, Mask, MusicPack, NewMap, Plugin, Token, TokenSet, Wall} from './types.js';
+import type {Broadcast, FolderItems, GridDetails, IDName, IDPath, Keystore, KeystoreData, LayerRename, MapData, MapStart, Mask, MusicPack, NewMap, Plugin, Token, TokenSet, Wall} from './types.js';
 import type {Binding} from './lib/bind.js';
 import type {TypeGuard} from './lib/typeguard.js';
 import {WS} from './lib/conn.js';
@@ -96,7 +96,16 @@ endpointWaiters = [
 
 	toRPC<[string, number, string], undefined>("broadcastWindow", "broadcastWindow", ["module", "id", "contents"], isUndefined, "waitBroadcastWindow", broadcastWindow, ""),
 	toRPC<[Broadcast],              undefined>("broadcast",       "broadcast",       [""],                         isUndefined, "waitBroadcast",       broadcastAny, "")
-] as const;
+] as const,
+folderWaits = (prefix: string, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => ([
+	toRPC<[], FolderItems>            ("list",         `${prefix}.list`,         [],             isFolderItems),
+	toRPC<[string], string>           ("createFolder", `${prefix}.createFolder`, [""],           isStr,       "waitFolderAdded",   folderAdded,  "*"),
+	toRPC<[string, string], string>   ("move",         `${prefix}.move`,         ["from", "to"], isStr,       "waitMoved",         moved,        "to"),
+	toRPC<[string, string], string>   ("moveFolder",   `${prefix}.moveFolder`,   ["from", "to"], isStr,       "waitFolderMoved",   folderMoved,  "to"),
+	toRPC<[string],         undefined>("remove",       `${prefix}.remove`,       [""],           isUndefined, "waitRemoved",       removed,      ""),
+	toRPC<[string],         undefined>("removeFolder", `${prefix}.removeFolder`, [""],           isUndefined, "waitFolderRemoved", folderRemove, ""),
+	toRPC<[number, string], IDPath>   ("copy",         `${prefix}.copy`,         ["id", "path"], isIDPath,    "waitCopied",        copied,       "name")
+] as const);
 
 export let isAdmin: boolean,
 isUser: boolean,
