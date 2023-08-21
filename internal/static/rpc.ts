@@ -105,7 +105,11 @@ folderWaits = (prefix: string, added: number, moved: number, removed: number, co
 	toRPC<[string],         undefined>("remove",       `${prefix}.remove`,       [""],           isUndefined, "waitRemoved",       removed,      ""),
 	toRPC<[string],         undefined>("removeFolder", `${prefix}.removeFolder`, [""],           isUndefined, "waitFolderRemoved", folderRemove, ""),
 	toRPC<[number, string], IDPath>   ("copy",         `${prefix}.copy`,         ["id", "path"], isIDPath,    "waitCopied",        copied,       "name")
-] as const);
+] as const),
+images = folderWaits("images", broadcastImageItemAdd, broadcastImageItemMove, broadcastImageItemRemove, broadcastImageItemCopy, broadcastImageFolderAdd, broadcastImageFolderMove, broadcastImageFolderRemove),
+audio = folderWaits("audio", broadcastAudioItemAdd, broadcastAudioItemMove, broadcastAudioItemRemove, broadcastAudioItemCopy, broadcastAudioFolderAdd, broadcastAudioFolderMove, broadcastAudioFolderRemove),
+characters = folderWaits("characters", broadcastCharacterItemAdd, broadcastCharacterItemMove, broadcastCharacterItemRemove, broadcastCharacterItemCopy, broadcastCharacterFolderAdd, broadcastCharacterFolderMove, broadcastCharacterFolderRemove),
+maps = folderWaits("maps", broadcastMapItemAdd, broadcastMapItemMove, broadcastMapItemRemove, broadcastMapItemCopy, broadcastMapFolderAdd, broadcastMapFolderMove, broadcastMapFolderRemove);
 
 export let isAdmin: boolean,
 isUser: boolean,
