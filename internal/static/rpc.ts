@@ -17,18 +17,18 @@ const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserM
 type ArgTuple<N extends Number, U extends Omit<string, "">[] = []> = U["length"] extends N ? U : ArgTuple<N, [Omit<string, "">, ...U]>;
 
 const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
-tokenDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
-characterDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
-isUndefined = Undefined(),
-isMusicPacks = Arr(isMusicPack),
-isPlugins = Rec(isStr, isPlugin),
-toRPC = <const Args extends any[], T extends any, U = T, const ArgNames extends ArgTuple<Args["length"]> = ArgTuple<Args["length"]>>(name: string, endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: string, broadcastID?: number, waitTransform?: string, waiterTypeguard?: TypeGuard<U>): [string, string, [""] | Omit<string, "">[], TypeGuard<T>, string | undefined, number | undefined, string | undefined, TypeGuard<U> | undefined, ...Args[]] => [name, endpoint, args, typeguard, waiter, broadcastID, waitTransform, waiterTypeguard],
-argProcessors: Record<string, (args: unknown[], names: string[]) => unknown> = {
+      tokenDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
+      characterDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
+      isUndefined = Undefined(),
+      isMusicPacks = Arr(isMusicPack),
+      isPlugins = Rec(isStr, isPlugin),
+      toRPC = <const Args extends any[], T extends any, U = T, const ArgNames extends ArgTuple<Args["length"]> = ArgTuple<Args["length"]>>(name: string, endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: string, broadcastID?: number, waitTransform?: string, waiterTypeguard?: TypeGuard<U>): [string, string, [""] | Omit<string, "">[], TypeGuard<T>, string | undefined, number | undefined, string | undefined, TypeGuard<U> | undefined, ...Args[]] => [name, endpoint, args, typeguard, waiter, broadcastID, waitTransform, waiterTypeguard],
+      argProcessors: Record<string, (args: unknown[], names: string[]) => unknown> = {
 	"": () => {},
 	"!": (args: unknown[]) => args[0],
 	"*": (args: unknown[], names: string[]) => Object.fromEntries(names.map((key, pos) => [key, args[pos]]))
-},
-endpointWaiters = [
+      },
+      endpointWaiters = [
 	toRPC<[], undefined>      ("ready",         "conn.ready",         [],   isUndefined),
 	toRPC<[number], undefined>("setCurrentMap", "maps.setCurrentMap", [""], isUndefined),
 	toRPC<[],       number>   ("getUserMap",    "maps.getUserMap",    [],   isUint),
@@ -96,8 +96,8 @@ endpointWaiters = [
 
 	toRPC<[string, number, string], undefined>("broadcastWindow", "broadcastWindow", ["module", "id", "contents"], isUndefined, "waitBroadcastWindow", broadcastWindow, ""),
 	toRPC<[Broadcast],              undefined>("broadcast",       "broadcast",       [""],                         isUndefined, "waitBroadcast",       broadcastAny, "")
-] as const,
-folderWaits = (prefix: string, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => ([
+      ] as const,
+      folderWaits = (prefix: string, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => ([
 	toRPC<[], FolderItems>            ("list",         `${prefix}.list`,         [],             isFolderItems),
 	toRPC<[string], string>           ("createFolder", `${prefix}.createFolder`, [""],           isStr,       "waitFolderAdded",   folderAdded,  "*"),
 	toRPC<[string, string], string>   ("move",         `${prefix}.move`,         ["from", "to"], isStr,       "waitMoved",         moved,        "to"),
@@ -105,11 +105,11 @@ folderWaits = (prefix: string, added: number, moved: number, removed: number, co
 	toRPC<[string],         undefined>("remove",       `${prefix}.remove`,       [""],           isUndefined, "waitRemoved",       removed,      ""),
 	toRPC<[string],         undefined>("removeFolder", `${prefix}.removeFolder`, [""],           isUndefined, "waitFolderRemoved", folderRemove, ""),
 	toRPC<[number, string], IDPath>   ("copy",         `${prefix}.copy`,         ["id", "path"], isIDPath,    "waitCopied",        copied,       "name")
-] as const),
-images = folderWaits("images", broadcastImageItemAdd, broadcastImageItemMove, broadcastImageItemRemove, broadcastImageItemCopy, broadcastImageFolderAdd, broadcastImageFolderMove, broadcastImageFolderRemove),
-audio = folderWaits("audio", broadcastAudioItemAdd, broadcastAudioItemMove, broadcastAudioItemRemove, broadcastAudioItemCopy, broadcastAudioFolderAdd, broadcastAudioFolderMove, broadcastAudioFolderRemove),
-characters = folderWaits("characters", broadcastCharacterItemAdd, broadcastCharacterItemMove, broadcastCharacterItemRemove, broadcastCharacterItemCopy, broadcastCharacterFolderAdd, broadcastCharacterFolderMove, broadcastCharacterFolderRemove),
-maps = folderWaits("maps", broadcastMapItemAdd, broadcastMapItemMove, broadcastMapItemRemove, broadcastMapItemCopy, broadcastMapFolderAdd, broadcastMapFolderMove, broadcastMapFolderRemove);
+      ] as const),
+      images = folderWaits("images", broadcastImageItemAdd, broadcastImageItemMove, broadcastImageItemRemove, broadcastImageItemCopy, broadcastImageFolderAdd, broadcastImageFolderMove, broadcastImageFolderRemove),
+      audio = folderWaits("audio", broadcastAudioItemAdd, broadcastAudioItemMove, broadcastAudioItemRemove, broadcastAudioItemCopy, broadcastAudioFolderAdd, broadcastAudioFolderMove, broadcastAudioFolderRemove),
+      characters = folderWaits("characters", broadcastCharacterItemAdd, broadcastCharacterItemMove, broadcastCharacterItemRemove, broadcastCharacterItemCopy, broadcastCharacterFolderAdd, broadcastCharacterFolderMove, broadcastCharacterFolderRemove),
+      maps = folderWaits("maps", broadcastMapItemAdd, broadcastMapItemMove, broadcastMapItemRemove, broadcastMapItemCopy, broadcastMapFolderAdd, broadcastMapFolderMove, broadcastMapFolderRemove);
 
 export let isAdmin: boolean,
 isUser: boolean,
