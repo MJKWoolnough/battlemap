@@ -62,7 +62,7 @@ rpc = {
 	"setGridDiagonal":  ep<[boolean],     undefined>("maps.setGridDiagonal", [""],            isUndefined),
 	"setLightColour":   ep<[Colour],      undefined>("maps.setLightcolour",  [""],            isUndefined),
 	"setMapKeyData":    ep<[string, any], undefined>("maps.setData",         ["key", "data"], isUndefined),
-	"removeMapKeyData": ep<[string],      undefined>("maps.removeData",     [""],            isUndefined),
+	"removeMapKeyData": ep<[string],      undefined>("maps.removeData",      [""],            isUndefined),
 
 	"signalMeasure":      ep<[[number, number, number, number, ...number[]] | null], undefined>("maps.signalMeasure",      [""], isUndefined),
 	"signalPosition":     ep<[[number, number]],                                     undefined>("maps.signalPosition",     [""], isUndefined),
