@@ -24,8 +24,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       isUndefined = Undefined(),
       isMusicPacks = Arr(isMusicPack),
       isPlugins = Rec(isStr, isPlugin),
-      ep = <const Args extends any[], T extends any, const ArgNames extends ArgTuple<Args["length"]> = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>): [string, string, string[], TypeGuard<T>, ...Args[]] => [name, endpoint, args, typeguard],
       arpc = new RPC(),
+      ep = <const Args extends any[], T extends any, const ArgNames extends ArgTuple<Args["length"]> = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>) => (...params: Args) => arpc.request(endpoint, args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}), typeguard),
       genEPWaits = <const Params extends readonly any[], const T extends readonly [string, string, string[], TypeGuard<any>, string?, number?, ...Params][]>(eps: T) => {
 	const rpc = {} as EndPointsOf<T>;
 
