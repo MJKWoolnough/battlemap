@@ -24,90 +24,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       isUndefined = Undefined(),
       isMusicPacks = Arr(isMusicPack),
       isPlugins = Rec(isStr, isPlugin),
-      ep = <const Args extends any[], T extends any, const ArgNames extends ArgTuple<Args["length"]> = ArgTuple<Args["length"]>>(name: string, endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: string, broadcastID?: number): [string, string, string[], TypeGuard<T>, string | undefined, number | undefined, ...Args[]] => [name, endpoint, args, typeguard, waiter, broadcastID],
-      endpointWaiters = [
-	ep<[], undefined>      ("ready",         "conn.ready",         [],   isUndefined),
-	ep<[number], undefined>("setCurrentMap", "maps.setCurrentMap", [""], isUndefined),
-	ep<[],       number>   ("getUserMap",    "maps.getUserMap",    [],   isUint),
-	ep<[number], undefined>("setUserMap",    "maps.setUserMap",    [""], isUndefined, "waitCurrentUserMap",     broadcastCurrentUserMap),
-	ep<[number], MapData>  ("getMapData",    "maps.getMapData",    [""], isMapData,   "waitCurrentUserMapData", broadcastCurrentUserMapData),
-
-	ep<[NewMap],      IDName>   ("newMap",          "maps.new",             [""],            isIDName),
-	ep<[GridDetails], undefined>("setMapDetails",   "maps.setMapDetails",   [""],            isUndefined, "waitMapChange",          broadcastMapItemChange),
-	ep<[MapStart],    undefined>("setMapStart",     "maps.setStartMap",     [""],            isUndefined, "waitMapStartChange",     broadcastMapStartChange),
-	ep<[number],      undefined>("setGridDistance", "maps.setGridDistance", [""],            isUndefined, "waitGridDistanceChange", broadcastGridDistanceChange),
-	ep<[boolean],     undefined>("setGridDiagonal", "maps.setGridDiagonal", [""],            isUndefined, "waitGridDiagonalChange", broadcastGridDiagonalChange),
-	ep<[Colour],      undefined>("setLightColour",  "maps.setLightcolour",  [""],            isUndefined, "waitMapLightChange",     broadcastMapLightChange),
-	ep<[string, any], undefined>("setMapKeyData",   "maps.setData",         ["key", "data"], isUndefined, "waitMapDataSet",         broadcastMapDataSet),
-	ep<[string],      undefined>("removeMapKeyData", "maps.removeData",     [""],            isUndefined, "waitMapDataRemove",      broadcastMapDataRemove),
-
-	ep<[[number, number, number, number, ...number[]] | null], undefined>("signalMeasure",      "maps.signalMeasure",      [""], isUndefined, "waitSignalMeasure",      broadcastSignalMeasure),
-	ep<[[number, number]],                                     undefined>("signalPosition",     "maps.signalPosition",     [""], isUndefined, "waitSignalPosition",     broadcastSignalPosition),
-	ep<[[number, number]],                                     undefined>("signalMovePosition", "maps.signalMovePosition", [""], isUndefined, "waitSignalMovePosition", broadcastSignalMovePosition),
-
-	ep<[string],                            string>     ("addLayer",         "maps.addLayer",         [""],                       isStr,         "waitLayerAdd",          broadcastLayerAdd),
-	ep<[string],                            string>     ("addLayerFolder",   "maps.addLayerFolder",   [""],                       isStr,         "waitLayerFolderAdd",    broadcastLayerFolderAdd),
-	ep<[string, string],                    LayerRename>("renameLayer",      "maps.renameLayer",      ["path", "name"],           isLayerRename, "waitLayerRename",       broadcastLayerRename),
-	ep<[string, string, number],            undefined>  ("moveLayer",        "maps.moveLayer",        ["from", "to", "position"], isUndefined,   "waitLayerMove",         broadcastLayerMove),
-	ep<[string],                            undefined>  ("showLayer",        "maps.showLayer",        [""],                       isUndefined,   "waitLayerShow",         broadcastLayerShow),
-	ep<[string],                            undefined>  ("hideLayer",        "maps.hideLayer",        [""],                       isUndefined,   "waitLayerHide",         broadcastLayerHide),
-	ep<[string],                            undefined>  ("lockLayer",        "maps.lockLayer",        [""],                       isUndefined,   "waitLayerLock",         broadcastLayerLock),
-	ep<[string],                            undefined>  ("unlockLayer",      "maps.unlockLayer",      [""],                       isUndefined,   "waitLayerUnlock",       broadcastLayerUnlock),
-	ep<[string],                            undefined>  ("removeLayer",      "maps.removeLayer",      [""],                       isUndefined,   "waitLayerRemove",       broadcastLayerRemove),
-	ep<[Mask],                              undefined>  ("addToMask",        "maps.addToMask",        [""],                       isUndefined,   "waitMaskAdd",           broadcastMaskAdd),
-	ep<[number],                            undefined>  ("removeFromMask",   "maps.removeFromMask",   [""],                       isUndefined,   "waitMaskRemove",        broadcastMaskRemove),
-	ep<[boolean, Mask[]],                   undefined>  ("setMask",          "maps.setMask",          ["baseOpaque", "masks"],    isUndefined,   "waitMaskSet",           broadcastMaskSet),
-	ep<[string, Token, number | undefined], number>     ("addToken",         "maps.addToken",         ["path", "token", "pos"],   isUint,        "waitTokenAdd",          broadcastTokenAdd),
-	ep<[number],                            undefined>  ("removeToken",      "maps.removeToken",      [""],                       isUndefined,   "waitTokenRemove",       broadcastTokenRemove),
-	ep<[TokenSet],                          undefined>  ("setToken",         "maps.setToken",         [""],                       isUndefined,   "waitTokenSet",          broadcastTokenSet),
-	ep<[TokenSet[]],                        undefined>  ("setTokenMulti",    "maps.setTokenMulti",    [""],                       isUndefined,   "waitTokenMultiSet",     broadcastTokenSetMulti),
-	ep<[number, string, number],            undefined>  ("setTokenLayerPos", "maps.setTokenLayerPos", ["id", "to", "newPos"],     isUndefined,   "waitTokenMoveLayerPos", broadcastTokenMoveLayerPos),
-	ep<[string, number, number],            undefined>  ("shiftLayer",       "maps.shiftLayer",       ["path", "dx", "dy"],       isUndefined,   "waitLayerShift",        broadcastLayerShift),
-	ep<[string, Wall],                      number>     ("addWall",          "maps.addWall",          ["id", "wall"],             isUint,        "waitWallAdded",         broadcastWallAdd),
-	ep<[number],                            undefined>  ("removeWall",       "maps.removeWall",       [""],                       isUndefined,   "waitWallRemoved",       broadcastWallRemove),
-	ep<[Wall],                              undefined>  ("modifyWall",       "maps.modifyWall",       [""],                       isUndefined,   "waitWallModified",      broadcastWallModify),
-	ep<[number, string],                    undefined>  ("moveWall",         "maps.moveWall",         ["id", "path"],             isUndefined,   "waitWallMoved",         broadcastWallMoveLayer),
-
-	ep<[],                       MusicPack[]>("musicPackList",        "music.list",           [],                        isMusicPacks),
-	ep<[string],                 IDName>     ("musicPackAdd",         "music.new",            [""],                      isIDName,    "waitMusicPackAdd",         broadcastMusicPackAdd),
-	ep<[number, string],         string>     ("musicPackRename",      "music.rename",         ["id", "name"],            isStr,       "waitMusicPackRename",      broadcastMusicPackRename),
-	ep<[number],                 undefined>  ("musicPackRemove",      "music.remove",         [""],                      isUndefined, "waitMusicPackRemove",      broadcastMusicPackRemove),
-	ep<[number, string],         IDName>     ("musicPackCopy",        "music.copy",           ["id", "name"],            isIDName,    "waitMusicPackCopy",        broadcastMusicPackCopy),
-	ep<[number, number],         undefined>  ("musicPackSetVolume",   "music.setVolume",      ["id", "volume"],          isUndefined, "waitMusicPackVolume",      broadcastMusicPackVolume),
-	ep<[number, number],         number>     ("musicPackPlay",        "music.playPack",       ["id", "playTime"],        isUint,      "waitMusicPackPlay",        broadcastMusicPackPlay),
-	ep<[number],                 undefined>  ("musicPackStop",        "music.stopPack",       [""],                      isUndefined, "waitMusicPackStop",        broadcastMusicPackStop),
-	ep<[],                       undefined>  ("musicPackStopAll",     "music.stopAllPacks",   [],                        isUndefined, "waitMusicPackStopAll",     broadcastMusicPackStopAll),
-	ep<[number, number[]],       undefined>  ("musicPackTrackAdd",    "music.addTracks",      ["id", "tracks"],          isUndefined, "waitMusicPackTrackAdd",    broadcastMusicPackTrackAdd),
-	ep<[number, number],         undefined>  ("musicPackTrackRemove", "music.removeTrack",    ["id", "track"],           isUndefined, "waitMusicPackTrackRemove", broadcastMusicPackTrackRemove),
-	ep<[number, number, number], undefined>  ("musicPackTrackVolume", "music.setTrackVolume", ["id", "track", "volume"], isUndefined, "waitMusicPackTrackVolume", broadcastMusicPackTrackVolume),
-	ep<[number, number, number], undefined>  ("musicPackTrackRepeat", "music.setTrackRepeat", ["id", "track", "repeat"], isUndefined, "waitMusicPackTrackRepeat", broadcastMusicPackTrackRepeat),
-
-	ep<[string, Keystore],           IDPath>   ("characterCreate", "character.create", ["path", "data"],              isIDPath), // waitCharacterAdded???
-	ep<[number, Keystore, string[]], undefined>("characterModify", "character.modify", ["id", "setting", "removing"], isUndefined, "waitCharacterDataChange", broadcastCharacterDataChange),
-	ep<[number],                     Keystore> ("characterGet",    "character.get",    [""],                          isKeystore),
-
-	ep<[],                           Record<string, Plugin>>("listPlugins",   "plugins.list",   [],   isPlugins),
-	ep<[string],                     undefined>             ("enablePlugin",  "plugin.enable",  [""], isUndefined),
-	ep<[string],                     undefined>             ("disablePlugin", "plugin.disable", [""], isUndefined),
-	ep<[string, Keystore, string[]], undefined>             ("pluginSetting", "plugin.set",     ["id", "setting", "removing"], isUndefined, "waitPluginSetting", broadcastPluginSettingChange),
-
-	ep<[string, number, string], undefined>("broadcastWindow", "broadcastWindow", ["module", "id", "contents"], isUndefined, "waitBroadcastWindow", broadcastWindow),
-	ep<[Broadcast],              undefined>("broadcast",       "broadcast",       [""],                         isUndefined, "waitBroadcast",       broadcastAny)
-      ] as const,
-      folderWaits = (prefix: string, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => ([
-	ep<[], FolderItems>            ("list",         `${prefix}.list`,         [],             isFolderItems),
-	ep<[], IDName[]>               ("",             ``,                       [],             Arr(isIDName), "waitAdded",         added), 
-	ep<[string], string>           ("createFolder", `${prefix}.createFolder`, [""],           isStr,         "waitFolderAdded",   folderAdded),
-	ep<[string, string], string>   ("move",         `${prefix}.move`,         ["from", "to"], isStr,         "waitMoved",         moved),
-	ep<[string, string], string>   ("moveFolder",   `${prefix}.moveFolder`,   ["from", "to"], isStr,         "waitFolderMoved",   folderMoved),
-	ep<[string],         undefined>("remove",       `${prefix}.remove`,       [""],           isUndefined,   "waitRemoved",       removed),
-	ep<[string],         undefined>("removeFolder", `${prefix}.removeFolder`, [""],           isUndefined,   "waitFolderRemoved", folderRemove),
-	ep<[number, string], IDPath>   ("copy",         `${prefix}.copy`,         ["id", "path"], isIDPath,      "waitCopied",        copied)
-      ] as const),
-      images = folderWaits("images", broadcastImageItemAdd, broadcastImageItemMove, broadcastImageItemRemove, broadcastImageItemCopy, broadcastImageFolderAdd, broadcastImageFolderMove, broadcastImageFolderRemove),
-      audio = folderWaits("audio", broadcastAudioItemAdd, broadcastAudioItemMove, broadcastAudioItemRemove, broadcastAudioItemCopy, broadcastAudioFolderAdd, broadcastAudioFolderMove, broadcastAudioFolderRemove),
-      characters = folderWaits("characters", broadcastCharacterItemAdd, broadcastCharacterItemMove, broadcastCharacterItemRemove, broadcastCharacterItemCopy, broadcastCharacterFolderAdd, broadcastCharacterFolderMove, broadcastCharacterFolderRemove),
-      maps = folderWaits("maps", broadcastMapItemAdd, broadcastMapItemMove, broadcastMapItemRemove, broadcastMapItemCopy, broadcastMapFolderAdd, broadcastMapFolderMove, broadcastMapFolderRemove),
+      ep = <const Args extends any[], T extends any, const ArgNames extends ArgTuple<Args["length"]> = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>): [string, string, string[], TypeGuard<T>, ...Args[]] => [name, endpoint, args, typeguard],
       arpc = new RPC(),
       genEPWaits = <const Params extends readonly any[], const T extends readonly [string, string, string[], TypeGuard<any>, string?, number?, ...Params][]>(eps: T) => {
 	const rpc = {} as EndPointsOf<T>;
@@ -131,7 +48,16 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 
 	return rpc;
-      };
+      },
+      folderEPs = (prefix: string) => ({
+	"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
+	"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr),
+	"move":         ep<[string, string], string>   (`${prefix}.move`,         ["from", "to"], isStr),
+	"moveFolder":   ep<[string, string], string>   (`${prefix}.moveFolder`,   ["from", "to"], isStr),
+	"remove":       ep<[string],         undefined>(`${prefix}.remove`,       [""],           isUndefined),
+	"removeFolder": ep<[string],         undefined>(`${prefix}.removeFolder`, [""],           isUndefined),
+	"copy":         ep<[number, string], IDPath>   (`${prefix}.copy`,         ["id", "path"], isIDPath)
+      });
 
 export let isAdmin: boolean,
 isUser: boolean,
@@ -144,9 +70,81 @@ handleError = (e: Error | string | Binding) => {
 	console.log(e);
 	shell.alert(lang["ERROR"], (e instanceof Error ? e.message : Object.getPrototypeOf(e) === Object.prototype ? JSON.stringify(e): e.toString()) || lang["ERROR_UNKNOWN"]);
 },
-[rpc, internal, combined] = (() => {
+rpc = {
+	"ready": ep<[], undefined>("conn.ready", [], isUndefined),
 
-}),
+	"setCurrentMap": ep<[number], undefined>("maps.setCurrentMap", [""], isUndefined),
+	"getUserMap":    ep<[],       number>   ("maps.getUserMap",    [],   isUint),
+	"setUserMap":    ep<[number], undefined>("maps.setUserMap",    [""], isUndefined),
+	"getMapData":    ep<[number], MapData>  ("maps.getMapData",    [""], isMapData),
+
+	"newMap":           ep<[NewMap],      IDName>   ("maps.new",             [""],            isIDName),
+	"setMapDetails":    ep<[GridDetails], undefined>("maps.setMapDetails",   [""],            isUndefined),
+	"setMapStart":      ep<[MapStart],    undefined>("maps.setStartMap",     [""],            isUndefined),
+	"setGridDistance":  ep<[number],      undefined>("maps.setGridDistance", [""],            isUndefined),
+	"setGridDiagonal":  ep<[boolean],     undefined>("maps.setGridDiagonal", [""],            isUndefined),
+	"setLightColour":   ep<[Colour],      undefined>("maps.setLightcolour",  [""],            isUndefined),
+	"setMapKeyData":    ep<[string, any], undefined>("maps.setData",         ["key", "data"], isUndefined),
+	"removeMapKeyData": ep<[string],      undefined>("maps.removeData",     [""],            isUndefined),
+
+	"signalMeasure":      ep<[[number, number, number, number, ...number[]] | null], undefined>("maps.signalMeasure",      [""], isUndefined),
+	"signalPosition":     ep<[[number, number]],                                     undefined>("maps.signalPosition",     [""], isUndefined),
+	"signalMovePosition": ep<[[number, number]],                                     undefined>("maps.signalMovePosition", [""], isUndefined),
+
+	"addLayer":         ep<[string],                            string>     ("maps.addLayer",         [""],                       isStr),
+	"addLayerFolder":   ep<[string],                            string>     ("maps.addLayerFolder",   [""],                       isStr),
+	"renameLayer":      ep<[string, string],                    LayerRename>("maps.renameLayer",      ["path", "name"],           isLayerRename),
+	"moveLayer":        ep<[string, string, number],            undefined>  ("maps.moveLayer",        ["from", "to", "position"], isUndefined),
+	"showLayer":        ep<[string],                            undefined>  ("maps.showLayer",        [""],                       isUndefined),
+	"hideLayer":        ep<[string],                            undefined>  ("maps.hideLayer",        [""],                       isUndefined),
+	"lockLayer":        ep<[string],                            undefined>  ("maps.lockLayer",        [""],                       isUndefined),
+	"unlockLayer":      ep<[string],                            undefined>  ("maps.unlockLayer",      [""],                       isUndefined),
+	"removeLayer":      ep<[string],                            undefined>  ("maps.removeLayer",      [""],                       isUndefined),
+	"addToMask":        ep<[Mask],                              undefined>  ("maps.addToMask",        [""],                       isUndefined),
+	"removeFromMask":   ep<[number],                            undefined>  ("maps.removeFromMask",   [""],                       isUndefined),
+	"setMask":          ep<[boolean, Mask[]],                   undefined>  ("maps.setMask",          ["baseOpaque", "masks"],    isUndefined),
+	"addToken":         ep<[string, Token, number | undefined], number>     ("maps.addToken",         ["path", "token", "pos"],   isUint),
+	"removeToken":      ep<[number],                            undefined>  ("maps.removeToken",      [""],                       isUndefined),
+	"setToken":         ep<[TokenSet],                          undefined>  ("maps.setToken",         [""],                       isUndefined),
+	"setTokenMulti":    ep<[TokenSet[]],                        undefined>  ("maps.setTokenMulti",    [""],                       isUndefined),
+	"setTokenLayerPos": ep<[number, string, number],            undefined>  ("maps.setTokenLayerPos", ["id", "to", "newPos"],     isUndefined),
+	"shiftLayer":       ep<[string, number, number],            undefined>  ("maps.shiftLayer",       ["path", "dx", "dy"],       isUndefined),
+	"addWall":          ep<[string, Wall],                      number>     ("maps.addWall",          ["id", "wall"],             isUint),
+	"removeWall":       ep<[number],                            undefined>  ("maps.removeWall",       [""],                       isUndefined),
+	"modifyWall":       ep<[Wall],                              undefined>  ("maps.modifyWall",       [""],                       isUndefined),
+	"moveWall":         ep<[number, string],                    undefined>  ("maps.moveWall",         ["id", "path"],             isUndefined),
+
+	"musicPackList":        ep<[],                       MusicPack[]>("music.list",           [],                        isMusicPacks),
+	"musicPackAdd":         ep<[string],                 IDName>     ("music.new",            [""],                      isIDName),
+	"musicPackRename":      ep<[number, string],         string>     ("music.rename",         ["id", "name"],            isStr),
+	"musicPackRemove":      ep<[number],                 undefined>  ("music.remove",         [""],                      isUndefined),
+	"musicPackCopy":        ep<[number, string],         IDName>     ("music.copy",           ["id", "name"],            isIDName),
+	"musicPackSetVolumd":   ep<[number, number],         undefined>  ("music.setVolume",      ["id", "volume"],          isUndefined),
+	"musicPackPlayer":      ep<[number, number],         number>     ("music.playPack",       ["id", "playTime"],        isUint),
+	"musicPackStop":        ep<[number],                 undefined>  ("music.stopPack",       [""],                      isUndefined),
+	"musicPackStopAll":     ep<[],                       undefined>  ("music.stopAllPacks",   [],                        isUndefined),
+	"musicPackTrackAll":    ep<[number, number[]],       undefined>  ("music.addTracks",      ["id", "tracks"],          isUndefined),
+	"musicPackTrackRemove": ep<[number, number],         undefined>  ("music.removeTrack",    ["id", "track"],           isUndefined),
+	"musicPackTrackVolume": ep<[number, number, number], undefined>  ("music.setTrackVolume", ["id", "track", "volume"], isUndefined),
+	"musicPackTrackRepeat": ep<[number, number, number], undefined>  ("music.setTrackRepeat", ["id", "track", "repeat"], isUndefined),
+
+	"characterCreate": ep<[string, Keystore],           IDPath>   ("character.create", ["path", "data"],              isIDPath), // waitCharacterAdded???
+	"characterModify": ep<[number, Keystore, string[]], undefined>("character.modify", ["id", "setting", "removing"], isUndefined),
+	"characterGet":    ep<[number],                     Keystore> ("character.get",    [""],                          isKeystore),
+
+	"listPlugins":   ep<[],                           Record<string, Plugin>>("plugins.list",   [],                            isPlugins),
+	"enablePlugin":  ep<[string],                     undefined>             ("plugin.enable",  [""],                          isUndefined),
+	"disablePlugin": ep<[string],                     undefined>             ("plugin.disable", [""],                          isUndefined),
+	"pluginSetting": ep<[string, Keystore, string[]], undefined>             ("plugin.set",     ["id", "setting", "removing"], isUndefined),
+
+	"broadcastWindow": ep<[string, number, string], undefined>("broadcastWindow", ["module", "id", "contents"], isUndefined),
+	"broadcast":       ep<[Broadcast],              undefined>("broadcast",       [""],                         isUndefined),
+
+	"images": folderEPs("images"),
+	"audio": folderEPs("audio"),
+	"maps": folderEPs("maps"),
+	"characters": folderEPs("characters")
+},
 inited = pageLoad.then(() => WS("/socket").then(ws => {
 	arpc.reconnect(ws);
 
