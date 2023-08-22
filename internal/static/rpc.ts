@@ -14,7 +14,9 @@ import {shell} from './windows.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemCopy = -19, broadcastAudioItemCopy = -20, broadcastCharacterItemCopy = -21, broadcastMapItemCopy = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastLayerAdd = -37, broadcastLayerFolderAdd = -38, broadcastLayerMove = -39, broadcastLayerRename = -40, broadcastLayerRemove = -41, broadcastGridDistanceChange = -42, broadcastGridDiagonalChange = -43, broadcastMapLightChange = -44, broadcastLayerShow = -45, broadcastLayerHide = -46, broadcastLayerLock = -47, broadcastLayerUnlock = -48, broadcastMaskAdd = -49, broadcastMaskRemove = -50, broadcastMaskSet = -51, broadcastTokenAdd = -52, broadcastTokenRemove = -53, broadcastTokenMoveLayerPos = -54, broadcastTokenSet = -55, broadcastTokenSetMulti = -56, broadcastLayerShift = -57, broadcastWallAdd = -58, broadcastWallRemove = -59, broadcastWallModify = -60, broadcastWallMoveLayer = -61, broadcastMusicPackAdd = -62, broadcastMusicPackRename = -63, broadcastMusicPackRemove = -64, broadcastMusicPackCopy = -65, broadcastMusicPackVolume = -66, broadcastMusicPackPlay = -67, broadcastMusicPackStop = -68, broadcastMusicPackStopAll = -69, broadcastMusicPackTrackAdd = -70, broadcastMusicPackTrackRemove = -71, broadcastMusicPackTrackVolume = -72, broadcastMusicPackTrackRepeat = -73, broadcastPluginChange = -74, broadcastPluginSettingChange = -75, broadcastWindow = -76, broadcastSignalMeasure = -77, broadcastSignalPosition = -78, broadcastSignalMovePosition = -79, broadcastAny = -80;
 
-type ArgTuple<N extends Number, U extends Omit<string, "">[] = []> = U["length"] extends N ? U : ArgTuple<N, [Omit<string, "">, ...U]>;
+type ArgTuple<N extends Number, U extends string[] = []> = U["length"] extends N ? U : ArgTuple<N, [string, ...U]>;
+
+type EndPointsOf<T extends readonly [string, string, string[], TypeGuard<any>, string?, number?, ...any][]> = {[K in keyof T as K extends number ? T[K][0] extends "" ? never : T[K][0] : never]: T[K] extends [string, string, string[], TypeGuard<infer U>, string?, number?, ...(infer V)] ? (...v: V) => Promise<U> : never}
 
 const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       tokenDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
@@ -22,7 +24,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       isUndefined = Undefined(),
       isMusicPacks = Arr(isMusicPack),
       isPlugins = Rec(isStr, isPlugin),
-      ep = <const Args extends any[], T extends any, const ArgNames extends ArgTuple<Args["length"]> = ArgTuple<Args["length"]>>(name: string, endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: string, broadcastID?: number): [string, string, [""] | Omit<string, "">[], TypeGuard<T>, string | undefined, number | undefined, ...Args[]] => [name, endpoint, args, typeguard, waiter, broadcastID],
+      ep = <const Args extends any[], T extends any, const ArgNames extends ArgTuple<Args["length"]> = ArgTuple<Args["length"]>>(name: string, endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: string, broadcastID?: number): [string, string, string[], TypeGuard<T>, string | undefined, number | undefined, ...Args[]] => [name, endpoint, args, typeguard, waiter, broadcastID],
       endpointWaiters = [
 	ep<[], undefined>      ("ready",         "conn.ready",         [],   isUndefined),
 	ep<[number], undefined>("setCurrentMap", "maps.setCurrentMap", [""], isUndefined),
@@ -107,8 +109,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       characters = folderWaits("characters", broadcastCharacterItemAdd, broadcastCharacterItemMove, broadcastCharacterItemRemove, broadcastCharacterItemCopy, broadcastCharacterFolderAdd, broadcastCharacterFolderMove, broadcastCharacterFolderRemove),
       maps = folderWaits("maps", broadcastMapItemAdd, broadcastMapItemMove, broadcastMapItemRemove, broadcastMapItemCopy, broadcastMapFolderAdd, broadcastMapFolderMove, broadcastMapFolderRemove),
       arpc = new RPC(),
-      genEPWaits = <const Params extends any[], const T extends [string, string, string[], TypeGuard<any>, string?, number?, ...Params][]>(eps: T) => {
-	const rpc = {};
+      genEPWaits = <const Params extends readonly any[], const T extends readonly [string, string, string[], TypeGuard<any>, string?, number?, ...Params][]>(eps: T) => {
+	const rpc = {} as EndPointsOf<T>;
 
 	for (const [name, ep, params, tg, wait, broadcast] of eps) {
 		if (params.length === 0) {
@@ -127,6 +129,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 			};
 		}
 	}
+
+	return rpc;
       };
 
 export let isAdmin: boolean,
