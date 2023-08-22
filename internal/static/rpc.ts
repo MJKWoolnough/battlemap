@@ -26,29 +26,6 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       isPlugins = Rec(isStr, isPlugin),
       arpc = new RPC(),
       ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>) => (...params: Args) => arpc.request(endpoint, args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}), typeguard),
-      genEPWaits = <const Params extends readonly any[], const T extends readonly [string, string, string[], TypeGuard<any>, string?, number?, ...Params][]>(eps: T) => {
-	const rpc = {} as EndPointsOf<T>;
-
-	for (const [name, ep, params, tg, wait, broadcast] of eps) {
-		if (params.length === 0) {
-			rpc[name] = () => arpc.request(ep, tg);
-		} else if (params.length === 1 && params[0] === "") {
-			rpc[name] = (p: Params[0]) => arpc.request(ep, {[params[0]]: p}, tg);
-		} else {
-			rpc[name] = (...ps: Params) => {
-				const args: Record<string, any> = {};
-
-				for (let i = 0; i < ps.length; i++) {
-					args[params[i]] = ps[i];
-				}
-
-				arpc.request(ep, args, tg)
-			};
-		}
-	}
-
-	return rpc;
-      },
       folderEPs = (prefix: string) => ({
 	"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
 	"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr),
