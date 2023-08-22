@@ -106,7 +106,28 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       audio = folderWaits("audio", broadcastAudioItemAdd, broadcastAudioItemMove, broadcastAudioItemRemove, broadcastAudioItemCopy, broadcastAudioFolderAdd, broadcastAudioFolderMove, broadcastAudioFolderRemove),
       characters = folderWaits("characters", broadcastCharacterItemAdd, broadcastCharacterItemMove, broadcastCharacterItemRemove, broadcastCharacterItemCopy, broadcastCharacterFolderAdd, broadcastCharacterFolderMove, broadcastCharacterFolderRemove),
       maps = folderWaits("maps", broadcastMapItemAdd, broadcastMapItemMove, broadcastMapItemRemove, broadcastMapItemCopy, broadcastMapFolderAdd, broadcastMapFolderMove, broadcastMapFolderRemove),
-      arpc = new RPC();
+      arpc = new RPC(),
+      genEPWaits = <const Params extends any[], const T extends [string, string, string[], TypeGuard<any>, string?, number?, ...Params][]>(eps: T) => {
+	const rpc = {};
+
+	for (const [name, ep, params, tg, wait, broadcast] of eps) {
+		if (params.length === 0) {
+			rpc[name] = () => arpc.request(ep, tg);
+		} else if (params.length === 1 && params[0] === "") {
+			rpc[name] = (p: Params[0]) => arpc.request(ep, {[params[0]]: p}, tg);
+		} else {
+			rpc[name] = (...ps: Params) => {
+				const args: Record<string, any> = {};
+
+				for (let i = 0; i < ps.length; i++) {
+					args[params[i]] = ps[i];
+				}
+
+				arpc.request(ep, args, tg)
+			};
+		}
+	}
+      };
 
 export let isAdmin: boolean,
 isUser: boolean,
