@@ -26,7 +26,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       isSignalMeasure = Tuple(isUint, isUint, isUint, isUint, ...isUint),
       isSignalPosition = Tuple(isUint, isUint),
       arpc = new RPC(),
-      ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>) => (...params: Args) => arpc.request(endpoint, args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}), typeguard),
+      ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>) => (...params: Args) => arpc.request(endpoint, args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}), typeguard.throws()),
       folderEPs = (prefix: string) => ({
 	"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
 	"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr),
@@ -36,7 +36,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	"removeFolder": ep<[string],         undefined>(`${prefix}.removeFolder`, [""],           isUndefined),
 	"copy":         ep<[number, string], IDPath>   (`${prefix}.copy`,         ["id", "path"], isIDPath)
       }),
-      w = <const T>(id: number, typeguard: TypeGuard<T>) => () => arpc.subscribe(id, typeguard);
+      w = <const T>(id: number, typeguard: TypeGuard<T>) => () => arpc.subscribe(id, typeguard.throws());
 
 export let isAdmin: boolean,
 isUser: boolean,
