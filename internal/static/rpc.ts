@@ -44,7 +44,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	"waitCopied":        w(copied,        isCopied),
 	"waitFolderAdded":   w(folderAdded,   isStr),
 	"waitFolderMoved":   w(folderMoved,   isFromTo),
-	"waitFolderRemoved": w(folderRemove,  isStr),
+	"waitFolderRemoved": w(folderRemove,  isStr)
       });
 
 export let isAdmin: boolean,
