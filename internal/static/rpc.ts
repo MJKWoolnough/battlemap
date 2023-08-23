@@ -16,8 +16,6 @@ const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserM
 
 type ArgTuple<N extends Number, U extends string[] = []> = U["length"] extends N ? U : ArgTuple<N, [string, ...U]>;
 
-type EndPointsOf<T extends readonly [string, string, string[], TypeGuard<any>, string?, number?, ...any][]> = {[K in keyof T as K extends number ? T[K][0] extends "" ? never : T[K][0] : never]: T[K] extends [string, string, string[], TypeGuard<infer U>, string?, number?, ...(infer V)] ? (...v: V) => Promise<U> : never}
-
 const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       tokenDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
       characterDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
