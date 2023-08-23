@@ -6,10 +6,10 @@ import {Subscription} from './lib/inter.js';
 import pageLoad from './lib/load.js';
 import {queue} from './lib/misc.js';
 import {RPC} from './lib/rpc.js';
-import {Arr, Rec, Undefined} from './lib/typeguard.js';
-import {Colour} from './colours.js';
+import {And, Arr, Obj, Rec, Tuple, Undefined} from './lib/typeguard.js';
+import {Colour, isColour} from './colours.js';
 import lang from './language.js';
-import {isFolderItems, isIDName, isIDPath, isKeystore, isLayerRename, isMapData, isMusicPack, isPlugin, isStr, isUint} from './types.js';
+import {isBool, isBroadcast, isBroadcastWindow, isCharacterDataChange, isFolderItems, isIDName, isIDPath, isKeyData, isKeystore, isLayerMove, isLayerRename, isLayerShift, isMapData, isMapDetails, isMapStart, isMask, isMaskSet, isMusicPack, isMusicPackPlay, isMusicPackTrackAdd, isMusicPackTrackRemove, isMusicPackTrackRepeat, isMusicPackTrackVolume, isMusicPackVolume, isPlugin, isPluginDataChange, isStr, isTokenAdd, isTokenMoveLayerPos, isTokenSet, isUint, isWall, isWallPath} from './types.js';
 import {shell} from './windows.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemCopy = -19, broadcastAudioItemCopy = -20, broadcastCharacterItemCopy = -21, broadcastMapItemCopy = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastLayerAdd = -37, broadcastLayerFolderAdd = -38, broadcastLayerMove = -39, broadcastLayerRename = -40, broadcastLayerRemove = -41, broadcastGridDistanceChange = -42, broadcastGridDiagonalChange = -43, broadcastMapLightChange = -44, broadcastLayerShow = -45, broadcastLayerHide = -46, broadcastLayerLock = -47, broadcastLayerUnlock = -48, broadcastMaskAdd = -49, broadcastMaskRemove = -50, broadcastMaskSet = -51, broadcastTokenAdd = -52, broadcastTokenRemove = -53, broadcastTokenMoveLayerPos = -54, broadcastTokenSet = -55, broadcastTokenSetMulti = -56, broadcastLayerShift = -57, broadcastWallAdd = -58, broadcastWallRemove = -59, broadcastWallModify = -60, broadcastWallMoveLayer = -61, broadcastMusicPackAdd = -62, broadcastMusicPackRename = -63, broadcastMusicPackRemove = -64, broadcastMusicPackCopy = -65, broadcastMusicPackVolume = -66, broadcastMusicPackPlay = -67, broadcastMusicPackStop = -68, broadcastMusicPackStopAll = -69, broadcastMusicPackTrackAdd = -70, broadcastMusicPackTrackRemove = -71, broadcastMusicPackTrackVolume = -72, broadcastMusicPackTrackRepeat = -73, broadcastPluginChange = -74, broadcastPluginSettingChange = -75, broadcastWindow = -76, broadcastSignalMeasure = -77, broadcastSignalPosition = -78, broadcastSignalMovePosition = -79, broadcastAny = -80;
@@ -22,6 +22,9 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       isUndefined = Undefined(),
       isMusicPacks = Arr(isMusicPack),
       isPlugins = Rec(isStr, isPlugin),
+      isCopy = And(isIDName, Obj({"newID": isUint})),
+      isSignalMeasure = Tuple(isUint, isUint, isUint, isUint, ...isUint),
+      isSignalPosition = Tuple(isUint, isUint),
       arpc = new RPC(),
       ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>) => (...params: Args) => arpc.request(endpoint, args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}), typeguard),
       folderEPs = (prefix: string) => ({
@@ -47,6 +50,59 @@ handleError = (e: Error | string | Binding) => {
 	shell.alert(lang["ERROR"], (e instanceof Error ? e.message : Object.getPrototypeOf(e) === Object.prototype ? JSON.stringify(e): e.toString()) || lang["ERROR_UNKNOWN"]);
 },
 rpc = {
+
+	"waitCurrentUserMap":       w(broadcastCurrentUserMap,       isUint),
+	"waitCurrentUserMapData":   w(broadcastCurrentUserMapData,   isMapData),
+	"waitMapDataSet":           w(broadcastMapDataSet,           isKeyData),
+	"waitMapDataRemove":        w(broadcastMapDataRemove,        isStr),
+	"waitCharacterDataChange":  w(broadcastCharacterDataChange,  isCharacterDataChange),
+	"waitMapChange":            w(broadcastMapItemChange,        isMapDetails),
+	"waitMapStartChange":       w(broadcastMapStartChange,       isMapStart),
+	"waitLayerAdd":             w(broadcastLayerAdd,             isStr),
+	"waitLayerFolderAdd":       w(broadcastLayerFolderAdd,       isStr),
+	"waitLayerMove":            w(broadcastLayerMove,            isLayerMove),
+	"waitLayerRename":          w(broadcastLayerRename,          isLayerRename),
+	"waitLayerRemove":          w(broadcastLayerRemove,          isStr),
+	"waitGridDistanceChange":   w(broadcastGridDistanceChange,   isUint),
+	"waitGridDiagonalChange":   w(broadcastGridDiagonalChange,   isBool),
+	"waitMapLightChange":       w(broadcastMapLightChange,       isColour),
+	"waitLayerShow":            w(broadcastLayerShow,            isStr),
+	"waitLayerHide":            w(broadcastLayerHide,            isStr),
+	"waitLayerLock":            w(broadcastLayerLock,            isStr),
+	"waitLayerUnlock":          w(broadcastLayerUnlock,          isStr),
+	"waitMaskAdd":              w(broadcastMaskAdd,              isMask),
+	"waitMaskRemove":           w(broadcastMaskRemove,           isUint),
+	"waitMaskSet":              w(broadcastMaskSet,              isMaskSet),
+	"waitTokenAdd":             w(broadcastTokenAdd,             isTokenAdd),
+	"waitTokenRemove":          w(broadcastTokenRemove,          isUint),
+	"waitTokenMoveLayerPos":    w(broadcastTokenMoveLayerPos,    isTokenMoveLayerPos),
+	"waitTokenSet":             w(broadcastTokenSet,             isTokenSet),
+	"waitTokenSetMulti":        w(broadcastTokenSetMulti,        Arr(isTokenSet)),
+	"waitLayerShift":           w(broadcastLayerShift,           isLayerShift),
+	"waitWallAdded":            w(broadcastWallAdd,              isWallPath),
+	"waitWallRemoved":          w(broadcastWallRemove,           isUint),
+	"waitWallModified":         w(broadcastWallModify,           isWall),
+	"waitWallMoved":            w(broadcastWallMoveLayer,        isIDPath),
+	"waitMusicPackAdd":         w(broadcastMusicPackAdd,         isIDName),
+	"waitMusicPackRename":      w(broadcastMusicPackRename,      isIDName),
+	"waitMusicPackRemove":      w(broadcastMusicPackRemove,      isUint),
+	"waitMusicPackCopy":        w(broadcastMusicPackCopy,        isCopy),
+	"waitMusicPackVolume":      w(broadcastMusicPackVolume,      isMusicPackVolume),
+	"waitMusicPackPlay":        w(broadcastMusicPackPlay,        isMusicPackPlay),
+	"waitMusicPackStop":        w(broadcastMusicPackStop,        isUint),
+	"waitMusicPackStopAll":     w(broadcastMusicPackStopAll,     isUndefined),
+	"waitMusicPackTrackAdd":    w(broadcastMusicPackTrackAdd,    isMusicPackTrackAdd),
+	"waitMusicPackTrackRemove": w(broadcastMusicPackTrackRemove, isMusicPackTrackRemove),
+	"waitMusicPackTrackVolume": w(broadcastMusicPackTrackVolume, isMusicPackTrackVolume),
+	"waitMusicPackTrackRepeat": w(broadcastMusicPackTrackRepeat, isMusicPackTrackRepeat),
+	"waitPluginChange":         w(broadcastPluginChange,         isUndefined),
+	"waitPluginSetting":        w(broadcastPluginSettingChange,  isPluginDataChange),
+	"waitSignalMeasure":        w(broadcastSignalMeasure,        isSignalMeasure),
+	"waitSignalPosition":       w(broadcastSignalPosition,       isSignalPosition),
+	"waitSignalMovePosition":   w(broadcastSignalMovePosition,   isSignalPosition),
+	"waitBroadcastWindow":      w(broadcastWindow,               isBroadcastWindow),
+	"waitBroadcast":            w(broadcastAny,                  isBroadcast),
+
 	"ready": ep<[], undefined>("conn.ready", [], isUndefined),
 
 	"setCurrentMap": ep<[number], undefined>("maps.setCurrentMap", [""], isUndefined),
