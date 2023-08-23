@@ -51,6 +51,17 @@ export let isAdmin: boolean,
 isUser: boolean,
 timeShift = 0;
 
+type WaitersOf<T> = {[K in keyof T as K extends `wait${string}` ? K : never]: T[K]}
+
+type FolderWaiters = WaitersOf<typeof rpc["images"]>;
+
+type InternalWaiters = WaitersOf<typeof rpc> & {
+	images: {[K in keyof FolderWaiters]: FolderWaiters[K]};
+	audio: {[K in keyof FolderWaiters]: FolderWaiters[K]};
+	characters: {[K in keyof FolderWaiters]: FolderWaiters[K]};
+	maps: {[K in keyof FolderWaiters]: FolderWaiters[K]};
+}
+
 export const addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
 addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => characterDataCheckers.push(fn),
 addTokenDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => tokenDataCheckers.push(fn),
@@ -58,6 +69,8 @@ handleError = (e: Error | string | Binding) => {
 	console.log(e);
 	shell.alert(lang["ERROR"], (e instanceof Error ? e.message : Object.getPrototypeOf(e) === Object.prototype ? JSON.stringify(e): e.toString()) || lang["ERROR_UNKNOWN"]);
 },
+internal: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
+combined: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
 rpc = {
 	"waitCurrentUserMap":       w(broadcastCurrentUserMap,       isUint),
 	"waitCurrentUserMapData":   w(broadcastCurrentUserMapData,   isMapData),
