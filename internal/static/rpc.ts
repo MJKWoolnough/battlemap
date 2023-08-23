@@ -32,7 +32,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	"remove":       ep<[string],         undefined>(`${prefix}.remove`,       [""],           isUndefined),
 	"removeFolder": ep<[string],         undefined>(`${prefix}.removeFolder`, [""],           isUndefined),
 	"copy":         ep<[number, string], IDPath>   (`${prefix}.copy`,         ["id", "path"], isIDPath)
-      });
+      }),
+      w = <const T>(id: number, typeguard: TypeGuard<T>) => arpc.subscribe(id, typeguard);
 
 export let isAdmin: boolean,
 isUser: boolean,
