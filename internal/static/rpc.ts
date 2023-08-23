@@ -29,7 +29,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       arpc = new RPC(),
       ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>) => (...params: Args) => arpc.request(endpoint, args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}), typeguard.throws()),
       w = <const T>(id: number, typeguard: TypeGuard<T>) => () => arpc.subscribe(id, typeguard.throws()),
-      folderEPs = (prefix: string, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => ({
+      folderEPs = (prefix: string, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
 	"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
 	"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr),
 	"move":         ep<[string, string], string>   (`${prefix}.move`,         ["from", "to"], isStr),
@@ -71,7 +71,7 @@ handleError = (e: Error | string | Binding) => {
 },
 internal: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
 combined: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
-rpc = {
+rpc = Object.freeze({
 	"ready": ep<[], undefined>("conn.ready", [], isUndefined),
 
 	"setCurrentMap": ep<[number], undefined>("maps.setCurrentMap", [""], isUndefined),
@@ -197,7 +197,7 @@ rpc = {
 	"waitSignalMovePosition":   w(broadcastSignalMovePosition,   isSignalPosition),
 	"waitBroadcastWindow":      w(broadcastWindow,               isBroadcastWindow),
 	"waitBroadcast":            w(broadcastAny,                  isBroadcast)
-},
+}),
 inited = pageLoad.then(() => WS("/socket").then(ws => {
 	arpc.reconnect(ws);
 
