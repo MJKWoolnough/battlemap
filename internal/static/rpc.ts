@@ -36,7 +36,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	"removeFolder": ep<[string],         undefined>(`${prefix}.removeFolder`, [""],           isUndefined),
 	"copy":         ep<[number, string], IDPath>   (`${prefix}.copy`,         ["id", "path"], isIDPath)
       }),
-      w = <const T>(id: number, typeguard: TypeGuard<T>) => arpc.subscribe(id, typeguard);
+      w = <const T>(id: number, typeguard: TypeGuard<T>) => () => arpc.subscribe(id, typeguard);
 
 export let isAdmin: boolean,
 isUser: boolean,
@@ -50,7 +50,6 @@ handleError = (e: Error | string | Binding) => {
 	shell.alert(lang["ERROR"], (e instanceof Error ? e.message : Object.getPrototypeOf(e) === Object.prototype ? JSON.stringify(e): e.toString()) || lang["ERROR_UNKNOWN"]);
 },
 rpc = {
-
 	"waitCurrentUserMap":       w(broadcastCurrentUserMap,       isUint),
 	"waitCurrentUserMapData":   w(broadcastCurrentUserMapData,   isMapData),
 	"waitMapDataSet":           w(broadcastMapDataSet,           isKeyData),
