@@ -66,7 +66,12 @@ handleError = (e: Error | string | Binding) => {
 		      "characters": {},
 		      "maps": {},
 	      },
-	      combined: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
+	      combined = {
+		      "images": {},
+		      "audio": {},
+		      "characters": {},
+		      "maps": {},
+	      },
 	      w = <const T>(id: number, typeguard: TypeGuard<T>) => () => arpc.subscribe(id, typeguard.throws()),
 	      folderEPs = (prefix: keyof typeof internal, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
 		"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
@@ -213,7 +218,7 @@ handleError = (e: Error | string | Binding) => {
 		"waitBroadcast":            w(broadcastAny,                  isBroadcast)
 	};
 
-	return [Object.freeze(rpc), Object.freeze(internal as {[K in keyof InternalWaiters]: InternalWaiters[K]}), Object.freeze(combined)] as const;
+	return [Object.freeze(rpc), Object.freeze(internal as {[K in keyof InternalWaiters]: InternalWaiters[K]}), Object.freeze(combined as {[K in keyof InternalWaiters]: InternalWaiters[K]})] as const;
 })(),
 inited = pageLoad.then(() => WS("/socket").then(ws => {
 	arpc.reconnect(ws);
