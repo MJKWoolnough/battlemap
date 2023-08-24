@@ -214,7 +214,7 @@ handleError = (e: Error | string | Binding) => {
 		"waitSignalMovePosition":   w(broadcastSignalMovePosition,   isSignalPosition),
 		"waitBroadcastWindow":      w(broadcastWindow,               isBroadcastWindow),
 		"waitBroadcast":            w(broadcastAny,                  isBroadcast)
-	};
+	      };
 
 	return [Object.freeze(rpc), Object.freeze(internal as {[K in keyof InternalWaiters]: InternalWaiters[K]}), Object.freeze(combined as {[K in keyof InternalWaiters]: InternalWaiters[K]})] as const;
 })(),
