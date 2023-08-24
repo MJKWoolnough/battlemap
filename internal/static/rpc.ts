@@ -2,9 +2,7 @@ import type {Broadcast, FolderItems, GridDetails, IDName, IDPath, Keystore, Keys
 import type {Binding} from './lib/bind.js';
 import type {TypeGuard} from './lib/typeguard.js';
 import {WS} from './lib/conn.js';
-import {Subscription} from './lib/inter.js';
 import pageLoad from './lib/load.js';
-import {queue} from './lib/misc.js';
 import {RPC} from './lib/rpc.js';
 import {And, Arr, Obj, Rec, Tuple, Undefined} from './lib/typeguard.js';
 import {Colour, isColour} from './colours.js';
