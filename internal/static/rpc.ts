@@ -51,11 +51,11 @@ handleError = (e: Error | string | Binding) => {
 	      isCopied = Obj({"oldID": isUint, "newID": isUint, "path": isStr}),
 	      isSignalMeasure = Tuple(isUint, isUint, isUint, isUint, ...isUint),
 	      isSignalPosition = Tuple(isUint, isUint),
-	      ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: `wait${string}`) => (...params: Args) => {
+	      ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, on?: any, waiter?: `wait${string}`) => (...params: Args) => {
 		const p = arpc.request(endpoint, args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}), typeguard.throws());
 
-		if (waiter) {
-			(internal as any)[waiter] = p.then.bind(p);
+		if (waiter && on) {
+			on[waiter] = p.then.bind(p);
 		}
 
 		return p;
