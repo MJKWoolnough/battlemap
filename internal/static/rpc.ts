@@ -60,6 +60,8 @@ handleError = (e: Error | string | Binding) => {
 
 		return p;
 	      },
+	      internal: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
+	      combined: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
 	      w = <const T>(id: number, typeguard: TypeGuard<T>) => () => arpc.subscribe(id, typeguard.throws()),
 	      folderEPs = (prefix: string, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
 		"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
@@ -78,8 +80,6 @@ handleError = (e: Error | string | Binding) => {
 		"waitFolderMoved":   w(folderMoved,   isFromTo),
 		"waitFolderRemoved": w(folderRemove,  isStr)
 	      }),
-	      internal: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
-	      combined: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
 	      rpc = {
 		"ready": ep<[], undefined>("conn.ready", [], isUndefined),
 
