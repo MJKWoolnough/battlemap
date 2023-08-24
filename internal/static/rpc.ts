@@ -14,42 +14,14 @@ import {shell} from './windows.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemCopy = -19, broadcastAudioItemCopy = -20, broadcastCharacterItemCopy = -21, broadcastMapItemCopy = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastLayerAdd = -37, broadcastLayerFolderAdd = -38, broadcastLayerMove = -39, broadcastLayerRename = -40, broadcastLayerRemove = -41, broadcastGridDistanceChange = -42, broadcastGridDiagonalChange = -43, broadcastMapLightChange = -44, broadcastLayerShow = -45, broadcastLayerHide = -46, broadcastLayerLock = -47, broadcastLayerUnlock = -48, broadcastMaskAdd = -49, broadcastMaskRemove = -50, broadcastMaskSet = -51, broadcastTokenAdd = -52, broadcastTokenRemove = -53, broadcastTokenMoveLayerPos = -54, broadcastTokenSet = -55, broadcastTokenSetMulti = -56, broadcastLayerShift = -57, broadcastWallAdd = -58, broadcastWallRemove = -59, broadcastWallModify = -60, broadcastWallMoveLayer = -61, broadcastMusicPackAdd = -62, broadcastMusicPackRename = -63, broadcastMusicPackRemove = -64, broadcastMusicPackCopy = -65, broadcastMusicPackVolume = -66, broadcastMusicPackPlay = -67, broadcastMusicPackStop = -68, broadcastMusicPackStopAll = -69, broadcastMusicPackTrackAdd = -70, broadcastMusicPackTrackRemove = -71, broadcastMusicPackTrackVolume = -72, broadcastMusicPackTrackRepeat = -73, broadcastPluginChange = -74, broadcastPluginSettingChange = -75, broadcastWindow = -76, broadcastSignalMeasure = -77, broadcastSignalPosition = -78, broadcastSignalMovePosition = -79, broadcastAny = -80;
 
-type ArgTuple<N extends Number, U extends string[] = []> = U["length"] extends N ? U : ArgTuple<N, [string, ...U]>;
+export let isAdmin: boolean,
+isUser: boolean,
+timeShift = 0;
 
 const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       tokenDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
       characterDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
-      isUndefined = Undefined(),
-      isMusicPacks = Arr(isMusicPack),
-      isPlugins = Rec(isStr, isPlugin),
-      isCopy = And(isIDName, Obj({"newID": isUint})),
-      isCopied = Obj({"oldID": isUint, "newID": isUint, "path": isStr}),
-      isSignalMeasure = Tuple(isUint, isUint, isUint, isUint, ...isUint),
-      isSignalPosition = Tuple(isUint, isUint),
-      arpc = new RPC(),
-      ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>) => (...params: Args) => arpc.request(endpoint, args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}), typeguard.throws()),
-      w = <const T>(id: number, typeguard: TypeGuard<T>) => () => arpc.subscribe(id, typeguard.throws()),
-      folderEPs = (prefix: string, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
-	"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
-	"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr),
-	"move":         ep<[string, string], string>   (`${prefix}.move`,         ["from", "to"], isStr),
-	"moveFolder":   ep<[string, string], string>   (`${prefix}.moveFolder`,   ["from", "to"], isStr),
-	"remove":       ep<[string],         undefined>(`${prefix}.remove`,       [""],           isUndefined),
-	"removeFolder": ep<[string],         undefined>(`${prefix}.removeFolder`, [""],           isUndefined),
-	"copy":         ep<[number, string], IDPath>   (`${prefix}.copy`,         ["id", "path"], isIDPath),
-
-	"waitAdded":         w(added,         Arr(isIDName)),
-	"waitMoved":         w(moved,         isFromTo),
-	"waitRemoved":       w(removed,       isStr),
-	"waitCopied":        w(copied,        isCopied),
-	"waitFolderAdded":   w(folderAdded,   isStr),
-	"waitFolderMoved":   w(folderMoved,   isFromTo),
-	"waitFolderRemoved": w(folderRemove,  isStr)
-      });
-
-export let isAdmin: boolean,
-isUser: boolean,
-timeShift = 0;
+      arpc = new RPC();
 
 export const addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
 addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => characterDataCheckers.push(fn),
@@ -59,6 +31,8 @@ handleError = (e: Error | string | Binding) => {
 	shell.alert(lang["ERROR"], (e instanceof Error ? e.message : Object.getPrototypeOf(e) === Object.prototype ? JSON.stringify(e): e.toString()) || lang["ERROR_UNKNOWN"]);
 },
 [rpc, internal, combined] = (() => {
+	type ArgTuple<N extends Number, U extends string[] = []> = U["length"] extends N ? U : ArgTuple<N, [string, ...U]>;
+
 	type WaitersOf<T> = {[K in keyof T as K extends `wait${string}` ? K : never]: T[K]}
 
 	type FolderWaiters = WaitersOf<typeof rpc["images"]>;
@@ -70,7 +44,33 @@ handleError = (e: Error | string | Binding) => {
 		maps: {[K in keyof FolderWaiters]: FolderWaiters[K]};
 	}
 
-	const internal: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
+	const isUndefined = Undefined(),
+	      isMusicPacks = Arr(isMusicPack),
+	      isPlugins = Rec(isStr, isPlugin),
+	      isCopy = And(isIDName, Obj({"newID": isUint})),
+	      isCopied = Obj({"oldID": isUint, "newID": isUint, "path": isStr}),
+	      isSignalMeasure = Tuple(isUint, isUint, isUint, isUint, ...isUint),
+	      isSignalPosition = Tuple(isUint, isUint),
+	      ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>) => (...params: Args) => arpc.request(endpoint, args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}), typeguard.throws()),
+	      w = <const T>(id: number, typeguard: TypeGuard<T>) => () => arpc.subscribe(id, typeguard.throws()),
+	      folderEPs = (prefix: string, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
+		"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
+		"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr),
+		"move":         ep<[string, string], string>   (`${prefix}.move`,         ["from", "to"], isStr),
+		"moveFolder":   ep<[string, string], string>   (`${prefix}.moveFolder`,   ["from", "to"], isStr),
+		"remove":       ep<[string],         undefined>(`${prefix}.remove`,       [""],           isUndefined),
+		"removeFolder": ep<[string],         undefined>(`${prefix}.removeFolder`, [""],           isUndefined),
+		"copy":         ep<[number, string], IDPath>   (`${prefix}.copy`,         ["id", "path"], isIDPath),
+
+		"waitAdded":         w(added,         Arr(isIDName)),
+		"waitMoved":         w(moved,         isFromTo),
+		"waitRemoved":       w(removed,       isStr),
+		"waitCopied":        w(copied,        isCopied),
+		"waitFolderAdded":   w(folderAdded,   isStr),
+		"waitFolderMoved":   w(folderMoved,   isFromTo),
+		"waitFolderRemoved": w(folderRemove,  isStr)
+	      }),
+	      internal: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
 	      combined: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
 	      rpc = {
 		"ready": ep<[], undefined>("conn.ready", [], isUndefined),
