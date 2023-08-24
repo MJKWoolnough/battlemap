@@ -60,7 +60,12 @@ handleError = (e: Error | string | Binding) => {
 
 		return p;
 	      },
-	      internal: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
+	      internal: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {
+		      "images": {} as any,
+		      "audio": {} as any,
+		      "characters": {} as any,
+		      "maps": {} as any,
+	      } as any,
 	      combined: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
 	      w = <const T>(id: number, typeguard: TypeGuard<T>) => () => arpc.subscribe(id, typeguard.throws()),
 	      folderEPs = (prefix: string, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
