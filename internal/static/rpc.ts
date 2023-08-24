@@ -60,22 +60,22 @@ handleError = (e: Error | string | Binding) => {
 
 		return p;
 	      },
-	      internal: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {
-		      "images": {} as any,
-		      "audio": {} as any,
-		      "characters": {} as any,
-		      "maps": {} as any,
-	      } as any,
+	      internal = {
+		      "images": {},
+		      "audio": {},
+		      "characters": {},
+		      "maps": {},
+	      },
 	      combined: {[K in keyof InternalWaiters]: InternalWaiters[K]} = {},
 	      w = <const T>(id: number, typeguard: TypeGuard<T>) => () => arpc.subscribe(id, typeguard.throws()),
-	      folderEPs = (prefix: string, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
+	      folderEPs = (prefix: keyof typeof internal, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
 		"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
-		"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr),
-		"move":         ep<[string, string], string>   (`${prefix}.move`,         ["from", "to"], isStr),
-		"moveFolder":   ep<[string, string], string>   (`${prefix}.moveFolder`,   ["from", "to"], isStr),
-		"remove":       ep<[string],         undefined>(`${prefix}.remove`,       [""],           isUndefined),
-		"removeFolder": ep<[string],         undefined>(`${prefix}.removeFolder`, [""],           isUndefined),
-		"copy":         ep<[number, string], IDPath>   (`${prefix}.copy`,         ["id", "path"], isIDPath),
+		"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr,       internal[prefix], "waitFolderAdded"),
+		"move":         ep<[string, string], string>   (`${prefix}.move`,         ["from", "to"], isStr,       internal[prefix], "waitMoved"),
+		"moveFolder":   ep<[string, string], string>   (`${prefix}.moveFolder`,   ["from", "to"], isStr,       internal[prefix], "waitFolderMoved"),
+		"remove":       ep<[string],         undefined>(`${prefix}.remove`,       [""],           isUndefined, internal[prefix], "waitRemoved"),
+		"removeFolder": ep<[string],         undefined>(`${prefix}.removeFolder`, [""],           isUndefined, internal[prefix], "waitFolderRemoved"),
+		"copy":         ep<[number, string], IDPath>   (`${prefix}.copy`,         ["id", "path"], isIDPath,    internal[prefix], "waitCopied"),
 
 		"waitAdded":         w(added,         Arr(isIDName)),
 		"waitMoved":         w(moved,         isFromTo),
@@ -213,7 +213,7 @@ handleError = (e: Error | string | Binding) => {
 		"waitBroadcast":            w(broadcastAny,                  isBroadcast)
 	};
 
-	return [Object.freeze(rpc), Object.freeze(internal), Object.freeze(combined)] as const;
+	return [Object.freeze(rpc), Object.freeze(internal as {[K in keyof InternalWaiters]: InternalWaiters[K]}), Object.freeze(combined)] as const;
 })(),
 inited = pageLoad.then(() => WS("/socket").then(ws => {
 	arpc.reconnect(ws);
