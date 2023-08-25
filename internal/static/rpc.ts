@@ -75,7 +75,18 @@ handleError = (e: Error | string | Binding) => {
 		      "characters": {},
 		      "maps": {},
 	      },
-	      w = <const T>(id: number, typeguard: TypeGuard<T>) => () => arpc.subscribe(id, typeguard.throws()),
+	      w = <const T>(id: number, typeguard: TypeGuard<T>, waiter: `wait${string}`, on: any = combined, int: any = internal) => {
+		const sub = arpc.subscribe(id, typeguard.throws()),
+		      fn = () => sub;
+
+		if (int) {
+			on[waiter] = Subscription.merge(sub, int[waiter]);
+		} else {
+			on[waiter] = fn;
+		}
+
+		return fn;
+	      },
 	      folderEPs = (prefix: keyof typeof internal, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
 		"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
 		"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr,       "waitFolderAdded",   internal[prefix]),
