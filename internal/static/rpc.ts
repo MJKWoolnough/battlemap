@@ -96,13 +96,13 @@ handleError = (e: Error | string | Binding) => {
 		"removeFolder": ep<[string],         undefined>(`${prefix}.removeFolder`, [""],           isUndefined, "waitFolderRemoved", internal[prefix]),
 		"copy":         ep<[number, string], IDPath>   (`${prefix}.copy`,         ["id", "path"], isIDPath,    "waitCopied",        internal[prefix]),
 
-		"waitAdded":         w(added,         Arr(isIDName)),
-		"waitMoved":         w(moved,         isFromTo),
-		"waitRemoved":       w(removed,       isStr),
-		"waitCopied":        w(copied,        isCopied),
-		"waitFolderAdded":   w(folderAdded,   isStr),
-		"waitFolderMoved":   w(folderMoved,   isFromTo),
-		"waitFolderRemoved": w(folderRemove,  isStr)
+		"waitAdded":         w(added,         Arr(isIDName), "waitAdded",         combined[prefix], internal[prefix]),
+		"waitMoved":         w(moved,         isFromTo,      "waitMoved",         combined[prefix], internal[prefix]),
+		"waitRemoved":       w(removed,       isStr,         "waitRemoved",       combined[prefix], internal[prefix]),
+		"waitCopied":        w(copied,        isCopied,      "waitCopied",        combined[prefix], internal[prefix]),
+		"waitFolderAdded":   w(folderAdded,   isStr,         "waitFolderAdded",   combined[prefix], internal[prefix]),
+		"waitFolderMoved":   w(folderMoved,   isFromTo,      "waitFolderMoved",   combined[prefix], internal[prefix]),
+		"waitFolderRemoved": w(folderRemove,  isStr,         "waitFolderRemoved", combined[prefix], internal[prefix])
 	      }),
 	      rpc = {
 		"ready": ep<[], undefined>("conn.ready", [], isUndefined),
