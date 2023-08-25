@@ -50,7 +50,7 @@ handleError = (e: Error | string | Binding) => {
 	      isCopied = Obj({"oldID": isUint, "newID": isUint, "path": isStr}),
 	      isSignalMeasure = Tuple(isUint, isUint, isUint, isUint, ...isUint),
 	      isSignalPosition = Tuple(isUint, isUint),
-	      ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: `wait${string}`, modFn?: (ret: T, ...params: Args) => any, on: any = internal) => {
+	      ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: `wait${string}`, modFn?: (params: any, ret: T) => any, on: any = internal) => {
 		const [sub, sFn] = Subscription.bind(1);
 
 		if (waiter && on) {
@@ -58,9 +58,10 @@ handleError = (e: Error | string | Binding) => {
 		}
 
 		return (...params: Args) => {
-			const p = arpc.request(endpoint, args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}), typeguard.throws());
+			const ps = args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}),
+			      p = arpc.request(endpoint, ps, typeguard.throws());
 
-			p.then(modFn ? r => sFn(modFn(r, ...params)) : sFn);
+			p.then(modFn ? r => sFn(modFn(r, ps)) : sFn);
 
 			return p;
 		}
