@@ -50,6 +50,18 @@ handleError = (e: Error | string | Binding) => {
 	      isCopied = Obj({"oldID": isUint, "newID": isUint, "path": isStr}),
 	      isSignalMeasure = Tuple(isUint, isUint, isUint, isUint, ...isUint),
 	      isSignalPosition = Tuple(isUint, isUint),
+	      internal = {
+		      "images": {},
+		      "audio": {},
+		      "characters": {},
+		      "maps": {},
+	      },
+	      combined = {
+		      "images": {},
+		      "audio": {},
+		      "characters": {},
+		      "maps": {},
+	      },
 	      ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: `wait${string}`, modFn?: (params: any, ret: T) => any, on: any = internal) => {
 		const [sub, sFn] = Subscription.bind(1);
 
@@ -65,18 +77,6 @@ handleError = (e: Error | string | Binding) => {
 
 			return p;
 		}
-	      },
-	      internal = {
-		      "images": {},
-		      "audio": {},
-		      "characters": {},
-		      "maps": {},
-	      },
-	      combined = {
-		      "images": {},
-		      "audio": {},
-		      "characters": {},
-		      "maps": {},
 	      },
 	      w = <const T>(id: number, typeguard: TypeGuard<T>, waiter: `wait${string}`, on: any = combined, int: any = internal) => {
 		const sub = arpc.subscribe(id, typeguard.throws()),
