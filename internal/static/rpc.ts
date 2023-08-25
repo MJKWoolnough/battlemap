@@ -2,6 +2,7 @@ import type {Broadcast, FolderItems, GridDetails, IDName, IDPath, Keystore, Keys
 import type {Binding} from './lib/bind.js';
 import type {TypeGuard} from './lib/typeguard.js';
 import {WS} from './lib/conn.js';
+import {Subscription} from './lib/inter.js';
 import pageLoad from './lib/load.js';
 import {RPC} from './lib/rpc.js';
 import {And, Arr, Obj, Rec, Tuple, Undefined} from './lib/typeguard.js';
@@ -53,7 +54,11 @@ handleError = (e: Error | string | Binding) => {
 		const p = arpc.request(endpoint, args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}), typeguard.throws());
 
 		if (waiter && on) {
-			on[waiter] = p.then.bind(p);
+			const [sub, sFn] = Subscription.bind(1);
+
+			p.then(sFn);
+
+			on[waiter] = () => sub;
 		}
 
 		return p;
