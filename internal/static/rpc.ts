@@ -50,7 +50,7 @@ handleError = (e: Error | string | Binding) => {
 	      isCopied = Obj({"oldID": isUint, "newID": isUint, "path": isStr}),
 	      isSignalMeasure = Tuple(isUint, isUint, isUint, isUint, ...isUint),
 	      isSignalPosition = Tuple(isUint, isUint),
-	      ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: `wait${string}`, on: any = internal) => {
+	      ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: `wait${string}`, modFn?: (ret: T, ...params: Args) => any, on: any = internal) => {
 		const [sub, sFn] = Subscription.bind(1);
 
 		if (waiter && on) {
@@ -60,10 +60,10 @@ handleError = (e: Error | string | Binding) => {
 		return (...params: Args) => {
 			const p = arpc.request(endpoint, args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}), typeguard.throws());
 
-			p.then(sFn);
+			p.then(modFn ? r => sFn(modFn(r, ...params)) : sFn);
 
 			return p;
-		      }
+		}
 	      },
 	      internal = {
 		      "images": {},
@@ -91,12 +91,12 @@ handleError = (e: Error | string | Binding) => {
 	      },
 	      folderEPs = (prefix: keyof typeof internal, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
 		"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
-		"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr,       "waitFolderAdded",   internal[prefix]),
-		"move":         ep<[string, string], string>   (`${prefix}.move`,         ["from", "to"], isStr,       "waitMoved",         internal[prefix]),
-		"moveFolder":   ep<[string, string], string>   (`${prefix}.moveFolder`,   ["from", "to"], isStr,       "waitFolderMoved",   internal[prefix]),
-		"remove":       ep<[string],         undefined>(`${prefix}.remove`,       [""],           isUndefined, "waitRemoved",       internal[prefix]),
-		"removeFolder": ep<[string],         undefined>(`${prefix}.removeFolder`, [""],           isUndefined, "waitFolderRemoved", internal[prefix]),
-		"copy":         ep<[number, string], IDPath>   (`${prefix}.copy`,         ["id", "path"], isIDPath,    "waitCopied",        internal[prefix]),
+		"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr,       "waitFolderAdded",   undefined, internal[prefix]),
+		"move":         ep<[string, string], string>   (`${prefix}.move`,         ["from", "to"], isStr,       "waitMoved",         undefined, internal[prefix]),
+		"moveFolder":   ep<[string, string], string>   (`${prefix}.moveFolder`,   ["from", "to"], isStr,       "waitFolderMoved",   undefined, internal[prefix]),
+		"remove":       ep<[string],         undefined>(`${prefix}.remove`,       [""],           isUndefined, "waitRemoved",       undefined, internal[prefix]),
+		"removeFolder": ep<[string],         undefined>(`${prefix}.removeFolder`, [""],           isUndefined, "waitFolderRemoved", undefined, internal[prefix]),
+		"copy":         ep<[number, string], IDPath>   (`${prefix}.copy`,         ["id", "path"], isIDPath,    "waitCopied",        undefined, internal[prefix]),
 
 		"waitAdded":         w(added,         Arr(isIDName), "waitAdded",         combined[prefix], internal[prefix]),
 		"waitMoved":         w(moved,         isFromTo,      "waitMoved",         combined[prefix], internal[prefix]),
