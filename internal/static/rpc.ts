@@ -94,8 +94,8 @@ handleError = (e: Error | string | Binding) => {
 	      folderEPs = (prefix: keyof typeof internal, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
 		"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
 		"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr,       "waitFolderAdded",   undefined, internal[prefix]),
-		"move":         ep<[string, string], string>   (`${prefix}.move`,         ["from", "to"], isStr,       "waitMoved",         undefined, internal[prefix]),
-		"moveFolder":   ep<[string, string], string>   (`${prefix}.moveFolder`,   ["from", "to"], isStr,       "waitFolderMoved",   undefined, internal[prefix]),
+		"move":         ep<[string, string], string>   (`${prefix}.move`,         ["from", "to"], isStr,       "waitMoved",         modTo,     internal[prefix]),
+		"moveFolder":   ep<[string, string], string>   (`${prefix}.moveFolder`,   ["from", "to"], isStr,       "waitFolderMoved",   modTo,     internal[prefix]),
 		"remove":       ep<[string],         undefined>(`${prefix}.remove`,       [""],           isUndefined, "waitRemoved",       undefined, internal[prefix]),
 		"removeFolder": ep<[string],         undefined>(`${prefix}.removeFolder`, [""],           isUndefined, "waitFolderRemoved", undefined, internal[prefix]),
 		"copy":         ep<[number, string], IDPath>   (`${prefix}.copy`,         ["id", "path"], isIDPath,    "waitCopied",        undefined, internal[prefix]),
