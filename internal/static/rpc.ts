@@ -140,7 +140,7 @@ handleError = (e: Error | string | Binding) => {
 		"addToMask":        ep<[Mask],                              undefined>  ("maps.addToMask",        [""],                       isUndefined,   "waitMaskRemove"),
 		"removeFromMask":   ep<[number],                            undefined>  ("maps.removeFromMask",   [""],                       isUndefined,   "waitMaskSet"),
 		"setMask":          ep<[boolean, Mask[]],                   undefined>  ("maps.setMask",          ["baseOpaque", "masks"],    isUndefined,   "waitLayerRemove"),
-		"addToken":         ep<[string, Token, number | undefined], number>     ("maps.addToken",         ["path", "token", "pos"],   isUint,        "waitTokenAdd"),
+		"addToken":         ep<[string, Token, number | undefined], number>     ("maps.addToken",         ["path", "token", "pos"],   isUint,        "waitTokenAdd", (p, id: number) => (p["token"]["id"] = id, p)),
 		"removeToken":      ep<[number],                            undefined>  ("maps.removeToken",      [""],                       isUndefined,   "waitTokenRemove"),
 		"setToken":         ep<[TokenSet],                          undefined>  ("maps.setToken",         [""],                       isUndefined,   "waitTokenSet"),
 		"setTokenMulti":    ep<[TokenSet[]],                        undefined>  ("maps.setTokenMulti",    [""],                       isUndefined,   "waitTokenMultiSet"),
