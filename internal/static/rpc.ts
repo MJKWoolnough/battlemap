@@ -73,7 +73,7 @@ handleError = (e: Error | string | Binding) => {
 			const ps = args.length === 0 ? undefined : args.length === 1 && args[0] === "" ? args[0] : params.reduce((o, v, n) => o[args[n]] = v, {}),
 			      p = arpc.request(endpoint, ps, typeguard.throws());
 
-			p.then(modFn ? r => sFn(modFn(r, ps)) : sFn);
+			p.then(modFn ? r => sFn(modFn(r, ps)) : r => sFn(r ?? ps));
 
 			return p;
 		}
