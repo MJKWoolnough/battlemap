@@ -155,7 +155,7 @@ handleError = (e: Error | string | Binding) => {
 		"musicPackAdd":         ep<[string],                 IDName>     ("music.new",            [""],                      isIDName,    "waitMusicPackAdd"),
 		"musicPackRename":      ep<[number, string],         string>     ("music.rename",         ["id", "name"],            isStr,       "waitMusicPackRename"),
 		"musicPackRemove":      ep<[number],                 undefined>  ("music.remove",         [""],                      isUndefined, "waitMusicPackRemove"),
-		"musicPackCopy":        ep<[number, string],         IDName>     ("music.copy",           ["id", "name"],            isIDName,    "waitMusicPackCopy"),
+		"musicPackCopy":        ep<[number, string],         IDName>     ("music.copy",           ["id", "name"],            isIDName,    "waitMusicPackCopy", (p, name: string) => (p["name"] = name, p)),
 		"musicPackSetVolumd":   ep<[number, number],         undefined>  ("music.setVolume",      ["id", "volume"],          isUndefined, "waitMusicPackVolume"),
 		"musicPackPlayer":      ep<[number, number],         number>     ("music.playPack",       ["id", "playTime"],        isUint,      "waitMusicPackPlay"),
 		"musicPackStop":        ep<[number],                 undefined>  ("music.stopPack",       [""],                      isUndefined, "waitMusicPackStop"),
