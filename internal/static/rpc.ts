@@ -80,10 +80,10 @@ handleError = (e: Error | string | Binding) => {
 	      },
 	      w = <const T>(id: number, typeguard: TypeGuard<T>, waiter: `wait${string}`, on: any = combined, int: any = internal) => {
 		const sub = arpc.subscribe(id, typeguard.throws()),
-		      fn = () => sub;
+		      fn = sub.splitCancel();
 
 		if (int) {
-			on[waiter] = Subscription.merge(sub, int[waiter]);
+			on[waiter] = Subscription.merge(sub, int[waiter]).splitCancel();
 		} else {
 			on[waiter] = fn;
 		}
