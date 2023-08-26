@@ -90,6 +90,7 @@ handleError = (e: Error | string | Binding) => {
 
 		return fn;
 	      },
+	      modTo = (p: any, to: string) => (p["to"] = to, p),
 	      folderEPs = (prefix: keyof typeof internal, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
 		"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
 		"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr,       "waitFolderAdded",   undefined, internal[prefix]),
