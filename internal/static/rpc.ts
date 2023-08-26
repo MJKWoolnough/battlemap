@@ -146,7 +146,7 @@ handleError = (e: Error | string | Binding) => {
 		"setTokenMulti":    ep<[TokenSet[]],                        undefined>  ("maps.setTokenMulti",    [""],                       isUndefined,   "waitTokenMultiSet"),
 		"setTokenLayerPos": ep<[number, string, number],            undefined>  ("maps.setTokenLayerPos", ["id", "to", "newPos"],     isUndefined,   "waitTokenMoveLayerPos"),
 		"shiftLayer":       ep<[string, number, number],            undefined>  ("maps.shiftLayer",       ["path", "dx", "dy"],       isUndefined,   "waitLayerShift"),
-		"addWall":          ep<[string, Wall],                      number>     ("maps.addWall",          ["id", "wall"],             isUint,        "waitWallAdded"),
+		"addWall":          ep<[string, Wall],                      number>     ("maps.addWall",          ["id", "wall"],             isUint,        "waitWallAdded", (p, id: number) => (p["wall"]["id"] = id, p)),
 		"removeWall":       ep<[number],                            undefined>  ("maps.removeWall",       [""],                       isUndefined,   "waitWallRemoved"),
 		"modifyWall":       ep<[Wall],                              undefined>  ("maps.modifyWall",       [""],                       isUndefined,   "waitWallModified"),
 		"moveWall":         ep<[number, string],                    undefined>  ("maps.moveWall",         ["id", "path"],             isUndefined,   "waitWallMoved"),
