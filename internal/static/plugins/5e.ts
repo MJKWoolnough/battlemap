@@ -26,10 +26,11 @@ import {doMapDataRemove, doMapDataSet, doTokenSet, getToken} from '../map_fns.js
 import {makeLight} from '../map_lighting.js';
 import {Lighting, definitions, masks, outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
-import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
+import {combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {enableAnimation} from '../settings.js';
 import {characterData, cloneObject, labels, mapLoadedReceive} from '../shared.js';
 import {remove, rename, symbols, visibility} from '../symbols.js';
+import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker} from '../types.js';
 import {shell, windows} from '../windows.js';
 
 type IDInitiative = {
