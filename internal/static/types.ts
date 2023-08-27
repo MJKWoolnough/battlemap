@@ -183,7 +183,18 @@ export type RPC = RPCWaits & {
 
 const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       tokenDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
-      characterDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],;
+      characterDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
+      isKeyDataT = <T>(primary: TypeGuard<T>, checkers: ((data: T) => void)[]) => asTypeGuard((v: unknown): v is T => {
+	if (!primary(v)) {
+		return false;
+	}
+
+	for (const mdc of checkers) {
+		mdc(v);
+	}
+
+	return true;
+      });
 
 export const addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
 addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => characterDataCheckers.push(fn),
