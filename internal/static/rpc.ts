@@ -1,4 +1,4 @@
-import type {Broadcast, FolderItems, GridDetails, IDName, IDPath, Keystore, KeystoreData, LayerRename, MapData, MapStart, Mask, MusicPack, NewMap, Plugin, Token, TokenSet, Wall} from './types.js';
+import type {Broadcast, FolderItems, GridDetails, IDName, IDPath, Keystore, LayerRename, MapData, MapStart, Mask, MusicPack, NewMap, Plugin, Token, TokenSet, Wall} from './types.js';
 import type {Binding} from './lib/bind.js';
 import type {TypeGuard} from './lib/typeguard.js';
 import {WS} from './lib/conn.js';
@@ -18,15 +18,9 @@ export let isAdmin: boolean,
 isUser: boolean,
 timeShift = 0;
 
-const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
-      tokenDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
-      characterDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
-      arpc = new RPC();
+const arpc = new RPC();
 
-export const addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
-addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => characterDataCheckers.push(fn),
-addTokenDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => tokenDataCheckers.push(fn),
-handleError = (e: Error | string | Binding) => {
+export const handleError = (e: Error | string | Binding) => {
 	console.log(e);
 	shell.alert(lang["ERROR"], (e instanceof Error ? e.message : Object.getPrototypeOf(e) === Object.prototype ? JSON.stringify(e): e.toString()) || lang["ERROR_UNKNOWN"]);
 },
