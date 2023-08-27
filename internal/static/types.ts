@@ -314,7 +314,7 @@ isCharacterToken = And(isTokenLight, isWidthHeight, Obj({
 	flip: isBool,
 	blop: isBool,
 	snap: isBool,
-	tokenData: Rec(isStr, isKeystoreData)
+	tokenData: isKeyDataT(Rec(isStr, isKeystoreData), characterDataCheckers)
 })),
 isWallPath = Obj({
 	path: isStr,
