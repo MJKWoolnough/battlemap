@@ -1,6 +1,6 @@
 import type {Subscription} from './lib/inter.js';
 import type {TypeGuard, TypeGuardOf} from './lib/typeguard.js';
-import {And, Any, Arr, Bool, Int, Obj, Opt, Or, Part, Rec, Recur, Str, Tuple, Val, asTypeGuard} from './lib/typeguard.js';
+import {And, Any, Arr, Bool, Int, Obj, Opt, Or, Part, Rec, Recur, Req, Str, Tuple, Val, asTypeGuard} from './lib/typeguard.js';
 import {isColour} from './colours.js';
 
 export type Int = number;
@@ -199,10 +199,10 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 export const addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
 addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => characterDataCheckers.push(fn),
 addTokenDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => tokenDataCheckers.push(fn),
-isKeystoreData = Obj({
+isKeystoreData = Req(Obj({
 	user: isBool,
 	data: Any()
-}),
+})),
 isKeystore = Rec(isStr, isKeystoreData),
 isPlugin = Obj({
 	enabled: isBool,
