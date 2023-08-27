@@ -55,13 +55,13 @@ handleError = (e: Error | string | Binding) => {
 		      "images": {},
 		      "audio": {},
 		      "characters": {},
-		      "maps": {},
+		      "maps": {}
 	      },
 	      combined = {
 		      "images": {},
 		      "audio": {},
 		      "characters": {},
-		      "maps": {},
+		      "maps": {}
 	      },
 	      ep = <const Args extends any[], T extends any, const ArgNames extends string[] = ArgTuple<Args["length"]>>(endpoint: string, args: ArgNames, typeguard: TypeGuard<T>, waiter?: `wait${string}`, modFn?: (params: any, ret: T) => any, on: any = internal) => {
 		const [sub, sFn] = Subscription.bind(1);
