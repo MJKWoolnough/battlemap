@@ -229,7 +229,7 @@ isTokenShared = And(isTokenLight, isID, isWidthHeight, Obj({
 	y: isInt,
 	rotation: isByte,
 	tokenType: Opt(isUint),
-	tokenData: Rec(isStr, isKeystoreData)
+	tokenData: isKeyDataT(Rec(isStr, isKeystoreData), tokenDataCheckers)
 })),
 isTokenImage = And(isTokenShared, Obj({
 	src: isUint,
