@@ -351,7 +351,7 @@ isLayerShift = Obj({
 }),
 isKeystoreDataChange = Obj({
 	setting: Rec(isStr, isKeystoreData),
-	remove: Arr(isStr)
+	removing: Arr(isStr)
 }),
 isCharacterDataChange = And(isID, isKeystoreDataChange),
 isPluginDataChange = And(isKeystoreDataChange, Obj({
