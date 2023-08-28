@@ -1,5 +1,5 @@
 import type {Int, Uint} from './types.js';
-import type {Children, DOMBind, Props} from './lib/dom.js';
+import type {Children, Props} from './lib/dom.js';
 import type {WindowElement} from './lib/windows.js';
 import type {ShellElement} from './lib/windows_taskmanager.js';
 import {amendNode} from './lib/dom.js';
@@ -30,7 +30,7 @@ export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement | WindowEle
 	parent.addWindow(w);
 	return p.finally(() => w.remove());
 },
-windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Children) => {
+windows = (props?: Props | Children, children?: Children) => {
 	const w = amendNode(awindows(defaultParams), props, children),
 	      saveName = w.getAttribute("window-data");
 	if (saveName) {
