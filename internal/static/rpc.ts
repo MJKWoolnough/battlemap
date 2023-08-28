@@ -70,15 +70,12 @@ export const handleError = (e: Error | string | Binding) => {
 
 			p.then(modFn ? r => sFn(modFn(ps, r)) : r => sFn(r ?? ps), handleError);
 
-			return p;
+			return p.then(r => queue(async () => r));
 		}
 	      },
-	      queueSubscription = <T>(data: T) => queue(async () => data),
 	      w = <const T>(id: number, typeguard: TypeGuard<T>, waiter: `wait${string}`, on: any = combined, int: any = internal) => {
-		const sub = arpc.subscribe(id, typeguard.throws()).when(queueSubscription),
+		const sub = arpc.subscribe(id, typeguard.throws()),
 		      fn = sub.splitCancel();
-
-		sub.catch(handleError);
 
 		if (int) {
 			on[waiter] = Subscription.merge(sub, int[waiter]).splitCancel();
