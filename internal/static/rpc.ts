@@ -4,7 +4,6 @@ import type {TypeGuard} from './lib/typeguard.js';
 import {WS} from './lib/conn.js';
 import {Subscription} from './lib/inter.js';
 import pageLoad from './lib/load.js';
-import {queue} from './lib/misc.js';
 import {RPC} from './lib/rpc.js';
 import {And, Arr, Obj, Rec, Tuple, Undefined} from './lib/typeguard.js';
 import {Colour, isColour} from './colours.js';
@@ -70,7 +69,7 @@ export const handleError = (e: Error | string | Binding) => {
 
 			p.then(modFn ? r => sFn(modFn(ps, r)) : r => sFn(r ?? ps), handleError);
 
-			return p.then(r => queue(async () => r));
+			return p;
 		}
 	      },
 	      w = <const T>(id: number, typeguard: TypeGuard<T>, waiter: `wait${string}`, on: any = combined, int: any = internal) => {
