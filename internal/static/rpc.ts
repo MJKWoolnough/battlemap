@@ -155,7 +155,7 @@ export const handleError = (e: Error | string | Binding) => {
 		"musicPackPlay":        ep<[number, number],         number>     ("music.playPack",       ["id", "playTime"],        isUint,      "waitMusicPackPlay"),
 		"musicPackStop":        ep<[number],                 undefined>  ("music.stopPack",       [""],                      isUndefined, "waitMusicPackStop"),
 		"musicPackStopAll":     ep<[],                       undefined>  ("music.stopAllPacks",   [],                        isUndefined, "waitMusicPackStopAll"),
-		"musicPackTrackAll":    ep<[number, number[]],       undefined>  ("music.addTracks",      ["id", "tracks"],          isUndefined, "waitMusicPackTrackAdd"),
+		"musicPackTrackAdd":    ep<[number, number[]],       undefined>  ("music.addTracks",      ["id", "tracks"],          isUndefined, "waitMusicPackTrackAdd"),
 		"musicPackTrackRemove": ep<[number, number],         undefined>  ("music.removeTrack",    ["id", "track"],           isUndefined, "waitMusicPackTrackRemove"),
 		"musicPackTrackVolume": ep<[number, number, number], undefined>  ("music.setTrackVolume", ["id", "track", "volume"], isUndefined, "waitMusicPackTrackVolume"),
 		"musicPackTrackRepeat": ep<[number, number, number], undefined>  ("music.setTrackRepeat", ["id", "track", "repeat"], isUndefined, "waitMusicPackTrackRepeat"),
