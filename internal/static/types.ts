@@ -294,7 +294,7 @@ isMapData = And(isLayerFolder, isMapDetails, isMaskSet, Obj({
 	startY: isUint,
 	gridDistance: isUint,
 	gridDiagonal: isBool,
-	lightColor: isColour,
+	lightColour: isColour,
 	data: isKeyDataT(Rec(isStr, Any()), mapDataCheckers)
 })),
 isFromTo = Obj({
