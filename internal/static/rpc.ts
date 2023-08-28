@@ -153,7 +153,7 @@ export const handleError = (e: Error | string | Binding) => {
 		"musicPackRemove":      ep<[number],                 undefined>  ("music.remove",         [""],                      isUndefined, "waitMusicPackRemove"),
 		"musicPackCopy":        ep<[number, string],         IDName>     ("music.copy",           ["id", "name"],            isIDName,    "waitMusicPackCopy", (p, idName: IDName) => (p["name"] = idName["name"], p["newID"] = idName["id"], p)),
 		"musicPackSetVolumd":   ep<[number, number],         undefined>  ("music.setVolume",      ["id", "volume"],          isUndefined, "waitMusicPackVolume"),
-		"musicPackPlayer":      ep<[number, number],         number>     ("music.playPack",       ["id", "playTime"],        isUint,      "waitMusicPackPlay"),
+		"musicPackPlay":        ep<[number, number],         number>     ("music.playPack",       ["id", "playTime"],        isUint,      "waitMusicPackPlay"),
 		"musicPackStop":        ep<[number],                 undefined>  ("music.stopPack",       [""],                      isUndefined, "waitMusicPackStop"),
 		"musicPackStopAll":     ep<[],                       undefined>  ("music.stopAllPacks",   [],                        isUndefined, "waitMusicPackStopAll"),
 		"musicPackTrackAll":    ep<[number, number[]],       undefined>  ("music.addTracks",      ["id", "tracks"],          isUndefined, "waitMusicPackTrackAdd"),
