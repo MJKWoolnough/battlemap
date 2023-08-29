@@ -1,6 +1,7 @@
-import type {FolderItems, FolderRPC, IDName, Uint, WidthHeight} from './types.js';
+import type {FolderItems, IDName, Uint, WidthHeight} from './types.js';
 import type {Binding} from './lib/bind.js';
 import type {DragTransfer} from './lib/drag.js';
+import type {FolderRPC} from './rpc.js';
 import {add, at, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
