@@ -1,4 +1,4 @@
-import type {IDName, Int, LayerMove, LayerRename, LayerRPC, MapDetails, Mask, MaskSet, Token, TokenSet, Uint, Wall, WallPath} from './types.js';
+import type {IDName, Int, LayerMove, LayerRename, MapDetails, Mask, MaskSet, Token, TokenSet, Uint, Wall, WallPath} from './types.js';
 import type {Colour} from './colours.js';
 import type {SVGLayer} from './map.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
@@ -667,7 +667,7 @@ snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 	}}
 	return [Math.round(x / size) * size + ((Math.round(width / size) * size - width) >> 1), Math.round(y / size) * size + ((Math.round(height / size) * size - height) >> 1)];
 },
-layersRPC: LayerRPC = Object.freeze({
+layersRPC = Object.freeze({
 	"waitAdded": () => waitAdded[0],
 	"waitMoved": unusedWaitFn,
 	"waitRemoved": () => waitRemoved[0],
@@ -686,11 +686,11 @@ layersRPC: LayerRPC = Object.freeze({
 	"createFolder": (path: string) => rpc.addLayerFolder(path).then(p => doLayerFolderAdd(p, false)),
 	"move": invalidRPC,
 	"moveFolder": invalidRPC,
-	"remove": path => {
+	"remove": (path: string) => {
 		undo.clear();
 		return removeS(path);
 	},
-	"removeFolder": path => {
+	"removeFolder": (path: string) => {
 		undo.clear();
 		return removeS(path);
 	},
