@@ -364,7 +364,7 @@ if (isAdmin) {
 			pages.delete(id);
 			delete currPath.items[item];
 			rpc.pluginSetting(importName, {"": folders}, [id + ""]);
-			return Promise.resolve();
+			return Promise.resolve(undefined);
 		},
 		"removeFolder": path => {
 			const [currPath, folder] = getFolder(cleanPath(path));
@@ -382,7 +382,7 @@ if (isAdmin) {
 			}
 			delete currPath.folders[folder];
 			rpc.pluginSetting(importName, {"": folders}, []);
-			return Promise.resolve()
+			return Promise.resolve(undefined)
 		},
 		"copy": (id, path) => {
 			const [currPath, item] = getFolder(path);
