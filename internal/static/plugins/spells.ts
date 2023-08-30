@@ -1,5 +1,6 @@
-import type {RPCWaits, Uint} from '../types.js';
+import type {Uint} from '../types.js';
 import type {Colour} from '../colours.js';
+import type {RPCWaits} from '../rpc.js';
 import {id} from '../lib/css.js';
 import {amendNode} from '../lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from '../lib/events.js';
