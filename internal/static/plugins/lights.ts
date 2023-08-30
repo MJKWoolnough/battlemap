@@ -312,7 +312,7 @@ if (isAdmin) {
 			lightData.delete(id);
 			delete currPath.items[item];
 			rpc.pluginSetting(importName, {"": folders}, [id + ""]);
-			return Promise.resolve(undefined);
+			return Promise.resolve();
 		},
 		"removeFolder": path => {
 			const [currPath, folder] = getFolder(cleanPath(path));
@@ -330,7 +330,7 @@ if (isAdmin) {
 			}
 			delete currPath.folders[folder];
 			rpc.pluginSetting(importName, {"": folders}, []);
-			return Promise.resolve(undefined)
+			return Promise.resolve()
 		},
 		"copy": (id, path) => {
 			const [currPath, item] = getFolder(path);
