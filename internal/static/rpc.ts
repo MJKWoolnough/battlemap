@@ -8,7 +8,7 @@ import {RPC} from './lib/rpc.js';
 import {And, Arr, Obj, Rec, Tuple, Void} from './lib/typeguard.js';
 import {Colour, isColour} from './colours.js';
 import lang from './language.js';
-import {isBool, isBroadcast, isBroadcastWindow, isCharacterDataChange, isFolderItems, isFromTo, isIDName, isIDPath, isKeyData, isKeystore, isLayerMove, isLayerRename, isLayerShift, isMapData, isMapDetails, isMapStart, isMask, isMaskSet, isMusicPack, isMusicPackPlay, isMusicPackTrackAdd, isMusicPackTrackRemove, isMusicPackTrackRepeat, isMusicPackTrackVolume, isMusicPackVolume, isPlugin, isPluginDataChange, isStr, isTokenAdd, isTokenMoveLayerPos, isTokenSet, isUint, isWall, isWallPath} from './types.js';
+import {isArrIDName, isBool, isBroadcast, isBroadcastWindow, isCharacterDataChange, isFolderItems, isFromTo, isIDName, isIDPath, isKeyData, isKeystore, isLayerMove, isLayerRename, isLayerShift, isMapData, isMapDetails, isMapStart, isMask, isMaskSet, isMusicPack, isMusicPackPlay, isMusicPackTrackAdd, isMusicPackTrackRemove, isMusicPackTrackRepeat, isMusicPackTrackVolume, isMusicPackVolume, isPlugin, isPluginDataChange, isStr, isTokenAdd, isTokenMoveLayerPos, isTokenSet, isUint, isWall, isWallPath} from './types.js';
 import {shell} from './windows.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemCopy = -19, broadcastAudioItemCopy = -20, broadcastCharacterItemCopy = -21, broadcastMapItemCopy = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastLayerAdd = -37, broadcastLayerFolderAdd = -38, broadcastLayerMove = -39, broadcastLayerRename = -40, broadcastLayerRemove = -41, broadcastGridDistanceChange = -42, broadcastGridDiagonalChange = -43, broadcastMapLightChange = -44, broadcastLayerShow = -45, broadcastLayerHide = -46, broadcastLayerLock = -47, broadcastLayerUnlock = -48, broadcastMaskAdd = -49, broadcastMaskRemove = -50, broadcastMaskSet = -51, broadcastTokenAdd = -52, broadcastTokenRemove = -53, broadcastTokenMoveLayerPos = -54, broadcastTokenSet = -55, broadcastTokenSetMulti = -56, broadcastLayerShift = -57, broadcastWallAdd = -58, broadcastWallRemove = -59, broadcastWallModify = -60, broadcastWallMoveLayer = -61, broadcastMusicPackAdd = -62, broadcastMusicPackRename = -63, broadcastMusicPackRemove = -64, broadcastMusicPackCopy = -65, broadcastMusicPackVolume = -66, broadcastMusicPackPlay = -67, broadcastMusicPackStop = -68, broadcastMusicPackStopAll = -69, broadcastMusicPackTrackAdd = -70, broadcastMusicPackTrackRemove = -71, broadcastMusicPackTrackVolume = -72, broadcastMusicPackTrackRepeat = -73, broadcastPluginChange = -74, broadcastPluginSettingChange = -75, broadcastWindow = -76, broadcastSignalMeasure = -77, broadcastSignalPosition = -78, broadcastSignalMovePosition = -79, broadcastAny = -80;
@@ -98,13 +98,13 @@ export const handleError = (e: Error | string | Binding) => {
 		"removeFolder": ep<[string],         void>  (`${prefix}.removeFolder`, [""],           isVoid,   "waitFolderRemoved", undefined, internal[prefix]),
 		"copy":         ep<[number, string], IDPath>(`${prefix}.copy`,         ["id", "path"], isIDPath, "waitCopied",        undefined, internal[prefix]),
 
-		"waitAdded":         w(added,         Arr(isIDName), "waitAdded",         combined[prefix], internal[prefix]),
-		"waitMoved":         w(moved,         isFromTo,      "waitMoved",         combined[prefix], internal[prefix]),
-		"waitRemoved":       w(removed,       isStr,         "waitRemoved",       combined[prefix], internal[prefix]),
-		"waitCopied":        w(copied,        isCopied,      "waitCopied",        combined[prefix], internal[prefix]),
-		"waitFolderAdded":   w(folderAdded,   isStr,         "waitFolderAdded",   combined[prefix], internal[prefix]),
-		"waitFolderMoved":   w(folderMoved,   isFromTo,      "waitFolderMoved",   combined[prefix], internal[prefix]),
-		"waitFolderRemoved": w(folderRemove,  isStr,         "waitFolderRemoved", combined[prefix], internal[prefix])
+		"waitAdded":         w(added,         isArrIDName, "waitAdded",         combined[prefix], internal[prefix]),
+		"waitMoved":         w(moved,         isFromTo,    "waitMoved",         combined[prefix], internal[prefix]),
+		"waitRemoved":       w(removed,       isStr,       "waitRemoved",       combined[prefix], internal[prefix]),
+		"waitCopied":        w(copied,        isCopied,    "waitCopied",        combined[prefix], internal[prefix]),
+		"waitFolderAdded":   w(folderAdded,   isStr,       "waitFolderAdded",   combined[prefix], internal[prefix]),
+		"waitFolderMoved":   w(folderMoved,   isFromTo,    "waitFolderMoved",   combined[prefix], internal[prefix]),
+		"waitFolderRemoved": w(folderRemove,  isStr,       "waitFolderRemoved", combined[prefix], internal[prefix])
 	      }),
 	      rpc = {
 		"ready": ep<[], void>("conn.ready", [], isVoid),
