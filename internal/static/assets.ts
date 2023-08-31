@@ -160,7 +160,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 					clearNode(bar, {"value": e.loaded, "max": e.total}, Math.floor(e.loaded*100/e.total) + "%");
 				}
 			}
-		}).then((assets: IDName[]) => {
+		}).then(assets => {
 			for (const {id, name} of assets) {
 				root.addItem(id, name);
 			}
