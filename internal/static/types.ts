@@ -41,6 +41,7 @@ isIDName = Obj({
 	id: isUint,
 	name: isStr
 }),
+isArrIDName = Arr(isIDName),
 isWidthHeight = Obj({
 	width: isUint,
 	height: isUint
