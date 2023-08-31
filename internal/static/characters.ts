@@ -1,6 +1,6 @@
-import type {KeystoreData, Uint} from './types.js';
 import type {Binding} from './lib/bind.js';
 import type {Character} from './characterList.js';
+import type {KeystoreData, Uint} from './types.js';
 import {add, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';

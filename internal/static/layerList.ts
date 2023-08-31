@@ -1,5 +1,5 @@
-import type {FolderItems, LayerFolder, LayerTokens, Uint} from './types.js';
 import type {SVGLayer} from './map.js';
+import type {FolderItems, LayerFolder, LayerTokens, Uint} from './types.js';
 import {add, at, ids} from './lib/css.js';
 import {amendNode, clearNode, createDocumentFragment} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';

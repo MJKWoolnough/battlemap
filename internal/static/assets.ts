@@ -1,6 +1,6 @@
-import type {FolderItems, IDName, Uint} from './types.js';
 import type {Binding} from './lib/bind.js';
 import type {FolderRPC} from './rpc.js';
+import type {FolderItems, IDName, Uint} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {HTTPRequest} from './lib/conn.js';
 import {add, ids} from './lib/css.js';

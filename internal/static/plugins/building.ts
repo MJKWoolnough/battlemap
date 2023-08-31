@@ -1,7 +1,7 @@
-import type {FolderItems, TokenDrawing, TokenShape, Uint} from '../types.js';
 import type {SVGShape} from '../map_tokens.js';
 import type {PluginType, SVGDrawingConstructor, SVGShapeConstructor} from '../plugins.js';
 import type {FolderRPC} from '../rpc.js';
+import type {FolderItems, TokenDrawing, TokenShape, Uint} from '../types.js';
 import {add, id} from '../lib/css.js';
 import {amendNode, clearNode} from '../lib/dom.js';
 import {div} from '../lib/html.js';

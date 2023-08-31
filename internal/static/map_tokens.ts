@@ -1,6 +1,6 @@
-import type {Byte, Coords, GridDetails, Int, KeystoreData, Mask, Token, TokenDrawing, TokenImage, TokenShape, Uint} from './types.js';
 import type {WaitGroup} from './lib/inter.js';
 import type {SVGLayer} from './map.js';
+import type {Byte, Coords, GridDetails, Int, KeystoreData, Mask, Token, TokenDrawing, TokenImage, TokenShape, Uint} from './types.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
 import {setAndReturn} from './lib/misc.js';

@@ -1,5 +1,5 @@
-import type {Byte, Uint} from './types.js';
 import type {Lighting} from './map_tokens.js';
+import type {Byte, Uint} from './types.js';
 import Fraction from './lib/fraction.js';
 import {setAndReturn} from './lib/misc.js';
 import {Colour, noColour} from './colours.js';

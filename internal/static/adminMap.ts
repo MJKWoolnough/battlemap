@@ -1,8 +1,8 @@
-import type {ID, Token, TokenLight, TokenSet, Uint} from './types.js';
 import type {MenuItems} from './lib/menu.js';
 import type {Colour} from './colours.js';
 import type {SVGFolder, SVGLayer} from './map.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
+import type {ID, Token, TokenLight, TokenSet, Uint} from './types.js';
 import {add, id} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';

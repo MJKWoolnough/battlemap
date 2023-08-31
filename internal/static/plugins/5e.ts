@@ -1,4 +1,3 @@
-import type {Int, KeystoreData, MapData, TokenImage, TokenSet, Uint} from '../types.js';
 import type {Children} from '../lib/dom.js';
 import type {WaitGroup} from '../lib/inter.js';
 import type {MenuItems} from '../lib/menu.js';
@@ -7,6 +6,7 @@ import type {LightWall} from '../map_lighting.js';
 import type {SVGDrawing, SVGShape, SVGToken} from '../map_tokens.js';
 import type {PluginType, SVGTokenConstructor} from '../plugins.js';
 import type {RPCWaits} from '../rpc.js';
+import type {Int, KeystoreData, MapData, TokenImage, TokenSet, Uint} from '../types.js';
 import bind from '../lib/bind.js';
 import {add, ids} from '../lib/css.js';
 import {amendNode, clearNode} from '../lib/dom.js';

@@ -1,7 +1,7 @@
-import type {IDName, Int, LayerMove, LayerRename, MapDetails, Mask, MaskSet, Token, TokenSet, Uint, Wall, WallPath} from './types.js';
 import type {Colour} from './colours.js';
 import type {SVGLayer} from './map.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
+import type {IDName, Int, LayerMove, LayerRename, MapDetails, Mask, MaskSet, Token, TokenSet, Uint, Wall, WallPath} from './types.js';
 import {amendNode} from './lib/dom.js';
 import {Subscription} from './lib/inter.js';
 import {queue} from './lib/misc.js';

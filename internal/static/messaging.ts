@@ -1,6 +1,6 @@
-import type {Uint} from './types.js';
 import type {Parsers, TagFn} from './lib/bbcode.js';
 import type {Binding} from './lib/bind.js';
+import type {Uint} from './types.js';
 import bbcode from './lib/bbcode.js';
 import {all} from './lib/bbcode_tags.js';
 import {amendNode} from './lib/dom.js';

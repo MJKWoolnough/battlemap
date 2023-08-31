@@ -1,5 +1,5 @@
-import type {FolderItems, FromTo, IDName, KeystoreData, Uint} from '../types.js';
 import type {Parsers, Tokeniser} from '../lib/bbcode.js';
+import type {FolderItems, FromTo, IDName, KeystoreData, Uint} from '../types.js';
 import type {WindowElement} from '../windows.js';
 import {isOpenTag, process} from '../lib/bbcode.js';
 import {none} from '../lib/bbcode_tags.js';

@@ -1,7 +1,7 @@
-import type {Int, Uint} from './types.js';
 import type {Children, Props} from './lib/dom.js';
 import type {WindowElement} from './lib/windows.js';
 import type {ShellElement} from './lib/windows_taskmanager.js';
+import type {Int, Uint} from './types.js';
 import {amendNode} from './lib/dom.js';
 import {hasKeyEvent} from './lib/events.js';
 import {isInt} from './lib/misc.js';

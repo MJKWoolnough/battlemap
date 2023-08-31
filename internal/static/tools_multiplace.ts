@@ -1,5 +1,5 @@
-import type {TokenImage} from './types.js';
 import type {SVGToken} from './map_tokens.js';
+import type {TokenImage} from './types.js';
 import {amendNode} from './lib/dom.js';
 import {setDragEffect} from './lib/drag.js';
 import {mouseMoveEvent} from './lib/events.js';

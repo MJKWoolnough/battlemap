@@ -1,8 +1,8 @@
-import type {Byte, Uint, Wall} from './types.js';
 import type {MenuItems} from './lib/menu.js';
 import type {NodeArray} from './lib/nodes.js';
 import type {SVGFolder, SVGLayer} from './map.js';
 import type {RPCWaits} from './rpc.js';
+import type {Byte, Uint, Wall} from './types.js';
 import type {WindowElement} from './windows.js';
 import {add, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';

@@ -1,6 +1,6 @@
-import type {Broadcast, FolderItems, GridDetails, IDName, IDPath, Keystore, LayerRename, MapData, MapStart, Mask, MusicPack, NewMap, Plugin, Token, TokenSet, Wall} from './types.js';
 import type {Binding} from './lib/bind.js';
 import type {TypeGuard} from './lib/typeguard.js';
+import type {Broadcast, FolderItems, GridDetails, IDName, IDPath, Keystore, LayerRename, MapData, MapStart, Mask, MusicPack, NewMap, Plugin, Token, TokenSet, Wall} from './types.js';
 import {WS} from './lib/conn.js';
 import {Subscription} from './lib/inter.js';
 import pageLoad from './lib/load.js';

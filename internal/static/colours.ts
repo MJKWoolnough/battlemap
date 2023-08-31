@@ -1,5 +1,5 @@
-import type {Byte} from './types.js';
 import type {Binding} from './lib/bind.js';
+import type {Byte} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {add, ids} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
