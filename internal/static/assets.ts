@@ -8,9 +8,10 @@ import {amendNode, clearNode} from './lib/dom.js';
 import {DragFiles, DragTransfer} from './lib/drag.js';
 import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
-import {autoFocus, isInt, setAndReturn} from './lib/misc.js';
+import {autoFocus, setAndReturn} from './lib/misc.js';
 import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
+import {Arr} from './lib/typeguard.js';
 import {audioIDtoURL, imageIDtoURL} from './asset_urls.js';
 import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
 import {dragOver, folderDragging, folders} from './ids.js';
@@ -19,6 +20,7 @@ import {bbcodeDrag, register} from './messaging.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {labels, loading, menuItems} from './shared.js';
 import {shareStr} from './symbols.js';
+import {isIDName} from './types.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
 class ImageAsset extends DraggableItem {
@@ -149,11 +151,11 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
       uploadAsset = (root: Root, fileType: string, data: FormData, window: WindowElement | ShellElement = shell, path = "/") => {
 	const bar = progress({"style": "width: 100%"});
 	return loadingWindow(
-		HTTPRequest<IDName[]>(`/${fileType}/?path=${encodeURIComponent(path)}`, {
+		HTTPRequest(`/${fileType}/?path=${encodeURIComponent(path)}`, {
 			data,
 			"method": "POST",
 			"response": "json",
-			"checker": (data: unknown): data is IDName[] => data instanceof Array && data.every(item => item instanceof Object && "id" in item && isInt(item["id"], 0) && "name" in item && typeof item["name"] === "string"),
+			"checker": Arr(isIDName),
 			"onuploadprogress": (e: ProgressEvent) => {
 				if (e.lengthComputable) {
 					clearNode(bar, {"value": e.loaded, "max": e.total}, Math.floor(e.loaded*100/e.total) + "%");
