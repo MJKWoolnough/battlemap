@@ -2,16 +2,6 @@ import type {TypeGuard, TypeGuardOf} from './lib/typeguard.js';
 import {And, Any, Arr, Bool, Int, Obj, Opt, Or, Part, Rec, Recur, Req, Str, Tuple, Val, asTypeGuard} from './lib/typeguard.js';
 import {isColour} from './colours.js';
 
-export type Int = number;
-export type Uint = number;
-export type Byte = number;
-
-export const isInt = Int(),
-      isUint = Int(0),
-      isByte = Int(0, 255),
-      isBool = Bool(),
-      isStr = Str();
-
 const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       tokenDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
       characterDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
@@ -27,7 +17,12 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	return true;
       });
 
-export const addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
+export const isInt = Int(),
+isUint = Int(0),
+isByte = Int(0, 255),
+isBool = Bool(),
+isStr = Str(),
+addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
 addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => characterDataCheckers.push(fn),
 addTokenDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => tokenDataCheckers.push(fn),
 isKeystoreData = Req(Obj({
@@ -231,6 +226,12 @@ isCopy = Obj({
 	newID: isUint,
 	path: isStr
 });
+
+export type Int = number;
+
+export type Uint = number;
+
+export type Byte = number;
 
 export type Copy = TypeGuardOf<typeof isCopy>;
 
