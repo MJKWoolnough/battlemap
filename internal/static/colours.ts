@@ -7,7 +7,7 @@ import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input} from './lib/html.js';
 import {checkInt, isInt} from './lib/misc.js';
 import {JSONSetting} from './lib/settings.js';
-import {asTypeGuard, Int, Obj} from './lib/typeguard.js';
+import {Int, Obj, asTypeGuard} from './lib/typeguard.js';
 import lang from './language.js';
 import {labels} from './shared.js';
 import {shell, windows} from './windows.js';
