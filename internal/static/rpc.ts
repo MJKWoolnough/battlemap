@@ -171,9 +171,9 @@ export const handleError = (e: Error | string | Binding) => {
 		"characterGet":    ep<[number],                     Keystore>("character.get",    [""],                          isKeystore),
 
 		"listPlugins":   ep<[],                           Record<string, Plugin>>("plugins.list",   [],                            isPlugins),
-		"enablePlugin":  ep<[string],                     void>             ("plugin.enable",  [""],                          isVoid),
-		"disablePlugin": ep<[string],                     void>             ("plugin.disable", [""],                          isVoid),
-		"pluginSetting": ep<[string, Keystore, string[]], void>             ("plugin.set",     ["id", "setting", "removing"], isVoid, "waitPluginSetting"),
+		"enablePlugin":  ep<[string],                     void>                  ("plugin.enable",  [""],                          isVoid),
+		"disablePlugin": ep<[string],                     void>                  ("plugin.disable", [""],                          isVoid),
+		"pluginSetting": ep<[string, Keystore, string[]], void>                  ("plugin.set",     ["id", "setting", "removing"], isVoid, "waitPluginSetting"),
 
 		"broadcastWindow": ep<[string, number, string], void>("broadcastWindow", ["module", "id", "contents"], isVoid, "waitBroadcastWindow"),
 		"broadcast":       ep<[Broadcast],              void>("broadcast",       [""],                         isVoid, "waitBroadcast"),
