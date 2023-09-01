@@ -22,12 +22,13 @@ isUint = Int(0),
 isByte = Int(0, 255),
 isBool = Bool(),
 isStr = Str(),
+isAny = Any(),
 addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
 addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => characterDataCheckers.push(fn),
 addTokenDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => tokenDataCheckers.push(fn),
 isKeystoreData = Req(Obj({
 	user: isBool,
-	data: Any()
+	data: isAny
 })),
 isKeystore = Rec(isStr, isKeystoreData),
 isPlugin = Obj({
@@ -122,7 +123,7 @@ isMapData = And(isLayerFolder, isMapDetails, isMaskSet, Obj({
 	gridDistance: isUint,
 	gridDiagonal: isBool,
 	lightColour: isColour,
-	data: isKeyDataT(Rec(isStr, Any()), mapDataCheckers)
+	data: isKeyDataT(Rec(isStr, isAny), mapDataCheckers)
 })),
 isFromTo = Obj({
 	from: isStr,
@@ -156,8 +157,8 @@ isBroadcastWindow = And(isID, Obj({
 	contents: isStr
 })),
 isBroadcast = Obj({
-	type: Any(),
-	data: Any()
+	type: isAny,
+	data: isAny
 }),
 isLayerRename = Obj({
 	path: isStr,
@@ -187,7 +188,7 @@ isPluginDataChange = And(isKeystoreDataChange, Obj({
 })),
 isKeyData = Obj({
 	key: isStr,
-	data: Any()
+	data: isAny
 }),
 isMusicTrack = And(isID, Obj({
 	volume: isUint,
