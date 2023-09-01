@@ -92,8 +92,8 @@ export const handleError = (e: Error | string | Binding) => {
 	      },
 	      modTo = (p: any, to: string) => (p["to"] = to, p),
 	      folderEPs = (prefix: keyof typeof internal, added: number, moved: number, removed: number, copied: number, folderAdded: number, folderMoved: number, folderRemove: number) => Object.freeze({
-		"list":         ep<[], FolderItems>            (`${prefix}.list`,         [],             isFolderItems),
-		"createFolder": ep<[string], string>           (`${prefix}.createFolder`, [""],           isStr,    "waitFolderAdded",   undefined, internal[prefix]),
+		"list":         ep<[], FolderItems>         (`${prefix}.list`,         [],             isFolderItems),
+		"createFolder": ep<[string], string>        (`${prefix}.createFolder`, [""],           isStr,    "waitFolderAdded",   undefined, internal[prefix]),
 		"move":         ep<[string, string], string>(`${prefix}.move`,         ["from", "to"], isStr,    "waitMoved",         modTo,     internal[prefix]),
 		"moveFolder":   ep<[string, string], string>(`${prefix}.moveFolder`,   ["from", "to"], isStr,    "waitFolderMoved",   modTo,     internal[prefix]),
 		"remove":       ep<[string],         void>  (`${prefix}.remove`,       [""],           isVoid,   "waitRemoved",       undefined, internal[prefix]),
