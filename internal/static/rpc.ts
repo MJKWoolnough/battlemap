@@ -80,6 +80,8 @@ export const handleError = (e: Error | string | Binding) => {
 		const sub = arpc.subscribe(id, typeguard.throws()),
 		      fn = sub.splitCancel();
 
+		sub.catch(handleError);
+
 		if (int) {
 			on[waiter] = Subscription.merge(sub, int[waiter]).splitCancel();
 		} else {
