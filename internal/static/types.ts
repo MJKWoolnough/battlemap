@@ -1,5 +1,5 @@
 import type {TypeGuard, TypeGuardOf} from './lib/typeguard.js';
-import {And, Any, Arr, Bool, Int, Obj, Opt, Or, Part, Rec, Recur, Req, Str, Tuple, Val, asTypeGuard} from './lib/typeguard.js';
+import {And, Arr, Bool, Int, Obj, Opt, Or, Part, Rec, Recur, Req, Str, Tuple, Unknown, Val, asTypeGuard} from './lib/typeguard.js';
 import {isColour} from './colours.js';
 
 const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
@@ -22,13 +22,13 @@ isUint = Int(0),
 isByte = Int(0, 255),
 isBool = Bool(),
 isStr = Str(),
-isAny = Any(),
+isUnknown = Unknown(),
 addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
 addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => characterDataCheckers.push(fn),
 addTokenDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => tokenDataCheckers.push(fn),
 isKeystoreData = Req(Obj({
 	user: isBool,
-	data: isAny
+	data: isUnknown
 })),
 isKeystore = Rec(isStr, isKeystoreData),
 isPlugin = Obj({
@@ -123,7 +123,7 @@ isMapData = And(isLayerFolder, isMapDetails, isMaskSet, Obj({
 	gridDistance: isUint,
 	gridDiagonal: isBool,
 	lightColour: isColour,
-	data: isKeyDataT(Rec(isStr, isAny), mapDataCheckers)
+	data: isKeyDataT(Rec(isStr, isUnknown), mapDataCheckers)
 })),
 isFromTo = Obj({
 	from: isStr,
@@ -157,8 +157,8 @@ isBroadcastWindow = And(isID, Obj({
 	contents: isStr
 })),
 isBroadcast = Obj({
-	type: isAny,
-	data: isAny
+	type: isUnknown,
+	data: isUnknown
 }),
 isLayerRename = Obj({
 	path: isStr,
@@ -188,7 +188,7 @@ isPluginDataChange = And(isKeystoreDataChange, Obj({
 })),
 isKeyData = Obj({
 	key: isStr,
-	data: isAny
+	data: isUnknown
 }),
 isMusicTrack = And(isID, Obj({
 	volume: isUint,
