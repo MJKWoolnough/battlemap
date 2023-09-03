@@ -21,6 +21,7 @@ import {combined, inited, isAdmin, isUser, rpc} from './rpc.js';
 import {enableAnimation, scrollAmount, zoomSlider} from './settings.js';
 import {characterData, cloneObject, mapLoadedReceive, mapLoadedSend, walls} from './shared.js';
 import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
+import {isUint} from './types.js';
 import {desktop} from './windows.js';
 
 export type SVGLayer = LayerTokens & {
@@ -740,8 +741,10 @@ export default (base: HTMLElement) => {
 			if (isTokenImage(tk.token)) {
 				token = new tokenClass(tk.token);
 				const cID = tk.token.tokenData["store-character-id"];
-				if (cID && typeof cID.data === "number") {
-					rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
+				if (cID && isUint(cID.data)) {
+					const id = cID.data;
+
+					rpc.characterGet(id).then(d => characterData.set(id, d));
 				}
 			} else if (isTokenDrawing(tk.token)) {
 				token = new drawingClass(tk.token);
