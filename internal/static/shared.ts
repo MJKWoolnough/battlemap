@@ -33,11 +33,11 @@ labels = ((name: Children | Input, input: Input | Children, props: PropsObject =
 }) as Labeller,
 cloneObject = (() => {
 	const refs = new Map(),
-	      clone = <T extends any>(o: T): T => {
+	      clone = <T extends any>(o: T) => {
 		if (o instanceof Object && !Object.isFrozen(o)) {
 			const r = refs.get(o);
 			if (r) {
-				return r;
+				return r as T;
 			}
 			if (Array.isArray(o)) {
 				const a: T[keyof T][] = [];
@@ -58,7 +58,7 @@ cloneObject = (() => {
 		}
 		return o;
 	      };
-	return <T>(o: T): T => {
+	return <T>(o: T) => {
 		const c = clone(o);
 		refs.clear();
 		return c;
