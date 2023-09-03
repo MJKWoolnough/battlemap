@@ -16,6 +16,7 @@ import {checkInt, isInt, queue} from '../lib/misc.js';
 import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
 import {BoolSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
+import {Obj} from '../lib/typeguard.js';
 import {selectToken} from '../adminMap.js';
 import {imageIDtoURL} from '../asset_urls.js';
 import {Colour, ColourSetting, makeColourPicker} from '../colours.js';
@@ -31,7 +32,7 @@ import {combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {enableAnimation} from '../settings.js';
 import {characterData, cloneObject, labels, mapLoadedReceive} from '../shared.js';
 import {remove, rename, symbols, visibility} from '../symbols.js';
-import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker} from '../types.js';
+import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, isBool, isStr, isUint} from '../types.js';
 import {shell, windows} from '../windows.js';
 
 type IDInitiative = {
@@ -827,6 +828,8 @@ if (isAdmin) {
 	      }).catch(() => {}),
 	      shapechangeCats = settings["shapechange-categories"].data.map(c => ({"name": c["name"], "images": c["images"].slice()})),
 	      shapechangeTokens = settings["store-image-shapechanges"].data.map(cloneObject),
+	      isKeyStoreDataStr = Obj({"user": isBool, "data": isStr}),
+	      isKeyStoreDataUint = Obj({"user": isBool, "data": isUint}),
 	      asInitialToken = (t: Omit<TokenImage, "id" | "x" | "y">): InitialToken => {
 		const tokenData: InitialTokenData = {
 			"name": null,
@@ -835,16 +838,16 @@ if (isAdmin) {
 			"5e-hp-current": null
 		      },
 		      {name, "5e-ac": ac, "5e-hp-max": hpMax, "5e-hp-current": hpCurrent} = t.tokenData;
-		if (name) {
+		if (isKeyStoreDataStr(name)) {
 			tokenData["name"] = cloneObject(name);
 		}
-		if (ac) {
+		if (isKeyStoreDataUint(ac)) {
 			tokenData["5e-ac"] = cloneObject(ac);
 		}
-		if (hpMax) {
+		if (isKeyStoreDataUint(hpMax)) {
 			tokenData["5e-hp-max"] = cloneObject(hpMax);
 		}
-		if (hpCurrent) {
+		if (isKeyStoreDataUint(hpCurrent)) {
 			tokenData["5e-hp-max"] = cloneObject(hpCurrent);
 		}
 		return {"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"], tokenData};
