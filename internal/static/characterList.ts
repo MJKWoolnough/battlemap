@@ -13,6 +13,7 @@ import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
 import {characterData, cloneObject, enterKey, labels, loading, menuItems} from './shared.js';
+import {isUint} from './types.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
 export class Character extends DraggableItem {
@@ -21,8 +22,10 @@ export class Character extends DraggableItem {
 		if (!characterData.has(id)) {
 			rpc.characterGet(id).then(d => {
 				characterData.set(id, d);
-				if (d["store-image-icon"]) {
-					this.setIcon(d["store-image-icon"].data);
+
+				const sii = d["store-image-icon"];
+				if (sii && isUint(sii.data)) {
+					this.setIcon(sii.data);
 				}
 			});
 		} else {
@@ -143,8 +146,8 @@ menuItems.push([2, () => isAdmin ? [
 			]);
 			rpc.waitCharacterDataChange().when(d => {
 				const icon = d.setting["store-image-icon"];
-				if (icon) {
-					characters.get(d.id)?.setIcon(parseInt(icon.data));
+				if (icon && isUint(icon.data)) {
+					characters.get(d.id)?.setIcon(icon.data);
 				}
 			});
 		});
