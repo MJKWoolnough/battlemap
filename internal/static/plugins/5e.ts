@@ -16,7 +16,7 @@ import {checkInt, isInt, queue} from '../lib/misc.js';
 import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
 import {BoolSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
-import {Obj} from '../lib/typeguard.js';
+import {And, Arr, Null, Obj, Or, Take} from '../lib/typeguard.js';
 import {selectToken} from '../adminMap.js';
 import {imageIDtoURL} from '../asset_urls.js';
 import {Colour, ColourSetting, makeColourPicker} from '../colours.js';
@@ -32,7 +32,7 @@ import {combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {enableAnimation} from '../settings.js';
 import {characterData, cloneObject, labels, mapLoadedReceive} from '../shared.js';
 import {remove, rename, symbols, visibility} from '../symbols.js';
-import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, isBool, isStr, isUint} from '../types.js';
+import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, isBool, isStr, isTokenImage, isUint} from '../types.js';
 import {shell, windows} from '../windows.js';
 
 type IDInitiative = {
@@ -731,69 +731,50 @@ amendNode(symbols, [
 ]);
 
 if (isAdmin) {
-	const checkSettings = (data: Settings5E) => {
-		if (!data["shapechange-categories"] || !data["store-image-shapechanges"]) {
-			return null;
-		}
-		if (!(data["shapechange-categories"].data instanceof Array)) {
-			console.log("shapechange-categories must be an Array");
-			return null;
-		}
-		if (!(data["store-image-shapechanges"].data instanceof Array)) {
-			console.log("store-image-shapechanges must be an Array");
-			return null;
-		}
-		const numTokens = data["store-image-shapechanges"].data.length;
-		for (const c of data["shapechange-categories"].data) {
-			if (typeof c !== "object") {
-				console.log("entry of shapechange-categories is not an object");
+	const isNull = Null(),
+	      checkSettings = (() => {
+		const tg = Obj({
+			"shapechange-categories": Obj({
+				"user": isBool,
+				"data": Arr(Obj({
+					"name": isStr,
+					"images": Arr(isBool)
+				}))
+			}),
+			"store-image-shapechanges": Obj({
+				"user": isBool,
+				"data": Arr(And(Take(isTokenImage, "src", "width", "height", "flip", "flop"), Obj({
+					"tokenData": Obj({
+						"name":Or(Obj({"user": isBool, "data": isStr}), isNull),
+						"5e-ac":Or(Obj({"user": isBool, "data": isUint}), isNull),
+						"5e-hp-max":Or(Obj({"user": isBool, "data": isUint}), isNull),
+						"5e-hp-current":Or(Obj({"user": isBool, "data": isUint}), isNull),
+					}),
+					"5e-shapechange-name": isStr
+				})))
+			})
+		      });
+
+		return (v: unknown): Settings5E | null => {
+			if (!tg(v)) {
 				return null;
 			}
-			if (typeof c["name"] !== "string") {
-				console.log("shapechange-categories.name must be a string");
-				return null;
-			}
-			if (!(c["images"] instanceof Array)) {
-				console.log("shapechange-categories.images must be an array");
-				return null;
-			}
-			if (c["images"].length > numTokens) {
-				c["images"].splice(numTokens);
-			}
-			for (const b of c["images"]) {
-				if (typeof b !== "boolean") {
-					console.log("entry of shapechange-categories.images must be boolean");
-					return null;
+
+			const numTokens = v["store-image-shapechanges"].data.length;
+
+			for (const c of v["shapechange-categories"].data) {
+				if (c.images.length > numTokens) {
+					c.images.splice(numTokens);
+				}
+
+				while (c.images.length < numTokens) {
+					c.images.push(false);
 				}
 			}
-			while (c["images"].length < numTokens) {
-				c["images"].push(false);
-			}
-		}
-		for (const s of data["store-image-shapechanges"].data) {
-			if (typeof s !== "object") {
-				console.log("entry of store-image-shapechanges must be an object");
-				return null;
-			}
-			if (!isInt(s["src"], 0)) {
-				console.log("store-image-shapechanges.src must be a Uint");
-				return null;
-			}
-			if (typeof s["5e-shapechange-name"] !== "string") {
-				console.log("store-image-shapechanges.5e-shapechange-name must be a string");
-				return null;
-			}
-			if (!isInt(s["width"], 0) || !isInt(s["height"], 0)) {
-				console.log("store-image-shapechanges.width/height must be a Uint");
-				return null;
-			}
-			if (typeof s["flip"] !== "boolean" || typeof s["flop"] !== "boolean") {
-				console.log("store-image-shapechanges.flip/flop must be a boolean");
-				return null;
-			}
-		}
-		return data;
-	      },
+
+			return v;
+		};
+	      })(),
 	      settings: Settings5E = checkSettings(getSettings(importName) as Settings5E) ?? {
 		      "shapechange-categories": {"user": false, "data": []},
 		      "store-image-shapechanges": {"user": false, "data": []}
@@ -1186,9 +1167,12 @@ if (isAdmin) {
 		}
 	};
 	rpc.waitPluginSetting().when(setting => {
-		if (setting["id"] === importName && checkSettings(setting["setting"] as Settings5E)) {
-			settings["shapechange-categories"] = setting["setting"]["shapechange-categories"];
-			settings["store-image-shapechanges"] = setting["setting"]["store-image-shapechanges"];
+		if (setting["id"] === importName) {
+			const setting5e = checkSettings(setting["setting"]);
+			if (setting5e) {
+				settings["shapechange-categories"] = setting5e["shapechange-categories"];
+				settings["store-image-shapechanges"] = setting5e["store-image-shapechanges"];
+			}
 		}
 	});
 	tokenSelectedReceive((() => {
