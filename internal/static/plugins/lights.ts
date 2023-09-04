@@ -165,13 +165,13 @@ if (isAdmin) {
 		return true;
 	      },
 	      isLightData = (() => {
-		      const tg = Obj({
-			      "lightColours": Arr(Arr(isColour)),
-			      "lightStages": Arr(isUint),
-			      "lightTimings": Arr(isUint),
-		            });
+		const tg = Obj({
+			"lightColours": Arr(Arr(isColour)),
+			"lightStages": Arr(isUint),
+			"lightTimings": Arr(isUint),
+		      });
 
-		      return asTypeGuard((v: unknown): v is TokenLight => {
+		return asTypeGuard((v: unknown): v is TokenLight => {
 			if (!tg(v) || v.lightColours.length !== v.lightStages.length) {
 				return false;
 			}
@@ -183,7 +183,7 @@ if (isAdmin) {
 			}
 
 			return true;
-		      });
+		});
 	      })(),
 	      isKeystoreDataLight = Obj({"user": isBool, "data": isLightData}),
 	      checkSettings = (data: any) => {
