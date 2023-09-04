@@ -748,7 +748,7 @@ if (isAdmin) {
 						"name":Or(Obj({"user": isBool, "data": isStr}), isNull),
 						"5e-ac":Or(Obj({"user": isBool, "data": isUint}), isNull),
 						"5e-hp-max":Or(Obj({"user": isBool, "data": isUint}), isNull),
-						"5e-hp-current":Or(Obj({"user": isBool, "data": isUint}), isNull),
+						"5e-hp-current":Or(Obj({"user": isBool, "data": isUint}), isNull)
 					}),
 					"5e-shapechange-name": isStr
 				})))
