@@ -168,7 +168,7 @@ if (isAdmin) {
 		const tg = Obj({
 			"lightColours": Arr(Arr(isColour)),
 			"lightStages": Arr(isUint),
-			"lightTimings": Arr(isUint),
+			"lightTimings": Arr(isUint)
 		      });
 
 		return asTypeGuard((v: unknown): v is TokenLight => {
