@@ -8,8 +8,9 @@ import {Subscription} from '../lib/inter.js';
 import {isInt} from '../lib/misc.js';
 import {node} from '../lib/nodes.js';
 import {polygon, rect, svg} from '../lib/svg.js';
+import {Arr, Obj, asTypeGuard} from '../lib/typeguard.js';
 import {dragLighting} from '../adminMap.js';
-import {Colour} from '../colours.js';
+import {Colour, isColour} from '../colours.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import {registerKeyEvent} from '../keys.js';
 import {makeLangPack} from '../language.js';
@@ -19,6 +20,7 @@ import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {combined, handleError, isAdmin, rpc} from '../rpc.js';
 import {cloneObject} from '../shared.js';
 import {lightGridStr} from '../symbols.js';
+import {isBool, isUint} from '../types.js';
 import {shell, windows} from '../windows.js';
 
 if (isAdmin) {
@@ -162,33 +164,28 @@ if (isAdmin) {
 		}
 		return true;
 	      },
-	      isLightData = (data: any): data is TokenLight => {
-		      if (data instanceof Object && data["lightColours"] instanceof Array && data["lightStages"] instanceof Array && data["lightTimings"] instanceof Array && data["lightColours"].length === data["lightStages"].length) {
-			      for (const cs of data["lightColours"]) {
-				      if (!(cs instanceof Array) || cs.length !== data["lightTimings"].length) {
-					      return false;
-				      }
-				      for (const c of cs) {
-					      if (!(c instanceof Object) || !isInt(c["r"], 0, 255) || !isInt(c["g"], 0, 255) || !isInt(c["b"], 0, 255) || !isInt(c["a"], 0, 255)) {
-						      return false;
-					      }
-					      Colour.from(c);
-				      }
-			      }
-			      for (const s of data["lightStages"]) {
-				      if (!isInt(s, 0)) {
-					      return false;
-				      }
-			      }
-			      for (const s of data["lightTimings"]) {
-				      if (!isInt(s, 0)) {
-					      return false;
-				      }
-			      }
-			      return true;
-		      }
-		      return false;
-	      },
+	      isLightData = (() => {
+		      const tg = Obj({
+			      "lightColours": Arr(Arr(isColour)),
+			      "lightStages": Arr(isUint),
+			      "lightTimings": Arr(isUint),
+		            });
+
+		      return asTypeGuard((v: unknown): v is TokenLight => {
+			if (!tg(v) || v.lightColours.length !== v.lightStages.length) {
+				return false;
+			}
+
+			for (const cs of v.lightColours) {
+				if (cs.length !== v.lightTimings.length) {
+					return false;
+				}
+			}
+
+			return true;
+		      });
+	      })(),
+	      isKeystoreDataLight = Obj({"user": isBool, "data": isLightData}),
 	      checkSettings = (data: any) => {
 		if (!(data instanceof Object) || !(data[""] instanceof Object) || data[""].user !== false || !isFolderItems(data[""].data)) {
 			return defaultSettings
@@ -541,7 +538,7 @@ if (isAdmin) {
 			} else {
 				const id = parseInt(key),
 				      data = setting[key];
-				if (!isNaN(id) && isLightData(data.data)) {
+				if (!isNaN(id) && isKeystoreDataLight(data)) {
 					lightData.set(id, data);
 				}
 			}
