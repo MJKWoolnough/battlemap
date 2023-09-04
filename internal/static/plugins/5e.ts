@@ -1187,8 +1187,8 @@ if (isAdmin) {
 	};
 	rpc.waitPluginSetting().when(setting => {
 		if (setting["id"] === importName && checkSettings(setting["setting"] as Settings5E)) {
-			settings["shapechange-categories"] = setting["setting"]["shapechange-categories"].data;
-			settings["store-image-shapechanges"] = setting["setting"]["store-image-shapechanges"].data;
+			settings["shapechange-categories"] = setting["setting"]["shapechange-categories"];
+			settings["store-image-shapechanges"] = setting["setting"]["store-image-shapechanges"];
 		}
 	});
 	tokenSelectedReceive((() => {
