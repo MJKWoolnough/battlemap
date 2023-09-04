@@ -12,6 +12,7 @@ import {Subscription} from '../lib/inter.js';
 import {isInt} from '../lib/misc.js';
 import {node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
+import {Obj} from '../lib/typeguard.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import {psuedoLink, settingsTicker} from '../ids.js';
 import mainLang, {makeLangPack} from '../language.js';
@@ -20,6 +21,7 @@ import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {handleError, isAdmin, rpc} from '../rpc.js';
 import {cloneObject, labels} from '../shared.js';
 import {shareStr} from '../symbols.js';
+import {isBool, isStr} from '../types.js';
 import {shell, windows} from '../windows.js';
 
 type Page = {
@@ -240,7 +242,9 @@ if (isAdmin) {
 		}
 		return true;
 	      },
-	      isPage = (data: any): data is Page => data instanceof Object && typeof data["contents"] === "string",
+
+	      isPage = Obj({"share": isBool, "contents": isStr}),
+	      isKeystoreDataPage = Obj({"user": isBool, "data": isPage}),
 	      checkSettings = (data: any) => {
 		if (!(data instanceof Object) || !(data[""] instanceof Object) || data[""].user !== false || !isFolderItems(data[""].data)) {
 			return defaultSettings
@@ -557,7 +561,7 @@ if (isAdmin) {
 			} else {
 				const id = parseInt(key),
 				      data = setting[key];
-				if (!isNaN(id) && isPage(data.data)) {
+				if (!isNaN(id) && isKeystoreDataPage(data)) {
 					pages.set(id, data);
 				}
 			}
