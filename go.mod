@@ -3,7 +3,7 @@ module vimagination.zapto.org/battlemap
 go 1.19
 
 require (
-	golang.org/x/net v0.7.0
+	golang.org/x/net v0.17.0
 	vimagination.zapto.org/byteio v1.0.3
 	vimagination.zapto.org/httpdir v1.1.0
 	vimagination.zapto.org/httpembed v1.1.0
