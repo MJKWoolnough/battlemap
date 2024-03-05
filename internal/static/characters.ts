@@ -6,7 +6,7 @@ import {amendNode, clearNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, img, input, label, li, ul} from './lib/html.js';
 import {autoFocus, queue} from './lib/misc.js';
-import {NodeMap, node, noSort} from './lib/nodes.js';
+import {NodeMap, node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {dragImage} from './assets.js';
 import {imageIDtoURL} from './asset_urls.js';
@@ -65,7 +65,7 @@ edit = (id: Uint, title: string | Binding, d: Record<string, KeystoreData>, char
 			})})
 		];
 	      })())}, tk),
-	      tokens = new NodeMap(ul({"class": tokenSelectors}), noSort, (d["store-image-data"] ? d["store-image-data"].data instanceof Array ? d["store-image-data"].data : [d["store-image-data"].data] : []).map((tk, n) => [n, makeToken(n, tk)])),
+	      tokens = new NodeMap(ul({"class": tokenSelectors}), (d["store-image-data"] ? d["store-image-data"].data instanceof Array ? d["store-image-data"].data : [d["store-image-data"].data] : []).map((tk, n) => [n, makeToken(n, tk)] as [number, ReturnType<typeof makeToken>])),
 	      base = div([
 		labels([lang["NAME"], ": "], nameInput),
 		labels(nameVisibility, userVisible()),

@@ -8,7 +8,7 @@ import {amendNode, clearNode, event, eventOnce} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {audio, br, button, div, h1, img, input, li, span, ul} from './lib/html.js';
 import {checkInt} from './lib/misc.js';
-import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
+import {NodeArray, NodeMap, node, stringSort} from './lib/nodes.js';
 import {animate, ns as svgNS, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, dragAudio, dragAudioFiles, uploadAudio} from './assets.js';
 import {audioIDtoURL} from './asset_urls.js';
@@ -325,7 +325,7 @@ inited.then(() => {
 							super(pack);
 							this.id = id;
 							this.name = pack.name;
-							this.tracks = new NodeArray<AdminTrack>(ul({"class": musicTrackList}), noSort);
+							this.tracks = new NodeArray<AdminTrack>(ul({"class": musicTrackList}));
 							for (const track of pack.tracks) {
 								this.tracks.push(new AdminTrack(this, track));
 							}

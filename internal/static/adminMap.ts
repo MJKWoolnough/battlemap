@@ -11,7 +11,7 @@ import {button, div, h1, img, input, table, tbody, td, th, thead, tr} from './li
 import {Pipe} from './lib/inter.js';
 import {item, menu, submenu} from './lib/menu.js';
 import {checkInt, mod} from './lib/misc.js';
-import {NodeArray, node, noSort} from './lib/nodes.js';
+import {NodeArray, node} from './lib/nodes.js';
 import {rect} from './lib/svg.js';
 import {dragImage, dragImageFiles, uploadImages} from './assets.js';
 import {imageIDtoURL} from './asset_urls.js';
@@ -401,12 +401,12 @@ export default (base: HTMLElement) => {
 			      o = {
 				[node]: p,
 				value: s,
-				colours: new NodeArray<ColourCell>(p, noSort, lTimings.map((_, m) => addColour(n, m)))
+				colours: new NodeArray<ColourCell>(p, lTimings.map((_, m) => addColour(n, m)))
 			      };
 			return o;
 		      },
-		      timings = new NodeArray<Timing>(amendNode(tr(), td({"colspan": 2})), noSort, lTimings.map(addTiming)),
-		      stages = new NodeArray<Stage, HTMLTableSectionElement>(tbody(tr(stagesHeader)), noSort, lStages.map(addStage));
+		      timings = new NodeArray<Timing>(amendNode(tr(), td({"colspan": 2})), lTimings.map(addTiming)),
+		      stages = new NodeArray<Stage, HTMLTableSectionElement>(tbody(tr(stagesHeader)), lStages.map(addStage));
 		amendNode(shell, amendNode(w, {"onremove": () => dragLighting.deregister(dragKey), "ondragover": dragLightingOver, "ondrop": (e: DragEvent) => {
 			if (dragLighting.is(e)) {
 				const {id, lightColours, lightStages, lightTimings} = dragLighting.get(e);
