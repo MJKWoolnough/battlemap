@@ -279,7 +279,7 @@ menuItems.push([4, () => isAdmin ? [
 					amendNode(shell, w);
 					autoFocus(name);
 				}}, lang["MAP_NEW"]),
-				root[node]
+				root
 			]);
 		});
 		return base;

@@ -439,9 +439,9 @@ export default (base: HTMLElement) => {
 						td({"colspan": 2}),
 						timingHeader
 					]),
-					timings[node]
+					timings
 				]),
-				stages[node]
+				stages
 			]),
 			button({"onclick": () => {
 				if (tokens.has(currToken.id)) {

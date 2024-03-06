@@ -10,7 +10,6 @@ import {DragTransfer, setDragEffect} from '../lib/drag.js';
 import {br, button, div, input, link, span, textarea, title} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {isInt} from '../lib/misc.js';
-import {node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
 import {Obj} from '../lib/typeguard.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
@@ -482,7 +481,7 @@ if (isAdmin) {
 						}
 					}
 				})}, lang["NOTES_NEW"]),
-				root[node]
+				root
 			]), true, icon]
 		}
 	});

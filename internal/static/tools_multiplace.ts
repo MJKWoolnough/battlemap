@@ -43,7 +43,7 @@ inited.then(() => {
 	      showCursor = () => {
 		const {layer} = selected;
 		if (!mode.checked && cursor && token && layer) {
-			amendNode(layer[node], cursor[node]);
+			amendNode(layer[node], cursor);
 			amendNode(root, {"style": {"cursor": "none"}});
 			moveCursor();
 		}
@@ -118,7 +118,7 @@ inited.then(() => {
 			token.y = cursor.y;
 			doTokenAdd(layer.path, token);
 			setCursor();
-			amendNode(selected.layer![node], cursor[node]);
+			amendNode(selected.layer![node], cursor);
 			return false;
 		},
 		"mapMouse2": ignore,
@@ -143,7 +143,7 @@ inited.then(() => {
 	layersRPC.waitLayerSelect().when(() => {
 		const {layer} = selected;
 		if (cursor && cursor[node].parentNode && layer) {
-			amendNode(layer[node], cursor[node]);
+			amendNode(layer[node], cursor);
 		}
 	});
 });

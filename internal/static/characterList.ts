@@ -5,7 +5,6 @@ import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {autoFocus, setAndReturn} from './lib/misc.js';
-import {node} from './lib/nodes.js';
 import {dragImage} from './assets.js';
 import {imageIDtoURL} from './asset_urls.js';
 import {characterIcon, dragCharacter, edit as characterEdit} from './characters.js';
@@ -142,7 +141,7 @@ menuItems.push([2, () => isAdmin ? [
 					amendNode(shell, w);
 					autoFocus(name);
 				}}, lang["CHARACTER_NEW"]),
-				root[node]
+				root
 			]);
 			rpc.waitCharacterDataChange().when(d => {
 				const icon = d.setting["store-image-icon"];

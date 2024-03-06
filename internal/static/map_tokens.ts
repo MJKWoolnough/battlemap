@@ -260,7 +260,7 @@ deselectToken = () => {
 masks = (() => {
 	const base = rect({"width": "100%", "height": "100%", "fill": "#000"}),
 	      masks = new NodeArray<MaskNode>(g()),
-	      baseNode = mask({"id": mapMask}, [base, masks[node]]);
+	      baseNode = mask({"id": mapMask}, [base, masks]);
 	let baseOpaque = false;
 	return {
 		get [node]() {return baseNode;},
@@ -358,7 +358,7 @@ definitions = (() => {
 	const list = new Map<string, SVGPatternElement>(),
 	      lightRect = rect({"width": "100%", "height": "100%"}),
 	      lightingGroup = g({"id": lighting}, [lightRect, lightPolyGroup]),
-	      base = defs([masks[node], lightingGroup, lightGradGroup]),
+	      base = defs([masks, lightingGroup, lightGradGroup]),
 	      lightGroups = new Map<string, [SVGGElement, SVGGElement]>([["", [lightPolyGroup, lightGradGroup]]]);
 	return {
 		get [node]() {return base;},

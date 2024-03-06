@@ -195,7 +195,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 				amendNode(shell, w);
 				autoFocus(file);
 			}}, upload),
-			root[node]
+			root
 		]);
 	});
 	return base;

@@ -272,7 +272,7 @@ const select = Symbol("select"),
 			}
 		}}, initNext)
 	]) : [],
-	initiativeList[node]
+	initiativeList
       ])),
       initTokens = new Set<Uint>(),
       addToInitiative = (token: SVGToken, initiative: Int, hidden: boolean) => (initTokens.add(token.id), initiativeList.push({

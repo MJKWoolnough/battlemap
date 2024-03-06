@@ -74,9 +74,9 @@ inited.then(() => {
 		button({"onclick": undoObj.undo}, lang["UNDO_UNDO"]),
 		button({"onclick": undoObj.redo}, lang["UNDO_REDO"]),
 		h1(lang["UNDO_WINDOW_UNDOS"]),
-		undos[node],
+		undos,
 		h1(lang["UNDO_WINDOW_REDOS"]),
-		redos[node]
+		redos
 	      ]);
 
 	Object.defineProperty(window, "showUndoWindow", {"value": () => showWindow.set(true)});

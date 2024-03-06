@@ -108,7 +108,7 @@ if (isAdmin) {
 	});
 
 	plugin["menuItem"] = {
-		"fn": [lang["MENU_TITLE"], div({"id": pluginBuilding}, new BuildingRoot()[node]), true, icon]
+		"fn": [lang["MENU_TITLE"], div({"id": pluginBuilding}, new BuildingRoot()), true, icon]
 	};
 }
 

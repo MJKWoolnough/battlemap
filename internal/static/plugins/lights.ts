@@ -459,7 +459,7 @@ if (isAdmin) {
 			"fn": [lang["MENU_TITLE"], div({"id": pluginLights}, [
 				copyLight,
 				removeLight,
-				root[node]
+				root
 			]), true, lightGridStr]
 		}
 	});

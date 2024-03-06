@@ -215,7 +215,7 @@ export class Folder {
 	parent: Folder | null;
 	name: string;
 	[node]: HTMLElement;
-	children: NodeMap<string, Folder | Item>;
+	children: NodeMap<string, Folder | Item, HTMLUListElement>;
 	root: Root;
 	nameElem: HTMLSpanElement;
 	renamer: SVGSymbolElement;
@@ -224,7 +224,7 @@ export class Folder {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		this.root = root;
 		this.parent = parent;
-		this.children = new NodeMap<string, Folder | Item>(ul({"class": folders}), this.sorter);
+		this.children = new NodeMap<string, Folder | Item, HTMLUListElement>(ul({"class": folders}), this.sorter);
 		this.nameElem = span(name);
 		this.renamer = rename({"title": lang["FOLDER_MOVE"], "class": itemControl, "onclick": (e: Event) => this.rename(e)});
 		this.newer = newFolder({"title": lang["FOLDER_ADD"], "class": itemControl, "onclick": (e: Event) => this.newFolder(e)});
@@ -239,7 +239,7 @@ export class Folder {
 						this.newer,
 						this.remover
 					]),
-					this.children[node]
+					this.children
 				])
 			]);
 		} else {
@@ -547,7 +547,7 @@ export class Root {
 					}}),
 					br()
 				] : [],
-				f.children[node]
+				f.children
 			]);
 		}
 	}

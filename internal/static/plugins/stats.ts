@@ -115,7 +115,7 @@ if (isAdmin) {
 						amendNode(total, [lang["TOTAL_SIZE"], `: ${formatNumber.format(totalSize)}`]),
 						table({"id": statisticsTable}, [
 							head,
-							tb[node]
+							tb
 						])
 					]);
 

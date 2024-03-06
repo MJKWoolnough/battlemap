@@ -288,7 +288,7 @@ menuItems.push([5, () => isAdmin ? [
 					amendNode(shell, w);
 					autoFocus(name);
 				}}, lang["LAYER_ADD"]),
-				list[node]
+				list
 			]);
 			loadFn = () => {
 				gridLayer = null;
