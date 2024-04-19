@@ -1,5 +1,5 @@
-golang.org/x/net v0.17.0 h1:pVaXccu2ozPjCXewfr1S7xza/zcXTity9cCdXQYSjIM=
-golang.org/x/net v0.17.0/go.mod h1:NxSsAGuq816PNPmqtQdLE42eU2Fs7NoRIZrHJAlaCOE=
+golang.org/x/net v0.23.0 h1:7EYJ93RZ9vYSZAIb2x3lnuvqO5zneoD6IvWjuhfxjTs=
+golang.org/x/net v0.23.0/go.mod h1:JKghWKKOSdJwpW2GEx0Ja7fmaKnMsbu+MWVZTokSYmg=
 vimagination.zapto.org/authenticate v1.0.0 h1:eLzBv0txcEVt3l3N6n9QOMPC1rGtEzLvswH5P+8g1BM=
 vimagination.zapto.org/authenticate v1.0.0/go.mod h1:YfddapgT/AVNsjGL5wZ5gsVPjLur7oLw1ZEXOYL19pw=
 vimagination.zapto.org/byteio v1.0.0/go.mod h1:l8m3xQOVMUWs7Sjbd3s+yWt7JIoSBc/35Hxm1F/QiAw=
