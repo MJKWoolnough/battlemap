@@ -33,10 +33,13 @@ type Battlemap struct {
 // allowing all users as guests and allowing signing in as the Admin.
 func New(path string, auth Auth) (*Battlemap, error) {
 	b := new(Battlemap)
+
 	if err := b.initModules(path, auth); err != nil {
 		return nil, err
 	}
+
 	b.initMux(index)
+
 	return b, nil
 }
 
@@ -44,18 +47,24 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 	if err := b.config.Init(path); err != nil {
 		return fmt.Errorf("error loading Config: %w", err)
 	}
+
 	b.images.fileType = fileTypeImage
 	b.audio.fileType = fileTypeAudio
+
 	if a == nil {
 		a := new(auth)
+
 		if err := a.Init(b); err != nil {
 			return fmt.Errorf(moduleError, "auth", err)
 		}
+
 		b.auth = a
 	} else {
 		b.auth = a
 	}
+
 	l := newLinks()
+
 	for _, m := range [...]struct {
 		Name   string
 		Module interface {
@@ -74,15 +83,18 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 			return fmt.Errorf(moduleError, m.Name, err)
 		}
 	}
+
 	b.chars.cleanup(l.chars)
 	b.images.cleanup(l.images)
 	b.audio.cleanup(l.audio)
 	b.musicPacks.cleanup(l.music)
+
 	return nil
 }
 
 func (b *Battlemap) initMux(index http.Handler) {
 	b.mux.Handle("/socket", websocket.Handler(b.socket.ServeConn))
+
 	for path, module := range map[string]http.Handler{
 		"/login/":   b.auth,
 		"/images/":  &b.images,
@@ -90,9 +102,11 @@ func (b *Battlemap) initMux(index http.Handler) {
 		"/plugins/": &b.plugins,
 	} {
 		p := strings.TrimSuffix(path, "/")
+
 		b.mux.Handle(path, http.StripPrefix(path, module))
 		b.mux.Handle(p, http.StripPrefix(p, module))
 	}
+
 	b.mux.Handle("/", index)
 }
 
