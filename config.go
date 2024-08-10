@@ -29,15 +29,17 @@ func (c *config) Init(baseDir string) error {
 		"PluginsDir":     keystore.String("plugins"),
 		"TokensDir":      keystore.String("tokens"),
 	})
+
 	var err error
-	c.fileStore, err = keystore.NewFileStore(baseDir, baseDir, keystore.NoMangle)
-	if err != nil {
+
+	if c.fileStore, err = keystore.NewFileStore(baseDir, baseDir, keystore.NoMangle); err != nil {
 		return fmt.Errorf("error creating config store: %w", err)
 	}
-	err = c.fileStore.Get(configFile, c.memStore)
-	if err != nil && err != keystore.ErrUnknownKey {
+
+	if err = c.fileStore.Get(configFile, c.memStore); err != nil && err != keystore.ErrUnknownKey {
 		return fmt.Errorf("error parsing config data: %w", err)
 	}
+
 	return nil
 }
 
@@ -49,6 +51,7 @@ func (c *config) Set(key string, data io.WriterTo) error {
 	if err := c.memStore.Set(key, data); err != nil {
 		return err
 	}
+
 	return c.fileStore.Set(configFile, c.memStore)
 }
 
@@ -56,5 +59,6 @@ func (c *config) SetAll(data map[string]io.WriterTo) error {
 	if err := c.memStore.SetAll(data); err != nil {
 		return err
 	}
+
 	return c.fileStore.Set(configFile, c.memStore)
 }
