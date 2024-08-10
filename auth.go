@@ -44,27 +44,42 @@ type auth struct {
 }
 
 func (a *auth) Init(b *Battlemap) error {
-	var save bool
+	var (
+		save bool
+		err  error
+	)
+
 	sessionKey := make(memio.Buffer, 0, 16)
+
 	b.config.Get("sessionKey", &sessionKey)
+
 	if len(sessionKey) != 16 {
 		sessionKey = sessionKey[:16]
+
 		rand.Read(sessionKey)
+
 		save = true
 	}
+
 	sessionData := make(memio.Buffer, 0, 32)
+
 	b.config.Get("sessionData", &sessionData)
+
 	if len(sessionData) < 16 {
 		sessionData = sessionData[:32]
+
 		rand.Read(sessionData)
+
 		save = true
 	}
-	var err error
+
 	a.store, err = sessions.NewCookieStore(sessionKey, sessions.HTTPOnly(), sessions.Path("/"), sessions.Name("admin"), sessions.Expiry(time.Hour*24*30))
 	if err != nil {
 		return fmt.Errorf("error creating Cookie Store: %w", err)
 	}
+
 	a.sessionData = sessionData
+
 	if save {
 		if err = b.config.SetAll(map[string]io.WriterTo{
 			"sessionKey":  &sessionKey,
@@ -73,13 +88,16 @@ func (a *auth) Init(b *Battlemap) error {
 			return fmt.Errorf("error setting auth config: %w", err)
 		}
 	}
+
 	a.Battlemap = b
+
 	return nil
 }
 
 func (a *auth) IsAdmin(r *http.Request) bool {
 	rData := a.store.Get(r)
 	isAdmin := bytes.Equal(rData, a.sessionData)
+
 	return isAdmin
 }
 
@@ -97,8 +115,10 @@ func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		a.store.Set(w, a.sessionData)
 	default:
 		http.NotFound(w, r)
+
 		return
 	}
+
 	http.Redirect(w, r, "../", http.StatusFound)
 }
 
@@ -112,11 +132,15 @@ func (b *Battlemap) authConn(w *websocket.Conn) userState {
 	r := w.Request()
 	if b.auth.IsAdmin(r) {
 		w.Write(loggedInAdmin)
+
 		return userStateAdmin
 	} else if b.auth.IsUser(r) {
 		w.Write(loggedInUser)
+
 		return userStateUser
 	}
+
 	w.Write(loggedOut)
+
 	return userStateNone
 }
