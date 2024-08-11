@@ -27,6 +27,7 @@ func (g *getFileType) ReadFrom(r io.Reader) (int64, error) {
 	if err != nil {
 		return int64(n), err
 	}
+
 	switch http.DetectContentType(g.Buffer[:n]) {
 	case "image/gif", "image/png", "image/jpeg", "image/webp", "video/apng":
 		g.Type = fileTypeImage
@@ -39,6 +40,7 @@ func (g *getFileType) ReadFrom(r io.Reader) (int64, error) {
 	default:
 		g.Type = fileTypeUnknown
 	}
+
 	return int64(n), nil
 }
 
@@ -50,13 +52,18 @@ func uniqueName(name string, checker func(string) bool) string {
 	if checker(name) {
 		return name
 	}
+
 	n := make([]byte, len(name)+32)
 	m := n[len(name)+1 : len(name)+1]
+
 	copy(n, name)
+
 	n[len(name)] = '.'
+
 	for i := uint64(0); ; i++ {
 		p := n[:len(name)+1+len(strconv.AppendUint(m, i, 10))]
 		newName := *(*string)(unsafe.Pointer(&p))
+
 		if checker(newName) {
 			return newName
 		}
