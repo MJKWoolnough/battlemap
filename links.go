@@ -29,6 +29,7 @@ func (l *links) getLinkKey(key string) linkManager {
 	} else if strings.HasPrefix(key, "store-music") {
 		return l.music
 	}
+
 	return nil
 }
 
@@ -47,12 +48,14 @@ func (l linkManager) setJSONLinks(j json.RawMessage) {
 		switch j[0] {
 		case '[':
 			var ids []uint64
+
 			if err := json.Unmarshal(j, &ids); err == nil {
 				for _, id := range ids {
 					l.setLink(id)
 				}
 			} else {
 				var ids []tokenID
+
 				if err := json.Unmarshal(j, &ids); err == nil {
 					for _, id := range ids {
 						l.setLink(id.Source)
@@ -61,16 +64,19 @@ func (l linkManager) setJSONLinks(j json.RawMessage) {
 			}
 		case '{':
 			var id tokenID
+
 			if err := json.Unmarshal(j, &id); err == nil {
 				l.setLink(id.Source)
 			} else {
 				ids := make(map[string]uint64)
+
 				if err := json.Unmarshal(j, &ids); err == nil {
 					for _, id := range ids {
 						l.setLink(id)
 					}
 				} else {
 					ids := make(map[string]tokenID)
+
 					if err := json.Unmarshal(j, &ids); err == nil {
 						for _, id := range ids {
 							l.setLink(id.Source)
@@ -80,6 +86,7 @@ func (l linkManager) setJSONLinks(j json.RawMessage) {
 			}
 		default:
 			var id uint64
+
 			if err := json.Unmarshal(j, &id); err == nil {
 				l.setLink(id)
 			}
