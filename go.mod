@@ -8,8 +8,8 @@ require (
 	golang.org/x/net v0.39.0
 	vimagination.zapto.org/byteio v1.0.3
 	vimagination.zapto.org/httpdir v1.1.0
-	vimagination.zapto.org/httpembed v1.1.0
-	vimagination.zapto.org/httpgzip v1.0.0
+	vimagination.zapto.org/httpembed v1.4.0
+	vimagination.zapto.org/httpgzip v1.1.0
 	vimagination.zapto.org/jsonrpc v1.1.0
 	vimagination.zapto.org/keystore v1.0.0
 	vimagination.zapto.org/memio v1.0.0
@@ -19,5 +19,6 @@ require (
 
 require (
 	vimagination.zapto.org/authenticate v1.0.0 // indirect
-	vimagination.zapto.org/httpencoding v1.0.0 // indirect
+	vimagination.zapto.org/httpencoding v1.1.2 // indirect
+	vimagination.zapto.org/memfs v1.0.0 // indirect
 )
