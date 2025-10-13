@@ -12,30 +12,9 @@ import (
 func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
 	case "list":
-		m.mu.RLock()
-		j := m.json
-		m.mu.RUnlock()
-
-		return json.RawMessage(j), nil
+		return m.list()
 	case "setUserMap":
-		var userMap keystore.Uint64
-
-		if err := json.Unmarshal(data, &userMap); err != nil {
-			return nil, err
-		}
-
-		m.mu.RLock()
-		defer m.mu.RUnlock()
-
-		mp, ok := m.maps[uint64(userMap)]
-		if !ok {
-			return nil, ErrUnknownMap
-		}
-
-		m.Battlemap.config.Set("currentUserMap", &userMap)
-		m.Battlemap.socket.SetCurrentUserMap(uint64(userMap), data, json.RawMessage(mp.JSON), cd.ID)
-
-		return nil, nil
+		return m.setUserMap(cd, data)
 	case "getMapData":
 		var mapID uint64
 
@@ -1054,6 +1033,35 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 	}
 
 	return m.folders.RPCData(cd, method, data)
+}
+
+func (m *mapsDir) list() (interface{}, error) {
+	m.mu.RLock()
+	j := m.json
+	m.mu.RUnlock()
+
+	return json.RawMessage(j), nil
+}
+
+func (m *mapsDir) setUserMap(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var userMap keystore.Uint64
+
+	if err := json.Unmarshal(data, &userMap); err != nil {
+		return nil, err
+	}
+
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	mp, ok := m.maps[uint64(userMap)]
+	if !ok {
+		return nil, ErrUnknownMap
+	}
+
+	m.Battlemap.config.Set("currentUserMap", &userMap)
+	m.Battlemap.socket.SetCurrentUserMap(uint64(userMap), data, json.RawMessage(mp.JSON), cd.ID)
+
+	return nil, nil
 }
 
 type setToken struct {
