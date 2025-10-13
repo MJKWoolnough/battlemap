@@ -202,367 +202,420 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 
 	switch method {
 	case "list":
-		buf := memio.Buffer("[")
-		first := true
-		j := json.NewEncoder(&buf)
-
-		m.mu.RLock()
-
-		for id, p := range m.packs {
-			if p.Name == "" {
-				continue
-			}
-
-			if first {
-				first = false
-			} else {
-				buf = append(buf, ',')
-			}
-
-			j.Encode(p)
-
-			buf = append(strconv.AppendUint(append(buf[:len(buf)-2], ",\"id\":"...), id, 10), '}')
-		}
-
-		m.mu.RUnlock()
-
-		buf = append(buf, ']')
-
-		return json.RawMessage(buf), nil
+		return m.list()
 	case "new":
-		var name string
-
-		if err := json.Unmarshal(data, &name); err != nil {
-			return nil, err
-		}
-
-		m.mu.Lock()
-
-		oName := name
-		name = uniqueName(oName, func(name string) bool {
-			_, ok := m.names[name]
-			return !ok
-		})
-		p := &musicPack{
-			Name:   name,
-			Tracks: make([]musicTrack, 0),
-		}
-		p.Volume = 255
-		m.lastID++
-		m.packs[m.lastID] = p
-		err := m.fileStore.Set(strconv.FormatUint(m.lastID, 10), p)
-
-		m.mu.Unlock()
-
-		if err != nil {
-			return nil, err
-		}
-
-		data = append(appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), m.lastID, 10), ",\"name\":"...), name), '}')
-
-		m.socket.broadcastMapChange(cd, broadcastMusicPackAdd, data, userAny)
-
-		return data, nil
+		return m.new(cd, data)
 	case "rename":
-		var names struct {
-			ID   uint64 `json:"id"`
-			Name string `json:"name"`
-		}
-
-		if err := json.Unmarshal(data, &names); err != nil {
-			return nil, err
-		}
-
-		m.mu.Lock()
-
-		mp, ok := m.packs[names.ID]
-		if !ok {
-			m.mu.Unlock()
-
-			return nil, ErrUnknownMusicPack
-		}
-
-		delete(m.names, mp.Name)
-
-		mp.Name = uniqueName(names.Name, func(name string) bool {
-			_, ok := m.names[name]
-
-			return !ok
-		})
-
-		if mp.Name != names.Name {
-			data = json.RawMessage(append(appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), names.ID, 10), ",\"name\":"...), names.Name), '}'))
-		}
-
-		m.names[mp.Name] = struct{}{}
-
-		m.mu.Unlock()
-		m.socket.broadcastMapChange(cd, broadcastMusicPackRename, data, userAdmin)
-
-		return mp.Name, nil
+		return m.rename(cd, data)
 	case "remove":
-		var id uint64
-
-		if err := json.Unmarshal(data, &id); err != nil {
-			return nil, err
-		}
-
-		m.mu.Lock()
-
-		mp, ok := m.packs[id]
-		if !ok {
-			m.mu.Unlock()
-
-			return nil, ErrUnknownMusicPack
-		}
-
-		mp.Name = ""
-
-		m.fileStore.Set(strconv.FormatUint(id, 10), mp)
-		delete(m.packs, id)
-		delete(m.names, mp.Name)
-		m.mu.Unlock()
-		m.socket.broadcastMapChange(cd, broadcastMusicPackRemove, data, userAny)
-
-		return nil, nil
+		return m.remove(cd, data)
 	case "copy":
-		var names struct {
-			ID   uint64 `json:"id"`
-			Name string `json:"name"`
-		}
-
-		if err := json.Unmarshal(data, &names); err != nil {
-			return nil, err
-		}
-
-		m.mu.Lock()
-
-		mp, ok := m.packs[names.ID]
-		if !ok {
-			m.mu.Unlock()
-			return nil, ErrUnknownMusicPack
-		}
-
-		nName := names.Name
-		names.Name = uniqueName(nName, func(name string) bool {
-			_, ok := m.names[name]
-			return !ok
-		})
-		np := &musicPack{
-			Name:     names.Name,
-			Tracks:   make([]musicTrack, len(mp.Tracks)),
-			Volume:   mp.Volume,
-			PlayTime: 0,
-		}
-
-		copy(np.Tracks, mp.Tracks)
-
-		m.lastID++
-
-		id := m.lastID
-		m.packs[id] = np
-
-		m.fileStore.Set(strconv.FormatUint(id, 10), np)
-		m.mu.Unlock()
-
-		data = appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), id, 10), ",\"name\":"...), names.Name)
-		pos := len(data)
-		data = append(strconv.AppendUint(append(data, ",\"newID\":"...), id, 10), '}')
-
-		m.socket.broadcastMapChange(cd, broadcastMusicPackCopy, data, userAny)
-
-		data = append(data[:pos], '}')
-
-		return data, nil
+		return m.copy(cd, data)
 	case "setVolume":
-		var packData struct {
-			ID     uint64 `json:"id"`
-			Volume uint8  `json:"volume"`
-		}
-
-		if err := json.Unmarshal(data, &packData); err != nil {
-			return nil, err
-		}
-
-		if err := m.getPack(packData.ID, func(mp *musicPack) bool {
-			if mp.Volume == packData.Volume {
-				return false
-			}
-
-			mp.Volume = packData.Volume
-
-			return true
-		}); err != nil {
-			return nil, err
-		}
-
-		m.socket.broadcastMapChange(cd, broadcastMusicPackVolume, data, userAny)
-
-		return nil, nil
+		return m.setVolume(cd, data)
 	case "playPack":
-		var packData struct {
-			ID       uint64 `json:"id"`
-			PlayTime uint64 `jons:"playTime"`
-		}
-
-		if err := json.Unmarshal(data, &packData); err != nil {
-			return nil, err
-		}
-
-		if packData.PlayTime == 0 {
-			packData.PlayTime = uint64(time.Now().Unix())
-			data = json.RawMessage(append(strconv.AppendUint(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), packData.ID, 10), ",\"playTime\":"...), packData.PlayTime, 10), '}'))
-		}
-
-		if err := m.getPack(packData.ID, func(mp *musicPack) bool {
-			if mp.PlayTime == packData.PlayTime {
-				return false
-			}
-
-			mp.PlayTime = packData.PlayTime
-
-			return true
-		}); err != nil {
-			return nil, err
-		}
-
-		m.socket.broadcastMapChange(cd, broadcastMusicPackPlay, data, userAny)
-
-		return packData.PlayTime, nil
+		return m.playPack(cd, data)
 	case "stopPack":
-		var packData uint64
-
-		if err := json.Unmarshal(data, &packData); err != nil {
-			return nil, err
-		}
-
-		if err := m.getPack(packData, func(mp *musicPack) bool {
-			if mp.PlayTime == 0 {
-				return false
-			}
-
-			mp.PlayTime = 0
-
-			return true
-		}); err != nil {
-			return nil, err
-		}
-
-		m.socket.broadcastMapChange(cd, broadcastMusicPackStop, data, userAny)
-
-		return nil, nil
+		return m.stopPack(cd, data)
 	case "stopAllPacks":
-		m.mu.Lock()
-
-		for k, p := range m.packs {
-			if p.PlayTime == 0 {
-				continue
-			}
-
-			p.PlayTime = 0
-			m.fileStore.Set(strconv.FormatUint(k, 10), p)
-		}
-
-		m.mu.Unlock()
-		m.socket.broadcastMapChange(cd, broadcastMusicPackStopAll, data, userAny)
-
-		return nil, nil
+		return m.stopAllPacks(cd, data)
 	case "addTracks":
-		var trackData struct {
-			ID     uint64   `json:"id"`
-			Tracks []uint64 `json:"tracks"`
-		}
-
-		if err := json.Unmarshal(data, &trackData); err != nil {
-			return nil, err
-		}
-
-		if err := m.getPack(trackData.ID, func(mp *musicPack) bool {
-			for _, t := range trackData.Tracks {
-				mp.Tracks = append(mp.Tracks, musicTrack{ID: t, Volume: 255})
-			}
-
-			return true
-		}); err != nil {
-			return nil, err
-		}
-
-		m.socket.broadcastMapChange(cd, broadcastMusicPackTrackAdd, data, userAny)
-
-		return nil, nil
+		return m.addTracks(cd, data)
 	case "removeTrack":
-		var trackData struct {
-			ID    uint64 `json:"id"`
-			Track uint   `json:"track"`
-		}
-
-		if err := json.Unmarshal(data, &trackData); err != nil {
-			return nil, err
-		}
-
-		if err := m.getTrack(trackData.ID, trackData.Track, func(mp *musicPack, mt *musicTrack) bool {
-			mp.Tracks = append(mp.Tracks[:trackData.Track], mp.Tracks[trackData.Track+1:]...)
-
-			return true
-		}); err != nil {
-			return nil, err
-		}
-
-		m.socket.broadcastMapChange(cd, broadcastMusicPackTrackRemove, data, userAny)
-
-		return nil, nil
+		return m.removeTrack(cd, data)
 	case "setTrackVolume":
-		var trackData struct {
-			ID     uint64 `json:"id"`
-			Track  uint   `json:"track"`
-			Volume uint8  `json:"volume"`
-		}
-
-		if err := json.Unmarshal(data, &trackData); err != nil {
-			return nil, err
-		}
-
-		if err := m.getTrack(trackData.ID, trackData.Track, func(mp *musicPack, mt *musicTrack) bool {
-			if mt.Volume == trackData.Volume {
-				return false
-			}
-
-			mt.Volume = trackData.Volume
-
-			return true
-		}); err != nil {
-			return nil, err
-		}
-
-		m.socket.broadcastMapChange(cd, broadcastMusicPackTrackVolume, data, userAny)
-
-		return nil, nil
+		return m.setTrackVolume(cd, data)
 	case "setTrackRepeat":
-		var trackData struct {
-			ID     uint64 `json:"id"`
-			Track  uint   `json:"track"`
-			Repeat int32  `json:"repeat"`
-		}
-
-		if err := json.Unmarshal(data, &trackData); err != nil {
-			return nil, err
-		}
-
-		if err := m.getTrack(trackData.ID, trackData.Track, func(mp *musicPack, mt *musicTrack) bool {
-			if mt.Repeat == trackData.Repeat {
-				return false
-			}
-
-			mt.Repeat = trackData.Repeat
-
-			return true
-		}); err != nil {
-			return nil, err
-		}
-
-		m.socket.broadcastMapChange(cd, broadcastMusicPackTrackRepeat, data, userAny)
-
-		return nil, nil
+		return m.setTrackRepeat(cd, data)
 	}
+
 	return nil, ErrUnknownMethod
+}
+
+func (m *musicPacksDir) list() (interface{}, error) {
+	buf := memio.Buffer("[")
+	first := true
+	j := json.NewEncoder(&buf)
+
+	m.mu.RLock()
+
+	for id, p := range m.packs {
+		if p.Name == "" {
+			continue
+		}
+
+		if first {
+			first = false
+		} else {
+			buf = append(buf, ',')
+		}
+
+		j.Encode(p)
+
+		buf = append(strconv.AppendUint(append(buf[:len(buf)-2], ",\"id\":"...), id, 10), '}')
+	}
+
+	m.mu.RUnlock()
+
+	buf = append(buf, ']')
+
+	return json.RawMessage(buf), nil
+}
+
+func (m *musicPacksDir) new(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var name string
+
+	if err := json.Unmarshal(data, &name); err != nil {
+		return nil, err
+	}
+
+	m.mu.Lock()
+
+	oName := name
+	name = uniqueName(oName, func(name string) bool {
+		_, ok := m.names[name]
+		return !ok
+	})
+	p := &musicPack{
+		Name:   name,
+		Tracks: make([]musicTrack, 0),
+	}
+	p.Volume = 255
+	m.lastID++
+	m.packs[m.lastID] = p
+	err := m.fileStore.Set(strconv.FormatUint(m.lastID, 10), p)
+
+	m.mu.Unlock()
+
+	if err != nil {
+		return nil, err
+	}
+
+	data = append(appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), m.lastID, 10), ",\"name\":"...), name), '}')
+
+	m.socket.broadcastMapChange(cd, broadcastMusicPackAdd, data, userAny)
+
+	return data, nil
+}
+
+func (m *musicPacksDir) rename(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var names struct {
+		ID   uint64 `json:"id"`
+		Name string `json:"name"`
+	}
+
+	if err := json.Unmarshal(data, &names); err != nil {
+		return nil, err
+	}
+
+	m.mu.Lock()
+
+	mp, ok := m.packs[names.ID]
+	if !ok {
+		m.mu.Unlock()
+
+		return nil, ErrUnknownMusicPack
+	}
+
+	delete(m.names, mp.Name)
+
+	mp.Name = uniqueName(names.Name, func(name string) bool {
+		_, ok := m.names[name]
+
+		return !ok
+	})
+
+	if mp.Name != names.Name {
+		data = json.RawMessage(append(appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), names.ID, 10), ",\"name\":"...), names.Name), '}'))
+	}
+
+	m.names[mp.Name] = struct{}{}
+
+	m.mu.Unlock()
+	m.socket.broadcastMapChange(cd, broadcastMusicPackRename, data, userAdmin)
+
+	return mp.Name, nil
+}
+
+func (m *musicPacksDir) remove(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var id uint64
+
+	if err := json.Unmarshal(data, &id); err != nil {
+		return nil, err
+	}
+
+	m.mu.Lock()
+
+	mp, ok := m.packs[id]
+	if !ok {
+		m.mu.Unlock()
+
+		return nil, ErrUnknownMusicPack
+	}
+
+	mp.Name = ""
+
+	m.fileStore.Set(strconv.FormatUint(id, 10), mp)
+	delete(m.packs, id)
+	delete(m.names, mp.Name)
+	m.mu.Unlock()
+	m.socket.broadcastMapChange(cd, broadcastMusicPackRemove, data, userAny)
+
+	return nil, nil
+}
+
+func (m *musicPacksDir) copy(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var names struct {
+		ID   uint64 `json:"id"`
+		Name string `json:"name"`
+	}
+
+	if err := json.Unmarshal(data, &names); err != nil {
+		return nil, err
+	}
+
+	m.mu.Lock()
+
+	mp, ok := m.packs[names.ID]
+	if !ok {
+		m.mu.Unlock()
+		return nil, ErrUnknownMusicPack
+	}
+
+	nName := names.Name
+	names.Name = uniqueName(nName, func(name string) bool {
+		_, ok := m.names[name]
+		return !ok
+	})
+	np := &musicPack{
+		Name:     names.Name,
+		Tracks:   make([]musicTrack, len(mp.Tracks)),
+		Volume:   mp.Volume,
+		PlayTime: 0,
+	}
+
+	copy(np.Tracks, mp.Tracks)
+
+	m.lastID++
+
+	id := m.lastID
+	m.packs[id] = np
+
+	m.fileStore.Set(strconv.FormatUint(id, 10), np)
+	m.mu.Unlock()
+
+	data = appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), id, 10), ",\"name\":"...), names.Name)
+	pos := len(data)
+	data = append(strconv.AppendUint(append(data, ",\"newID\":"...), id, 10), '}')
+
+	m.socket.broadcastMapChange(cd, broadcastMusicPackCopy, data, userAny)
+
+	data = append(data[:pos], '}')
+
+	return data, nil
+}
+
+func (m *musicPacksDir) setVolume(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var packData struct {
+		ID     uint64 `json:"id"`
+		Volume uint8  `json:"volume"`
+	}
+
+	if err := json.Unmarshal(data, &packData); err != nil {
+		return nil, err
+	}
+
+	if err := m.getPack(packData.ID, func(mp *musicPack) bool {
+		if mp.Volume == packData.Volume {
+			return false
+		}
+
+		mp.Volume = packData.Volume
+
+		return true
+	}); err != nil {
+		return nil, err
+	}
+
+	m.socket.broadcastMapChange(cd, broadcastMusicPackVolume, data, userAny)
+
+	return nil, nil
+}
+
+func (m *musicPacksDir) playPack(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var packData struct {
+		ID       uint64 `json:"id"`
+		PlayTime uint64 `jons:"playTime"`
+	}
+
+	if err := json.Unmarshal(data, &packData); err != nil {
+		return nil, err
+	}
+
+	if packData.PlayTime == 0 {
+		packData.PlayTime = uint64(time.Now().Unix())
+		data = json.RawMessage(append(strconv.AppendUint(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), packData.ID, 10), ",\"playTime\":"...), packData.PlayTime, 10), '}'))
+	}
+
+	if err := m.getPack(packData.ID, func(mp *musicPack) bool {
+		if mp.PlayTime == packData.PlayTime {
+			return false
+		}
+
+		mp.PlayTime = packData.PlayTime
+
+		return true
+	}); err != nil {
+		return nil, err
+	}
+
+	m.socket.broadcastMapChange(cd, broadcastMusicPackPlay, data, userAny)
+
+	return packData.PlayTime, nil
+}
+
+func (m *musicPacksDir) stopPack(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var packData uint64
+
+	if err := json.Unmarshal(data, &packData); err != nil {
+		return nil, err
+	}
+
+	if err := m.getPack(packData, func(mp *musicPack) bool {
+		if mp.PlayTime == 0 {
+			return false
+		}
+
+		mp.PlayTime = 0
+
+		return true
+	}); err != nil {
+		return nil, err
+	}
+
+	m.socket.broadcastMapChange(cd, broadcastMusicPackStop, data, userAny)
+
+	return nil, nil
+}
+
+func (m *musicPacksDir) stopAllPacks(cd ConnData, data json.RawMessage) (interface{}, error) {
+	m.mu.Lock()
+
+	for k, p := range m.packs {
+		if p.PlayTime == 0 {
+			continue
+		}
+
+		p.PlayTime = 0
+		m.fileStore.Set(strconv.FormatUint(k, 10), p)
+	}
+
+	m.mu.Unlock()
+	m.socket.broadcastMapChange(cd, broadcastMusicPackStopAll, data, userAny)
+
+	return nil, nil
+}
+
+func (m *musicPacksDir) addTracks(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var trackData struct {
+		ID     uint64   `json:"id"`
+		Tracks []uint64 `json:"tracks"`
+	}
+
+	if err := json.Unmarshal(data, &trackData); err != nil {
+		return nil, err
+	}
+
+	if err := m.getPack(trackData.ID, func(mp *musicPack) bool {
+		for _, t := range trackData.Tracks {
+			mp.Tracks = append(mp.Tracks, musicTrack{ID: t, Volume: 255})
+		}
+
+		return true
+	}); err != nil {
+		return nil, err
+	}
+
+	m.socket.broadcastMapChange(cd, broadcastMusicPackTrackAdd, data, userAny)
+
+	return nil, nil
+}
+
+func (m *musicPacksDir) removeTrack(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var trackData struct {
+		ID    uint64 `json:"id"`
+		Track uint   `json:"track"`
+	}
+
+	if err := json.Unmarshal(data, &trackData); err != nil {
+		return nil, err
+	}
+
+	if err := m.getTrack(trackData.ID, trackData.Track, func(mp *musicPack, mt *musicTrack) bool {
+		mp.Tracks = append(mp.Tracks[:trackData.Track], mp.Tracks[trackData.Track+1:]...)
+
+		return true
+	}); err != nil {
+		return nil, err
+	}
+
+	m.socket.broadcastMapChange(cd, broadcastMusicPackTrackRemove, data, userAny)
+
+	return nil, nil
+}
+
+func (m *musicPacksDir) setTrackVolume(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var trackData struct {
+		ID     uint64 `json:"id"`
+		Track  uint   `json:"track"`
+		Volume uint8  `json:"volume"`
+	}
+
+	if err := json.Unmarshal(data, &trackData); err != nil {
+		return nil, err
+	}
+
+	if err := m.getTrack(trackData.ID, trackData.Track, func(mp *musicPack, mt *musicTrack) bool {
+		if mt.Volume == trackData.Volume {
+			return false
+		}
+
+		mt.Volume = trackData.Volume
+
+		return true
+	}); err != nil {
+		return nil, err
+	}
+
+	m.socket.broadcastMapChange(cd, broadcastMusicPackTrackVolume, data, userAny)
+
+	return nil, nil
+}
+
+func (m *musicPacksDir) setTrackRepeat(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var trackData struct {
+		ID     uint64 `json:"id"`
+		Track  uint   `json:"track"`
+		Repeat int32  `json:"repeat"`
+	}
+
+	if err := json.Unmarshal(data, &trackData); err != nil {
+		return nil, err
+	}
+
+	if err := m.getTrack(trackData.ID, trackData.Track, func(mp *musicPack, mt *musicTrack) bool {
+		if mt.Repeat == trackData.Repeat {
+			return false
+		}
+
+		mt.Repeat = trackData.Repeat
+
+		return true
+	}); err != nil {
+		return nil, err
+	}
+
+	m.socket.broadcastMapChange(cd, broadcastMusicPackTrackRepeat, data, userAny)
+
+	return nil, nil
 }
