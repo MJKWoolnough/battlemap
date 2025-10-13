@@ -16,7 +16,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 	case "setUserMap":
 		return m.setUserMap(cd, data)
 	case "getMapData":
-		return m.getMapData(cd, data)
+		return m.getMapData(data)
 	case "new":
 		return m.new(cd, data)
 	case "setMapDetails":
@@ -121,7 +121,7 @@ func (m *mapsDir) setUserMap(cd ConnData, data json.RawMessage) (interface{}, er
 	return nil, nil
 }
 
-func (m *mapsDir) getMapData(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) getMapData(data json.RawMessage) (interface{}, error) {
 	var mapID uint64
 
 	if err := json.Unmarshal(data, &mapID); err != nil {
