@@ -37,24 +37,31 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 	l.walls = make(map[uint64]layerWall)
 	sr := rwcount.Reader{Reader: r}
 	err := json.NewDecoder(&sr).Decode(l)
+
 	if sr.Err != nil {
 		return sr.Count, sr.Err
 	} else if err != nil {
 		return sr.Count, err
 	}
+
 	l.layers = make(map[string]struct{})
+
 	if err = l.validate(); err != nil {
 		return sr.Count, err
 	}
+
 	if _, ok := l.layers["Grid"]; !ok {
 		l.Layers = append(l.Layers, &layer{Name: "Grid"})
 		l.layers["Grid"] = struct{}{}
 	}
+
 	if _, ok := l.layers["Light"]; !ok {
 		l.Layers = append(l.Layers, &layer{Name: "Light"})
 		l.layers["Light"] = struct{}{}
 	}
+
 	l.writeJSON()
+
 	return sr.Count, nil
 }
 
@@ -73,30 +80,40 @@ func (l *levelMap) writeJSON() {
 	l.JSON = l.Light.appendTo(append(l.JSON, ",\"lightColour\":"...))
 	l.JSON = strconv.AppendBool(append(l.JSON, ",\"baseOpaque\":"...), l.MaskOpaque)
 	l.JSON = append(l.JSON, ",\"masks\":["...)
+
 	for n, m := range l.Mask {
 		if n > 0 {
 			l.JSON = append(l.JSON, ',')
 		}
+
 		l.JSON = append(l.JSON, '[')
+
 		for o, i := range m {
 			if o > 0 {
 				l.JSON = append(l.JSON, ',')
 			}
+
 			l.JSON = strconv.AppendUint(l.JSON, i, 10)
 		}
+
 		l.JSON = append(l.JSON, ']')
 	}
+
 	l.JSON = append(l.JSON, ']')
 	l.JSON = append(l.JSON, ",\"data\":{"...)
+
 	first := true
+
 	for k, v := range l.Data {
 		if !first {
 			l.JSON = append(l.JSON, ',')
 		} else {
 			first = false
 		}
+
 		l.JSON = append(append(appendString(l.JSON, k), ':'), v...)
 	}
+
 	l.JSON = append(l.JSON, '}')
 	l.UserJSON = append(l.layer.appendTo(append(l.UserJSON[:0], l.JSON...), false, true), '}')
 	l.JSON = append(l.layer.appendTo(l.JSON, false, false), '}')
@@ -104,7 +121,9 @@ func (l *levelMap) writeJSON() {
 
 func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 	l.writeJSON()
+
 	n, err := w.Write(l.JSON)
+
 	return int64(n), err
 }
 
@@ -125,7 +144,9 @@ func (l *layer) validate(lm *levelMap, first bool) error {
 	if _, ok := lm.layers[l.Name]; ok {
 		return ErrDuplicateLayer
 	}
+
 	lm.layers[l.Name] = struct{}{}
+
 	if l.Name == "Grid" || l.Name == "Light" {
 		if l.Tokens != nil || l.Layers != nil {
 			return ErrInvalidLayer
@@ -133,31 +154,39 @@ func (l *layer) validate(lm *levelMap, first bool) error {
 	} else if l.Layers != nil && l.Tokens != nil || l.Tokens == nil && l.Layers == nil || l.Name == "Light" && l.Layers != nil {
 		return ErrInvalidLayer
 	}
+
 	for _, layer := range l.Layers {
 		if !first && (l.Name == "Grid" || l.Name == "Light") {
 			return ErrInvalidLayer
 		}
+
 		if err := layer.validate(lm, false); err != nil {
 			return err
 		}
 	}
+
 	for _, token := range l.Tokens {
 		if err := token.validate(true); err != nil {
 			return err
 		}
+
 		if _, ok := lm.tokens[token.ID]; ok {
 			return ErrDuplicateTokenID
 		}
+
 		if token.ID > lm.lastTokenID {
 			lm.lastTokenID = token.ID
 		}
+
 		lm.tokens[token.ID] = layerToken{l, token}
 	}
+
 	for _, wall := range l.Walls {
 		lm.lastWallID++
 		wall.ID = lm.lastWallID
 		lm.walls[lm.lastWallID] = layerWall{l, wall}
 	}
+
 	return nil
 }
 
@@ -166,36 +195,46 @@ func (l *layer) appendTo(p []byte, full, user bool) []byte {
 		p = appendString(append(p, "\"name\":"...), l.Name)
 		p = strconv.AppendBool(append(p, ",\"hidden\":"...), l.Hidden)
 		p = strconv.AppendBool(append(p, ",\"locked\":"...), l.Locked)
+
 		if l.Layers == nil && l.Name != "Grid" && l.Name != "Light" {
 			p = append(p, ",\"walls\":["...)
+
 			for n, w := range l.Walls {
 				if n > 0 {
 					p = append(p, ',')
 				}
+
 				p = w.appendTo(p)
 			}
+
 			p = append(p, ']')
 		}
 	}
+
 	if l.Layers != nil {
 		p = append(p, ",\"children\":["...)
+
 		for n, l := range l.Layers {
 			if n > 0 {
 				p = append(p, ',')
 			}
+
 			p = append(l.appendTo(append(p, '{'), true, user), '}')
 		}
 	} else if l.Name != "Grid" && l.Name != "Light" {
 		p = append(p, ",\"tokens\":["...)
+
 		for n, t := range l.Tokens {
 			if n > 0 {
 				p = append(p, ',')
 			}
+
 			p = t.appendTo(p, user)
 		}
 	} else {
 		return p
 	}
+
 	return append(p, ']')
 }
 
@@ -212,16 +251,22 @@ func (lc lightColours) appendTo(p []byte) []byte {
 		if n > 0 {
 			p = append(p, ',')
 		}
+
 		p = append(p, '[')
+
 		for n, c := range cs {
 			if n > 0 {
 				p = append(p, ',')
 			}
+
 			p = c.appendTo(p)
 		}
+
 		p = append(p, ']')
 	}
+
 	p = append(p, ']')
+
 	return p
 }
 
@@ -229,13 +274,17 @@ type lightData []uint64
 
 func (ld lightData) appendTo(p []byte) []byte {
 	p = append(p, '[')
+
 	for n, l := range ld {
 		if n > 0 {
 			p = append(p, ',')
 		}
+
 		p = strconv.AppendUint(p, l, 10)
 	}
+
 	p = append(p, ']')
+
 	return p
 }
 
@@ -298,6 +347,7 @@ func (t *token) appendTo(p []byte, user bool) []byte {
 	p = t.LightColours.appendTo(append(p, ",\"lightColours\":"...))
 	p = t.LightStages.appendTo(append(p, ",\"lightStages\":"...))
 	p = t.LightTimings.appendTo(append(p, ",\"lightTimings\":"...))
+
 	switch t.TokenType {
 	case tokenImage:
 		p = strconv.AppendUint(append(p, ",\"src\":"...), t.Source, 10)
@@ -307,63 +357,82 @@ func (t *token) appendTo(p []byte, user bool) []byte {
 		p = strconv.AppendUint(append(p, ",\"patternHeight\":"...), t.PatternHeight, 10)
 	case tokenDrawing:
 		p = append(p, ",\"points\":["...)
+
 		for n, coords := range t.Points {
 			if n > 0 {
 				p = append(p, ',')
 			}
+
 			p = strconv.AppendInt(append(p, "{\"x\":"...), coords.X, 10)
 			p = strconv.AppendInt(append(p, ",\"y\":"...), coords.Y, 10)
 			p = append(p, '}')
 		}
+
 		p = append(p, ']')
+
 		fallthrough
 	case tokenShape:
 		if t.IsEllipse {
 			p = append(p, ",\"isEllipse\":true"...)
 		}
+
 		p = t.Fill.appendTo(append(p, ",\"fill\":"...))
+
 		if t.FillType != fillColour {
 			p = append(p, ",\"fills\":["...)
+
 			for n, f := range t.Fills {
 				if n > 0 {
 					p = append(p, ',')
 				}
+
 				p = f.appendTo(p)
 			}
+
 			p = append(p, ']')
 		}
+
 		p = t.Stroke.appendTo(append(p, ",\"stroke\":"...))
 		p = appendNum(append(p, ",\"strokeWidth\":"...), t.StrokeWidth)
 		p = appendNum(append(p, ",\"fillType\":"...), uint8(t.FillType))
 		p = append(p, ",\"fills\":["...)
+
 		for n, f := range t.Fills {
 			if n > 0 {
 				p = append(p, ',')
 			}
+
 			p = appendNum(append(p, "{\"pos\":"...), f.Pos)
 			p = f.Colour.appendTo(append(p, ",\"colour\":"...))
 			p = append(p, '}')
 		}
+
 		p = append(p, ']')
 	}
+
 	p = append(p, ",\"tokenData\":{"...)
 	first := true
+
 	for key, data := range t.TokenData {
 		if user && !data.User {
 			continue
 		}
+
 		if !first {
 			p = append(p, ',')
 		} else {
 			first = false
 		}
+
 		p = append(appendString(p, key), ':')
 		p = strconv.AppendBool(append(p, "{\"user\":"...), data.User)
 		p = append(append(p, ",\"data\":"...), data.Data...)
 		p = append(p, '}')
 
 	}
+
 	p = append(p, '}')
+
 	return append(p, '}')
 }
 
@@ -371,14 +440,17 @@ func (t *token) validate(checkID bool) error {
 	if checkID && t.ID == 0 {
 		return ErrInvalidTokenID
 	}
+
 	if len(t.LightColours) != len(t.LightStages) {
 		return ErrInvalidLighting
 	}
+
 	for _, l := range t.LightColours {
 		if len(l) != len(t.LightTimings) {
 			return ErrInvalidLighting
 		}
 	}
+
 	switch t.TokenType {
 	case tokenImage:
 		if t.FillType != 0 || t.Source == 0 || t.IsEllipse || !t.Fill.empty() || !t.Stroke.empty() || t.StrokeWidth > 0 || len(t.Points) > 0 || (t.PatternWidth > 0) != (t.PatternHeight > 0) {
@@ -388,6 +460,7 @@ func (t *token) validate(checkID bool) error {
 		if len(t.Points) < 2 || t.IsEllipse {
 			return ErrInvalidToken
 		}
+
 		fallthrough
 	case tokenShape:
 		if t.Source != 0 || t.Flip || t.Flop || t.PatternWidth > 0 || t.PatternHeight > 0 {
@@ -396,6 +469,7 @@ func (t *token) validate(checkID bool) error {
 	default:
 		return ErrInvalidToken
 	}
+
 	return nil
 }
 
@@ -422,6 +496,7 @@ func (w wall) appendTo(p []byte) []byte {
 	p = strconv.AppendInt(append(p, ",\"y2\":"...), w.Y2, 10)
 	p = w.Colour.appendTo(append(p, ",\"colour\":"...))
 	p = strconv.AppendUint(append(p, ",\"scattering\":"...), uint64(w.Scattering), 10)
+
 	return append(p, '}')
 }
 
@@ -437,6 +512,7 @@ func (c colour) appendTo(p []byte) []byte {
 	p = appendNum(append(p, ",\"g\":"...), c.G)
 	p = appendNum(append(p, ",\"b\":"...), c.B)
 	p = appendNum(append(p, ",\"a\":"...), c.A)
+
 	return append(p, '}')
 }
 
@@ -452,6 +528,7 @@ type fill struct {
 func (f fill) appendTo(p []byte) []byte {
 	p = appendNum(append(p, "{\"pos\":"...), f.Pos)
 	p = f.Colour.appendTo(p)
+
 	return append(p, '}')
 }
 
@@ -459,8 +536,10 @@ const hex = "0123456789abcdef"
 
 func appendString(p []byte, s string) []byte {
 	last := 0
-	var char byte
 	p = append(p, '"')
+
+	var char byte
+
 	for n, c := range s {
 		switch c {
 		case '"', '\\', '/':
@@ -480,11 +559,14 @@ func appendString(p []byte, s string) []byte {
 				p = append(append(p, s[last:n]...), '\\', 'u', '0', '0', hex[c>>4], hex[c&0xf])
 				last = n + 1
 			}
+
 			continue
 		}
+
 		p = append(append(p, s[last:n]...), '\\', char)
 		last = n + 1
 	}
+
 	return append(append(p, s[last:]...), '"')
 }
 
@@ -493,14 +575,17 @@ func appendNum(p []byte, n uint8) []byte {
 		c := n / 100
 		n -= c * 100
 		p = append(p, '0'+c)
+
 		if n < 10 {
 			p = append(p, '0')
 		}
 	}
+
 	if n >= 10 {
 		c := n / 10
 		n -= c * 10
 		p = append(p, '0'+c)
 	}
+
 	return append(p, '0'+n)
 }
