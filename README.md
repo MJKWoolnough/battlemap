@@ -4,7 +4,7 @@ This project is a web-based Virtual TableTop system, that allows easy creation o
 
 Can be easily used either locally, with a multi-monitor setup, or remotely, over the web, with players receiving updates in real-time.
 
-This project is currently in a work-in-progess state, with frequent updates.
+This project is currently in a work-in-progress state, with frequent updates.
 
 ## Features
 
