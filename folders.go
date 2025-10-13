@@ -185,6 +185,7 @@ func splitAfterLastSlash(p string) (string, string) {
 	if lastSlash >= 0 {
 		return p[:lastSlash], p[lastSlash+1:]
 	}
+
 	return "", p
 }
 
