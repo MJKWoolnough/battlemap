@@ -209,93 +209,89 @@ func (p *pluginsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
 	case "list":
-		var j json.RawMessage
-
-		p.mu.RLock()
-
-		if cd.IsAdmin() {
-			j = p.json
-		} else {
-			j = p.userJSON
-		}
-
-		p.mu.RUnlock()
-
-		return j, nil
+		return p.list(cd)
 	case "set":
-		var toSet struct {
-			ID       string                  `json:"id"`
-			Setting  map[string]keystoreData `json:"setting"`
-			Removing []string                `json:"removing"`
+		return p.set(cd, data)
+	case "enable", "disable":
+		return p.toggle(cd, data, method == "enable")
+	}
+
+	return nil, ErrUnknownMethod
+}
+
+func (p *pluginsDir) list(cd ConnData) (interface{}, error) {
+	var j json.RawMessage
+
+	p.mu.RLock()
+
+	if cd.IsAdmin() {
+		j = p.json
+	} else {
+		j = p.userJSON
+	}
+
+	p.mu.RUnlock()
+
+	return j, nil
+}
+
+func (p *pluginsDir) set(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var toSet struct {
+		ID       string                  `json:"id"`
+		Setting  map[string]keystoreData `json:"setting"`
+		Removing []string                `json:"removing"`
+	}
+
+	if err := json.Unmarshal(data, &toSet); err != nil {
+		return nil, err
+	}
+
+	if len(toSet.Setting) == 0 && len(toSet.Removing) == 0 {
+		return nil, nil
+	}
+
+	p.mu.Lock()
+
+	plugin, ok := p.plugins[toSet.ID]
+	if !ok {
+		p.mu.Unlock()
+
+		return nil, ErrUnknownPlugin
+	}
+
+	p.socket.broadcastAdminChange(broadcastPluginSettingChange, data, cd.ID)
+
+	buf := appendString(append(data[:0], "{\"id\":"...), toSet.ID)
+	buf = append(buf, ",\"setting\":{"...)
+
+	var userRemoves []string
+
+	send := false
+
+	for key, val := range toSet.Setting {
+		if val.User {
+			buf = append(append(append(appendString(append(buf, ','), key), ":{\"user\":true,\"data\":"...), val.Data...), '}')
+			send = true
+		} else if mv, ok := plugin.Data[key]; ok && mv.User {
+			userRemoves = append(userRemoves, key)
+			send = true
 		}
 
-		if err := json.Unmarshal(data, &toSet); err != nil {
-			return nil, err
-		}
+		plugin.Data[key] = val
+	}
 
-		if len(toSet.Setting) == 0 && len(toSet.Removing) == 0 {
-			return nil, nil
-		}
+	buf = append(buf, "},\"removing\":["...)
+	first := true
 
-		p.mu.Lock()
-
-		plugin, ok := p.plugins[toSet.ID]
+	for _, key := range toSet.Removing {
+		val, ok := plugin.Data[key]
 		if !ok {
-			p.mu.Unlock()
-
-			return nil, ErrUnknownPlugin
+			continue
 		}
 
-		p.socket.broadcastAdminChange(broadcastPluginSettingChange, data, cd.ID)
+		if val.User {
+			send = true
 
-		buf := appendString(append(data[:0], "{\"id\":"...), toSet.ID)
-		buf = append(buf, ",\"setting\":{"...)
-
-		var userRemoves []string
-
-		send := false
-
-		for key, val := range toSet.Setting {
-			if val.User {
-				buf = append(append(append(appendString(append(buf, ','), key), ":{\"user\":true,\"data\":"...), val.Data...), '}')
-				send = true
-			} else if mv, ok := plugin.Data[key]; ok && mv.User {
-				userRemoves = append(userRemoves, key)
-				send = true
-			}
-
-			plugin.Data[key] = val
-		}
-
-		buf = append(buf, "},\"removing\":["...)
-		first := true
-
-		for _, key := range toSet.Removing {
-			val, ok := plugin.Data[key]
-			if !ok {
-				continue
-			}
-
-			if val.User {
-				send = true
-
-				if !first {
-					buf = append(buf, ',')
-				} else {
-					first = false
-				}
-
-				buf = appendString(buf, key)
-			}
-
-			delete(plugin.Data, key)
-		}
-
-		if err := p.FileStore.Set(toSet.ID+pluginConfigExt, plugin); err != nil {
-			return nil, err
-		}
-
-		for _, key := range userRemoves {
 			if !first {
 				buf = append(buf, ',')
 			} else {
@@ -305,45 +301,63 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			buf = appendString(buf, key)
 		}
 
-		if send {
-			buf = append(buf, ']', '}')
-			cd.CurrentMap = 0
+		delete(plugin.Data, key)
+	}
 
-			p.socket.broadcastMapChange(cd, broadcastPluginSettingChange, buf, userNotAdmin)
+	if err := p.FileStore.Set(toSet.ID+pluginConfigExt, plugin); err != nil {
+		return nil, err
+	}
+
+	for _, key := range userRemoves {
+		if !first {
+			buf = append(buf, ',')
+		} else {
+			first = false
 		}
 
-		p.updateJSON()
-		p.mu.Unlock()
-	case "enable", "disable":
-		var filename string
+		buf = appendString(buf, key)
+	}
 
-		if err := json.Unmarshal(data, &filename); err != nil {
-			return nil, err
-		}
-
-		p.mu.Lock()
-
-		plugin, ok := p.plugins[filename]
-		if !ok {
-			p.mu.Unlock()
-
-			return nil, ErrUnknownPlugin
-		}
-
-		plugin.Enabled = method == "enable"
-
-		if err := p.FileStore.Set(filename+pluginConfigExt, plugin); err != nil {
-			return nil, err
-		}
-
+	if send {
+		buf = append(buf, ']', '}')
 		cd.CurrentMap = 0
 
-		p.socket.broadcastMapChange(cd, broadcastPluginChange, json.RawMessage{'0'}, userAny)
-		p.updateJSON()
-		p.mu.Unlock()
-	default:
-		return nil, ErrUnknownMethod
+		p.socket.broadcastMapChange(cd, broadcastPluginSettingChange, buf, userNotAdmin)
 	}
+
+	p.updateJSON()
+	p.mu.Unlock()
+
+	return nil, nil
+}
+
+func (p *pluginsDir) toggle(cd ConnData, data json.RawMessage, state bool) (interface{}, error) {
+	var filename string
+
+	if err := json.Unmarshal(data, &filename); err != nil {
+		return nil, err
+	}
+
+	p.mu.Lock()
+
+	plugin, ok := p.plugins[filename]
+	if !ok {
+		p.mu.Unlock()
+
+		return nil, ErrUnknownPlugin
+	}
+
+	plugin.Enabled = state
+
+	if err := p.FileStore.Set(filename+pluginConfigExt, plugin); err != nil {
+		return nil, err
+	}
+
+	cd.CurrentMap = 0
+
+	p.socket.broadcastMapChange(cd, broadcastPluginChange, json.RawMessage{'0'}, userAny)
+	p.updateJSON()
+	p.mu.Unlock()
 
 	return nil, nil
 }
