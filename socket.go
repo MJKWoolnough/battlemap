@@ -94,33 +94,12 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 
 	switch method {
 	case "conn.ready":
-		if c.IsAdmin() {
-			c.rpc.Send(jsonrpc.Response{
-				ID:     broadcastCurrentUserMap,
-				Result: cd.CurrentMap,
-			})
-		} else if cd.CurrentMap > 0 {
-			c.maps.mu.RLock()
-			mapData := c.maps.maps[uint64(cd.CurrentMap)]
-			c.maps.mu.RUnlock()
-
-			c.rpc.Send(jsonrpc.Response{
-				ID:     broadcastCurrentUserMapData,
-				Result: json.RawMessage(mapData.UserJSON),
-			})
-		}
-		return nil, nil
+		return c.ready(cd)
 	case "conn.currentTime":
 		return time.Now().Unix(), nil
 	case "maps.setCurrentMap":
 		if cd.IsAdmin() {
-			if err := json.Unmarshal(data, &cd.CurrentMap); err != nil {
-				return nil, err
-			}
-
-			atomic.StoreUint64(&c.CurrentMap, cd.CurrentMap)
-
-			return nil, nil
+			return c.setCurrentMap(cd, data)
 		}
 	case "maps.signalPosition":
 		who := userAdmin
@@ -163,47 +142,83 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			return nil, nil
 		}
 	default:
-		pos := strings.IndexByte(method, '.')
-		if pos <= 0 {
-			return nil, ErrUnknownMethod
-		}
-
-		submethod := method[pos+1:]
-		method = method[:pos]
-
-		switch method {
-		case "imageAssets":
-			if cd.IsAdmin() {
-				return c.images.RPCData(cd, submethod, data)
-			}
-		case "audioAssets":
-			if cd.IsAdmin() {
-				return c.audio.RPCData(cd, submethod, data)
-			}
-		case "characters":
-			if cd.IsAdmin() || submethod == "get" {
-				return c.chars.RPCData(cd, submethod, data)
-			}
-		case "music":
-			if cd.IsAdmin() || submethod == "list" {
-				return c.musicPacks.RPCData(cd, submethod, data)
-			}
-		case "maps":
-			if submethod == "getUserMap" {
-				var currentUserMap keystore.Uint64
-
-				c.config.Get("currentUserMap", &currentUserMap)
-
-				return currentUserMap, nil
-			} else if cd.IsAdmin() {
-				return c.maps.RPCData(cd, submethod, data)
-			}
-		case "plugins":
-			if cd.IsAdmin() || submethod == "list" {
-				return c.plugins.RPCData(cd, submethod, data)
-			}
-		}
+		return c.handleSub(method, cd, data)
 	}
 
 	return nil, ErrUnknownMethod
+}
+
+func (c *conn) ready(cd ConnData) (interface{}, error) {
+	if c.IsAdmin() {
+		c.rpc.Send(jsonrpc.Response{
+			ID:     broadcastCurrentUserMap,
+			Result: cd.CurrentMap,
+		})
+	} else if cd.CurrentMap > 0 {
+		c.maps.mu.RLock()
+		mapData := c.maps.maps[uint64(cd.CurrentMap)]
+		c.maps.mu.RUnlock()
+
+		c.rpc.Send(jsonrpc.Response{
+			ID:     broadcastCurrentUserMapData,
+			Result: json.RawMessage(mapData.UserJSON),
+		})
+	}
+
+	return nil, nil
+}
+
+func (c *conn) setCurrentMap(cd ConnData, data json.RawMessage) (interface{}, error) {
+	if err := json.Unmarshal(data, &cd.CurrentMap); err != nil {
+		return nil, err
+	}
+
+	atomic.StoreUint64(&c.CurrentMap, cd.CurrentMap)
+
+	return nil, nil
+}
+
+func (c *conn) handleSub(method string, cd ConnData, data json.RawMessage) (interface{}, error) {
+	pos := strings.IndexByte(method, '.')
+	if pos <= 0 {
+		return nil, ErrUnknownMethod
+	}
+
+	submethod := method[pos+1:]
+	method = method[:pos]
+
+	switch method {
+	case "imageAssets":
+		if cd.IsAdmin() {
+			return c.images.RPCData(cd, submethod, data)
+		}
+	case "audioAssets":
+		if cd.IsAdmin() {
+			return c.audio.RPCData(cd, submethod, data)
+		}
+	case "characters":
+		if cd.IsAdmin() || submethod == "get" {
+			return c.chars.RPCData(cd, submethod, data)
+		}
+	case "music":
+		if cd.IsAdmin() || submethod == "list" {
+			return c.musicPacks.RPCData(cd, submethod, data)
+		}
+	case "maps":
+		if submethod == "getUserMap" {
+			var currentUserMap keystore.Uint64
+
+			c.config.Get("currentUserMap", &currentUserMap)
+
+			return currentUserMap, nil
+		} else if cd.IsAdmin() {
+			return c.maps.RPCData(cd, submethod, data)
+		}
+	case "plugins":
+		if cd.IsAdmin() || submethod == "list" {
+			return c.plugins.RPCData(cd, submethod, data)
+		}
+	default:
+		return nil, ErrUnknownMethod
+	}
 }
