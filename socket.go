@@ -218,7 +218,7 @@ func (c *conn) handleSub(method string, cd ConnData, data json.RawMessage) (inte
 		if cd.IsAdmin() || submethod == "list" {
 			return c.plugins.RPCData(cd, submethod, data)
 		}
-	default:
-		return nil, ErrUnknownMethod
 	}
+
+	return nil, ErrUnknownMethod
 }
