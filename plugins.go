@@ -206,7 +206,7 @@ func (p *pluginsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	p.Handler.ServeHTTP(w, r)
 }
 
-func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
+func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (any, error) {
 	switch method {
 	case "list":
 		return p.list(cd)
@@ -219,7 +219,7 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 	return nil, ErrUnknownMethod
 }
 
-func (p *pluginsDir) list(cd ConnData) (interface{}, error) {
+func (p *pluginsDir) list(cd ConnData) (any, error) {
 	var j json.RawMessage
 
 	p.mu.RLock()
@@ -235,7 +235,7 @@ func (p *pluginsDir) list(cd ConnData) (interface{}, error) {
 	return j, nil
 }
 
-func (p *pluginsDir) set(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (p *pluginsDir) set(cd ConnData, data json.RawMessage) (any, error) {
 	var toSet struct {
 		ID       string                  `json:"id"`
 		Setting  map[string]keystoreData `json:"setting"`
@@ -331,7 +331,7 @@ func (p *pluginsDir) set(cd ConnData, data json.RawMessage) (interface{}, error)
 	return nil, nil
 }
 
-func (p *pluginsDir) toggle(cd ConnData, data json.RawMessage, state bool) (interface{}, error) {
+func (p *pluginsDir) toggle(cd ConnData, data json.RawMessage, state bool) (any, error) {
 	var filename string
 
 	if err := json.Unmarshal(data, &filename); err != nil {
