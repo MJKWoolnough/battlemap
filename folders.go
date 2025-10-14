@@ -243,7 +243,7 @@ func walkFolders(f *folder, fn func(map[string]uint64) bool) bool {
 	return false
 }
 
-func (f *folders) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
+func (f *folders) RPCData(cd ConnData, method string, data json.RawMessage) (any, error) {
 	if cd.IsAdmin() {
 		switch method {
 		case "list":
@@ -444,7 +444,7 @@ func (f *folders) folderDelete(cd ConnData, data json.RawMessage) error {
 	return nil
 }
 
-func (f *folders) copyItem(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (f *folders) copyItem(cd ConnData, data json.RawMessage) (any, error) {
 	var ip struct {
 		ID   uint64 `json:"id"`
 		Path string `json:"path"`
