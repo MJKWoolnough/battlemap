@@ -18,5 +18,10 @@ require (
 require (
 	vimagination.zapto.org/authenticate v1.0.0 // indirect
 	vimagination.zapto.org/httpencoding v1.1.2 // indirect
+	vimagination.zapto.org/javascript v1.5.1 // indirect
+	vimagination.zapto.org/jspacker v1.0.0 // indirect
 	vimagination.zapto.org/memfs v1.0.0 // indirect
+	vimagination.zapto.org/parser v1.0.4 // indirect
 )
+
+tool vimagination.zapto.org/jspacker/cmd/jspacker
