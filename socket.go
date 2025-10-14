@@ -85,7 +85,7 @@ type ConnData struct {
 	userState
 }
 
-func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, error) {
+func (c *conn) HandleRPC(method string, data json.RawMessage) (any, error) {
 	cd := ConnData{
 		CurrentMap: atomic.LoadUint64(&c.CurrentMap),
 		ID:         ID(atomic.LoadUint64((*uint64)(&c.ID))),
@@ -148,7 +148,7 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 	return nil, ErrUnknownMethod
 }
 
-func (c *conn) ready(cd ConnData) (interface{}, error) {
+func (c *conn) ready(cd ConnData) (any, error) {
 	if c.IsAdmin() {
 		c.rpc.Send(jsonrpc.Response{
 			ID:     broadcastCurrentUserMap,
@@ -168,7 +168,7 @@ func (c *conn) ready(cd ConnData) (interface{}, error) {
 	return nil, nil
 }
 
-func (c *conn) setCurrentMap(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (c *conn) setCurrentMap(cd ConnData, data json.RawMessage) (any, error) {
 	if err := json.Unmarshal(data, &cd.CurrentMap); err != nil {
 		return nil, err
 	}
@@ -178,7 +178,7 @@ func (c *conn) setCurrentMap(cd ConnData, data json.RawMessage) (interface{}, er
 	return nil, nil
 }
 
-func (c *conn) handleSub(method string, cd ConnData, data json.RawMessage) (interface{}, error) {
+func (c *conn) handleSub(method string, cd ConnData, data json.RawMessage) (any, error) {
 	pos := strings.IndexByte(method, '.')
 	if pos <= 0 {
 		return nil, ErrUnknownMethod
