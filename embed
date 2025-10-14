@@ -9,14 +9,20 @@ tmpFile="$(mktemp)";
 	cd "$data";
 	head -n5 index.html | tr -d '\n	';
 	echo -n "<script type=\"module\">";
-	jspacker -i "/$(grep "<script" index.html | sed -e 's/.*src="\([^"]*\)".*/\1/')" | terser -m  --module --compress pure_getters,passes=3 --ecma 2020 | tr -d '\n';
+	jspacker -i "/$(grep "<script" index.html | sed -e 's/.*src="\([^"]*\)".*/\1/')" | if command -v terser > /dev/null; then terser -m  --module --compress pure_getters,passes=3 --ecma 2020 | tr -d '\n'; else tr -d '\n\t'; fi;
 	echo -n "</script>";
 	tail -n5 index.html | tr -d '\n	';
 ) > "$tmpFile";
 
 if [ "$1" = "-size" ]; then
 	stat -c %s "$tmpFile";
-	zopfli --gzip --i1000 -c "$tmpFile" > "$tmpFile.gz";
+
+	if command -v zopfli > /dev/null; then
+		zopfli --gzip --i1000 -c "$tmpFile" > "$tmpFile.gz";
+	else
+		gzip -f -9 "$tmpFile";
+	fi;
+
 	stat -c %s "$tmpFile.gz";
 	rm -f "$tmpFile" "$tmpFile.gz";
 	exit 0;
@@ -39,8 +45,12 @@ var (
 )
 HEREDOC
 
-zopfli --gzip --i1000 -c "$tmpFile" > index.gz;
-rm -f "$tmpFile";
+if command -v zopfli > /dev/null; then
+	zopfli --gzip --i1000 -c "$tmpFile" > index.gz;
+	rm -f "$tmpFile";
+else
+	gzip -f -9 "$tmpFile";
+fi;
 
 (
 	cd "$data";
