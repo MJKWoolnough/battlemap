@@ -9,7 +9,7 @@ import (
 	"vimagination.zapto.org/memio"
 )
 
-func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (any, error) {
 	switch method {
 	case "list":
 		return m.list()
@@ -92,7 +92,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 	return m.folders.RPCData(cd, method, data)
 }
 
-func (m *mapsDir) list() (interface{}, error) {
+func (m *mapsDir) list() (any, error) {
 	m.mu.RLock()
 	j := m.json
 	m.mu.RUnlock()
@@ -100,7 +100,7 @@ func (m *mapsDir) list() (interface{}, error) {
 	return json.RawMessage(j), nil
 }
 
-func (m *mapsDir) setUserMap(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) setUserMap(cd ConnData, data json.RawMessage) (any, error) {
 	var userMap keystore.Uint64
 
 	if err := json.Unmarshal(data, &userMap); err != nil {
@@ -121,7 +121,7 @@ func (m *mapsDir) setUserMap(cd ConnData, data json.RawMessage) (interface{}, er
 	return nil, nil
 }
 
-func (m *mapsDir) getMapData(data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) getMapData(data json.RawMessage) (any, error) {
 	var mapID uint64
 
 	if err := json.Unmarshal(data, &mapID); err != nil {
@@ -139,7 +139,7 @@ func (m *mapsDir) getMapData(data json.RawMessage) (interface{}, error) {
 	return json.RawMessage(mp.JSON), nil
 }
 
-func (m *mapsDir) new(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) new(cd ConnData, data json.RawMessage) (any, error) {
 	var nm mapDetails
 
 	if err := json.Unmarshal(data, &nm); err != nil {
@@ -149,7 +149,7 @@ func (m *mapsDir) new(cd ConnData, data json.RawMessage) (interface{}, error) {
 	return m.newMap(nm, cd.ID)
 }
 
-func (m *mapsDir) setMapDetails(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) setMapDetails(cd ConnData, data json.RawMessage) (any, error) {
 	var md struct {
 		mapDimensions
 		mapGrid
@@ -189,7 +189,7 @@ func (m *mapsDir) setMapDetails(cd ConnData, data json.RawMessage) (interface{},
 	})
 }
 
-func (m *mapsDir) setMapStart(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) setMapStart(cd ConnData, data json.RawMessage) (any, error) {
 	var ms [2]uint64
 
 	err := json.Unmarshal(data, &ms)
@@ -221,7 +221,7 @@ func (m *mapsDir) setMapStart(cd ConnData, data json.RawMessage) (interface{}, e
 	return nil, err
 }
 
-func (m *mapsDir) setData(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) setData(cd ConnData, data json.RawMessage) (any, error) {
 	var sd struct {
 		Key  string          `json:"key"`
 		Data json.RawMessage `json:"data"`
@@ -240,7 +240,7 @@ func (m *mapsDir) setData(cd ConnData, data json.RawMessage) (interface{}, error
 	})
 }
 
-func (m *mapsDir) removeData(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) removeData(cd ConnData, data json.RawMessage) (any, error) {
 	var rd string
 
 	if err := json.Unmarshal(data, &rd); err != nil {
@@ -255,7 +255,7 @@ func (m *mapsDir) removeData(cd ConnData, data json.RawMessage) (interface{}, er
 	})
 }
 
-func (m *mapsDir) setGridDistance(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) setGridDistance(cd ConnData, data json.RawMessage) (any, error) {
 	var md uint64
 
 	if err := json.Unmarshal(data, &md); err != nil {
@@ -275,7 +275,7 @@ func (m *mapsDir) setGridDistance(cd ConnData, data json.RawMessage) (interface{
 	})
 }
 
-func (m *mapsDir) setGridDiagonal(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) setGridDiagonal(cd ConnData, data json.RawMessage) (any, error) {
 	var md bool
 
 	if err := json.Unmarshal(data, &md); err != nil {
@@ -295,7 +295,7 @@ func (m *mapsDir) setGridDiagonal(cd ConnData, data json.RawMessage) (interface{
 	})
 }
 
-func (m *mapsDir) setLightColour(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) setLightColour(cd ConnData, data json.RawMessage) (any, error) {
 	var c colour
 
 	if err := json.Unmarshal(data, &c); err != nil {
@@ -315,7 +315,7 @@ func (m *mapsDir) setLightColour(cd ConnData, data json.RawMessage) (interface{}
 	return nil, nil
 }
 
-func (m *mapsDir) addToMask(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) addToMask(cd ConnData, data json.RawMessage) (any, error) {
 	var mask []uint64
 
 	if err := json.Unmarshal(data, &mask); err != nil {
@@ -356,7 +356,7 @@ func (m *mapsDir) addToMask(cd ConnData, data json.RawMessage) (interface{}, err
 	return nil, nil
 }
 
-func (m *mapsDir) removeFromMask(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) removeFromMask(cd ConnData, data json.RawMessage) (any, error) {
 	var (
 		toRemove int
 		errr     error
@@ -385,7 +385,7 @@ func (m *mapsDir) removeFromMask(cd ConnData, data json.RawMessage) (interface{}
 	return nil, errr
 }
 
-func (m *mapsDir) setMask(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) setMask(cd ConnData, data json.RawMessage) (any, error) {
 	var set struct {
 		BaseOpaque bool       `json:"baseOpaque"`
 		Masks      [][]uint64 `json:"masks"`
@@ -432,7 +432,7 @@ func (m *mapsDir) setMask(cd ConnData, data json.RawMessage) (interface{}, error
 	return nil, nil
 }
 
-func (m *mapsDir) addWall(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) addWall(cd ConnData, data json.RawMessage) (any, error) {
 	var wallAdd struct {
 		Path string `json:"path"`
 		Wall *wall  `json:"wall"`
@@ -467,7 +467,7 @@ func (m *mapsDir) addWall(cd ConnData, data json.RawMessage) (interface{}, error
 	return wallAdd.Wall.ID, nil
 }
 
-func (m *mapsDir) removeWall(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) removeWall(cd ConnData, data json.RawMessage) (any, error) {
 	var wall uint64
 
 	if err := json.Unmarshal(data, &wall); err != nil {
@@ -507,7 +507,7 @@ func (m *mapsDir) removeWall(cd ConnData, data json.RawMessage) (interface{}, er
 	return nil, nil
 }
 
-func (m *mapsDir) modifyWall(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) modifyWall(cd ConnData, data json.RawMessage) (any, error) {
 	var w *wall
 
 	if err := json.Unmarshal(data, &w); err != nil {
@@ -545,7 +545,7 @@ func (m *mapsDir) modifyWall(cd ConnData, data json.RawMessage) (interface{}, er
 	return nil, nil
 }
 
-func (m *mapsDir) moveWall(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) moveWall(cd ConnData, data json.RawMessage) (any, error) {
 	var ip struct {
 		ID   uint64 `json:"id"`
 		Path string `json:"path"`
@@ -590,7 +590,7 @@ func (m *mapsDir) moveWall(cd ConnData, data json.RawMessage) (interface{}, erro
 	return nil, nil
 }
 
-func (m *mapsDir) addLayer(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) addLayer(cd ConnData, data json.RawMessage) (any, error) {
 	var name string
 
 	if err := json.Unmarshal(data, &name); err != nil {
@@ -614,7 +614,7 @@ func (m *mapsDir) addLayer(cd ConnData, data json.RawMessage) (interface{}, erro
 	return data, err
 }
 
-func (m *mapsDir) addLayerFolder(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) addLayerFolder(cd ConnData, data json.RawMessage) (any, error) {
 	var path string
 
 	if err := json.Unmarshal(data, &path); err != nil {
@@ -642,7 +642,7 @@ func (m *mapsDir) addLayerFolder(cd ConnData, data json.RawMessage) (interface{}
 	return data, err
 }
 
-func (m *mapsDir) renameLayer(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) renameLayer(cd ConnData, data json.RawMessage) (any, error) {
 	var rename struct {
 		Path string `json:"path"`
 		Name string `json:"name"`
@@ -674,7 +674,7 @@ func (m *mapsDir) renameLayer(cd ConnData, data json.RawMessage) (interface{}, e
 	return data, err
 }
 
-func (m *mapsDir) moveLayer(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) moveLayer(cd ConnData, data json.RawMessage) (any, error) {
 	var moveLayer struct {
 		From     string `json:"from"`
 		To       string `json:"to"`
@@ -717,7 +717,7 @@ func (m *mapsDir) moveLayer(cd ConnData, data json.RawMessage) (interface{}, err
 	return nil, err
 }
 
-func (m *mapsDir) showLayer(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) showLayer(cd ConnData, data json.RawMessage) (any, error) {
 	var path string
 
 	if err := json.Unmarshal(data, &path); err != nil {
@@ -741,7 +741,7 @@ func (m *mapsDir) showLayer(cd ConnData, data json.RawMessage) (interface{}, err
 	})
 }
 
-func (m *mapsDir) hideLayer(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) hideLayer(cd ConnData, data json.RawMessage) (any, error) {
 	var path string
 
 	if err := json.Unmarshal(data, &path); err != nil {
@@ -765,7 +765,7 @@ func (m *mapsDir) hideLayer(cd ConnData, data json.RawMessage) (interface{}, err
 	})
 }
 
-func (m *mapsDir) lockLayer(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) lockLayer(cd ConnData, data json.RawMessage) (any, error) {
 	var path string
 
 	if err := json.Unmarshal(data, &path); err != nil {
@@ -789,7 +789,7 @@ func (m *mapsDir) lockLayer(cd ConnData, data json.RawMessage) (interface{}, err
 	})
 }
 
-func (m *mapsDir) unlockLayer(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) unlockLayer(cd ConnData, data json.RawMessage) (any, error) {
 	var path string
 
 	if err := json.Unmarshal(data, &path); err != nil {
@@ -813,7 +813,7 @@ func (m *mapsDir) unlockLayer(cd ConnData, data json.RawMessage) (interface{}, e
 	})
 }
 
-func (m *mapsDir) removeLayer(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) removeLayer(cd ConnData, data json.RawMessage) (any, error) {
 	var path string
 
 	if err := json.Unmarshal(data, &path); err != nil {
@@ -834,7 +834,7 @@ func (m *mapsDir) removeLayer(cd ConnData, data json.RawMessage) (interface{}, e
 	})
 }
 
-func (m *mapsDir) addToken(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) addToken(cd ConnData, data json.RawMessage) (any, error) {
 	var newToken struct {
 		Token *token `json:"token"`
 		Path  string `json:"path"`
@@ -875,7 +875,7 @@ func (m *mapsDir) addToken(cd ConnData, data json.RawMessage) (interface{}, erro
 	return newToken.Token.ID, nil
 }
 
-func (m *mapsDir) removeToken(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) removeToken(cd ConnData, data json.RawMessage) (any, error) {
 	var tokenID uint64
 
 	if err := json.Unmarshal(data, &tokenID); err != nil {
@@ -891,7 +891,7 @@ func (m *mapsDir) removeToken(cd ConnData, data json.RawMessage) (interface{}, e
 	})
 }
 
-func (m *mapsDir) setToken(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) setToken(cd ConnData, data json.RawMessage) (any, error) {
 	var setToken setToken
 
 	if err := json.Unmarshal(data, &setToken); err != nil {
@@ -918,7 +918,7 @@ func (m *mapsDir) setToken(cd ConnData, data json.RawMessage) (interface{}, erro
 	return nil, err
 }
 
-func (m *mapsDir) setTokenMulti(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) setTokenMulti(cd ConnData, data json.RawMessage) (any, error) {
 	var setTokens []setToken
 
 	if err := json.Unmarshal(data, &setTokens); err != nil {
@@ -966,7 +966,7 @@ func (m *mapsDir) setTokenMulti(cd ConnData, data json.RawMessage) (interface{},
 	return nil, err
 }
 
-func (m *mapsDir) setTokenLayerPos(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) setTokenLayerPos(cd ConnData, data json.RawMessage) (any, error) {
 	var tokenLayerPos struct {
 		ID     uint64 `jons:"id"`
 		To     string `json:"to"`
@@ -1004,7 +1004,7 @@ func (m *mapsDir) setTokenLayerPos(cd ConnData, data json.RawMessage) (interface
 	return nil, err
 }
 
-func (m *mapsDir) shiftLayer(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) shiftLayer(cd ConnData, data json.RawMessage) (any, error) {
 	var layerShift struct {
 		Path string `json:"path"`
 		DX   int64  `json:"dx"`
@@ -1038,7 +1038,7 @@ func (m *mapsDir) shiftLayer(cd ConnData, data json.RawMessage) (interface{}, er
 	})
 }
 
-func (m *mapsDir) remove(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) remove(cd ConnData, data json.RawMessage) (any, error) {
 	var (
 		mapPath string
 		cu      keystore.Uint64
@@ -1076,7 +1076,7 @@ func (m *mapsDir) remove(cd ConnData, data json.RawMessage) (interface{}, error)
 	return m.folders.RPCData(cd, "remove", data)
 }
 
-func (m *mapsDir) rename(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) rename(cd ConnData, data json.RawMessage) (any, error) {
 	var (
 		mapPath struct {
 			From string `json:"from"`
@@ -1097,7 +1097,7 @@ func (m *mapsDir) rename(cd ConnData, data json.RawMessage) (interface{}, error)
 	return m.folders.RPCData(cd, "rename", data)
 }
 
-func (m *mapsDir) removeFolder(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) removeFolder(cd ConnData, data json.RawMessage) (any, error) {
 	var (
 		mapPath string
 		cu      keystore.Uint64
@@ -1126,7 +1126,7 @@ func (m *mapsDir) removeFolder(cd ConnData, data json.RawMessage) (interface{}, 
 	return m.folders.RPCData(cd, "removeFolder", data)
 }
 
-func (m *mapsDir) renameFolder(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) renameFolder(cd ConnData, data json.RawMessage) (any, error) {
 	var (
 		mapPath struct {
 			From string `json:"from"`
@@ -1157,7 +1157,7 @@ func (m *mapsDir) renameFolder(cd ConnData, data json.RawMessage) (interface{}, 
 	return m.folders.RPCData(cd, "renameFolder", data)
 }
 
-func (m *mapsDir) copy(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *mapsDir) copy(cd ConnData, data json.RawMessage) (any, error) {
 	var (
 		ip struct {
 			ID   uint64 `json:"id"`
