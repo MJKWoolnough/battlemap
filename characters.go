@@ -114,7 +114,7 @@ func (c *charactersDir) Init(b *Battlemap, links links) error {
 	return nil
 }
 
-func (c *charactersDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
+func (c *charactersDir) RPCData(cd ConnData, method string, data json.RawMessage) (any, error) {
 	switch method {
 	case "create":
 		return c.create(cd, data)
