@@ -197,7 +197,7 @@ func (m *musicPacksDir) getTrack(id uint64, track uint, fn func(*musicPack, *mus
 	return errr
 }
 
-func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage) (any, error) {
 	cd.CurrentMap = 0
 
 	switch method {
@@ -232,7 +232,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 	return nil, ErrUnknownMethod
 }
 
-func (m *musicPacksDir) list() (interface{}, error) {
+func (m *musicPacksDir) list() (any, error) {
 	buf := memio.Buffer("[")
 	first := true
 	j := json.NewEncoder(&buf)
@@ -262,7 +262,7 @@ func (m *musicPacksDir) list() (interface{}, error) {
 	return json.RawMessage(buf), nil
 }
 
-func (m *musicPacksDir) new(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) new(cd ConnData, data json.RawMessage) (any, error) {
 	var name string
 
 	if err := json.Unmarshal(data, &name); err != nil {
@@ -298,7 +298,7 @@ func (m *musicPacksDir) new(cd ConnData, data json.RawMessage) (interface{}, err
 	return data, nil
 }
 
-func (m *musicPacksDir) rename(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) rename(cd ConnData, data json.RawMessage) (any, error) {
 	var names struct {
 		ID   uint64 `json:"id"`
 		Name string `json:"name"`
@@ -337,7 +337,7 @@ func (m *musicPacksDir) rename(cd ConnData, data json.RawMessage) (interface{}, 
 	return mp.Name, nil
 }
 
-func (m *musicPacksDir) remove(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) remove(cd ConnData, data json.RawMessage) (any, error) {
 	var id uint64
 
 	if err := json.Unmarshal(data, &id); err != nil {
@@ -364,7 +364,7 @@ func (m *musicPacksDir) remove(cd ConnData, data json.RawMessage) (interface{}, 
 	return nil, nil
 }
 
-func (m *musicPacksDir) copy(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) copy(cd ConnData, data json.RawMessage) (any, error) {
 	var names struct {
 		ID   uint64 `json:"id"`
 		Name string `json:"name"`
@@ -415,7 +415,7 @@ func (m *musicPacksDir) copy(cd ConnData, data json.RawMessage) (interface{}, er
 	return data, nil
 }
 
-func (m *musicPacksDir) setVolume(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) setVolume(cd ConnData, data json.RawMessage) (any, error) {
 	var packData struct {
 		ID     uint64 `json:"id"`
 		Volume uint8  `json:"volume"`
@@ -442,7 +442,7 @@ func (m *musicPacksDir) setVolume(cd ConnData, data json.RawMessage) (interface{
 	return nil, nil
 }
 
-func (m *musicPacksDir) playPack(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) playPack(cd ConnData, data json.RawMessage) (any, error) {
 	var packData struct {
 		ID       uint64 `json:"id"`
 		PlayTime uint64 `jons:"playTime"`
@@ -474,7 +474,7 @@ func (m *musicPacksDir) playPack(cd ConnData, data json.RawMessage) (interface{}
 	return packData.PlayTime, nil
 }
 
-func (m *musicPacksDir) stopPack(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) stopPack(cd ConnData, data json.RawMessage) (any, error) {
 	var packData uint64
 
 	if err := json.Unmarshal(data, &packData); err != nil {
@@ -498,7 +498,7 @@ func (m *musicPacksDir) stopPack(cd ConnData, data json.RawMessage) (interface{}
 	return nil, nil
 }
 
-func (m *musicPacksDir) stopAllPacks(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) stopAllPacks(cd ConnData, data json.RawMessage) (any, error) {
 	m.mu.Lock()
 
 	for k, p := range m.packs {
@@ -516,7 +516,7 @@ func (m *musicPacksDir) stopAllPacks(cd ConnData, data json.RawMessage) (interfa
 	return nil, nil
 }
 
-func (m *musicPacksDir) addTracks(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) addTracks(cd ConnData, data json.RawMessage) (any, error) {
 	var trackData struct {
 		ID     uint64   `json:"id"`
 		Tracks []uint64 `json:"tracks"`
@@ -541,7 +541,7 @@ func (m *musicPacksDir) addTracks(cd ConnData, data json.RawMessage) (interface{
 	return nil, nil
 }
 
-func (m *musicPacksDir) removeTrack(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) removeTrack(cd ConnData, data json.RawMessage) (any, error) {
 	var trackData struct {
 		ID    uint64 `json:"id"`
 		Track uint   `json:"track"`
@@ -564,7 +564,7 @@ func (m *musicPacksDir) removeTrack(cd ConnData, data json.RawMessage) (interfac
 	return nil, nil
 }
 
-func (m *musicPacksDir) setTrackVolume(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) setTrackVolume(cd ConnData, data json.RawMessage) (any, error) {
 	var trackData struct {
 		ID     uint64 `json:"id"`
 		Track  uint   `json:"track"`
@@ -592,7 +592,7 @@ func (m *musicPacksDir) setTrackVolume(cd ConnData, data json.RawMessage) (inter
 	return nil, nil
 }
 
-func (m *musicPacksDir) setTrackRepeat(cd ConnData, data json.RawMessage) (interface{}, error) {
+func (m *musicPacksDir) setTrackRepeat(cd ConnData, data json.RawMessage) (any, error) {
 	var trackData struct {
 		ID     uint64 `json:"id"`
 		Track  uint   `json:"track"`
