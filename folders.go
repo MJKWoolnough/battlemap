@@ -47,7 +47,7 @@ func (f *folder) ReadFromX(lr *byteio.StickyLittleEndianReader) {
 	fl := lr.ReadUint64()
 	f.Folders = make(map[string]*folder, fl)
 
-	for i := uint64(0); i < fl; i++ {
+	for range fl {
 		fd := newFolder()
 		name := lr.ReadStringX()
 
@@ -59,7 +59,7 @@ func (f *folder) ReadFromX(lr *byteio.StickyLittleEndianReader) {
 	il := lr.ReadUint64()
 	f.Items = make(map[string]uint64, il)
 
-	for i := uint64(0); i < il; i++ {
+	for range il {
 		name := lr.ReadStringX()
 		f.Items[name] = lr.ReadUint64()
 	}
@@ -164,7 +164,7 @@ func (f *folders) processFolder(fd *folder, l linkManager) {
 func (f *folders) getFolder(path string) *folder {
 	d := f.root
 
-	for _, p := range strings.Split(path, "/") {
+	for p := range strings.SplitSeq(path, "/") {
 		if p == "" {
 			continue
 		}

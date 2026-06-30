@@ -251,7 +251,7 @@ func uniqueLayer(l map[string]struct{}, name string) string {
 
 func getLayer(l *layer, p string, all bool) *layer {
 Loop:
-	for _, p := range strings.Split(strings.TrimRight(strings.TrimLeft(p, "/"), "/"), "/") {
+	for p := range strings.SplitSeq(strings.TrimRight(strings.TrimLeft(p, "/"), "/"), "/") {
 		switch p {
 		case "":
 			continue

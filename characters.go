@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"path/filepath"
 	"strconv"
 
@@ -28,7 +29,7 @@ func (c characterData) ReadFrom(r io.Reader) (int64, error) {
 	br := byteio.StickyLittleEndianReader{Reader: g}
 	l := br.ReadUint64()
 
-	for i := uint64(0); i < l; i++ {
+	for range l {
 		key := br.ReadString64()
 		user := br.ReadBool()
 		data := br.ReadBytes64()
@@ -308,9 +309,7 @@ func (c *charactersDir) copy(cd ConnData, data json.RawMessage) (json.RawMessage
 
 	d := make(characterData)
 
-	for key, val := range ms {
-		d[key] = val
-	}
+	maps.Copy(d, ms)
 
 	c.lastID++
 	kid := c.lastID
