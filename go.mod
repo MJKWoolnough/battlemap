@@ -1,9 +1,9 @@
 module vimagination.zapto.org/battlemap
 
-go 1.24.0
+go 1.25.0
 
 require (
-	golang.org/x/net v0.46.0
+	golang.org/x/net v0.55.0
 	vimagination.zapto.org/byteio v1.2.2
 	vimagination.zapto.org/httpdir v1.1.0
 	vimagination.zapto.org/httpembed v1.4.1
